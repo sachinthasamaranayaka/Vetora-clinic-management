@@ -7,6 +7,13 @@ package vetora.view;
 import java.awt.Dimension;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import javax.swing.WindowConstants;
+import java.util.Arrays;
+import java.util.concurrent.ExecutionException;
+import javax.swing.SwingWorker;
+import vetora.model.User;
+import vetora.controller.UserController;
+import vetora.exception.ValidationException;
 
 /**
  *
@@ -15,12 +22,18 @@ import java.awt.event.ComponentEvent;
 public class FormLogin extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(FormLogin.class.getName());
-
+    private boolean signinIn = false;
+    private char passwordEchoChar;
+    
     /**
      * Creates new form FormLogin
      */
     public FormLogin() {
         initComponents();
+        
+        passwordEchoChar = jPasswordFieldPassword.getEchoChar();
+        
+        getRootPane().setDefaultButton(jButtonSignin);
 
             jPanelLoginMain.addComponentListener(new ComponentAdapter() {
                 @Override
@@ -46,6 +59,75 @@ public class FormLogin extends javax.swing.JFrame {
             jPanelWelcome.setPreferredSize(new Dimension(welcomeWidth,currentPreferred.height));
             jPanelLoginMain.revalidate();
         }
+    }
+    
+    private void setSigningIn(boolean busy){
+        signinIn = busy;
+        
+        jButtonSignin.setEnabled(!busy);
+        jButtonSignin.setText(busy ? "Signing in..." : "Signin");
+        jTextFieldUsername.setEditable(!busy);
+        jPasswordFieldPassword.setEditable(!busy);
+        jCheckBoxShowPassword.setEnabled(!busy);
+        
+        setDefaultCloseOperation(busy ? WindowConstants.DO_NOTHING_ON_CLOSE : WindowConstants.EXIT_ON_CLOSE);
+    }
+    
+    private void signIn(){
+        if (signinIn){
+            return;
+        }
+        
+        final String username = jTextFieldUsername.getText();
+        final char[] password = jPasswordFieldPassword.getPassword();
+        
+        jLabelError.setText(" ");
+        setSigningIn(true);
+        
+        new SwingWorker<vetora.model.User , Void > () {
+        
+            @Override
+            protected User doInBackground() throws Exception {
+                try {
+                    return new UserController().login(username, password);
+                }
+                finally{
+                    Arrays.fill(password, '\0');
+                }
+                
+            }
+            
+            @Override
+            protected void done(){
+                try {
+                    User user = get();
+                    
+                    FormMain mainForm = new FormMain(user);
+                    mainForm.setVisible(true);
+                    dispose();
+                }
+                catch (InterruptedException ex){
+                    Thread.currentThread().interrupt();
+                    jLabelError.setText("Sign in interrupted.");
+                }
+                catch (ExecutionException ex){
+                    Throwable cause = ex.getCause();
+                    
+                    if(cause instanceof ValidationException){
+                        jLabelError.setText(cause.getMessage());
+                    }
+                    else {
+                        cause.printStackTrace();
+                        jLabelError.setText("Sign in unavailable. Please try again.");
+                    }
+                }
+                
+                finally {
+                    jPasswordFieldPassword.setText("");
+                    setSigningIn(false);
+                }
+            }
+        }.execute();
     }
 
     /**
@@ -229,6 +311,7 @@ public class FormLogin extends javax.swing.JFrame {
         jCheckBoxShowPassword.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         jCheckBoxShowPassword.setForeground(new java.awt.Color(51, 51, 51));
         jCheckBoxShowPassword.setText("Show password");
+        jCheckBoxShowPassword.addActionListener(this::jCheckBoxShowPasswordActionPerformed);
         jPanelLoginForm.add(jCheckBoxShowPassword);
         jPanelLoginForm.add(filler7);
 
@@ -275,12 +358,13 @@ public class FormLogin extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButtonSigninActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSigninActionPerformed
-        //TEmp Login
-        FormMain main = new FormMain();
-        main.setVisible(true);
         
-        this.dispose();
+        signIn();
     }//GEN-LAST:event_jButtonSigninActionPerformed
+
+    private void jCheckBoxShowPasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxShowPasswordActionPerformed
+        jPasswordFieldPassword.setEchoChar(jCheckBoxShowPassword.isSelected() ? (char) 0 : passwordEchoChar);
+    }//GEN-LAST:event_jCheckBoxShowPasswordActionPerformed
 
     /**
      * @param args the command line arguments

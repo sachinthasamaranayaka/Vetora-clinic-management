@@ -4,19 +4,20 @@
  */
 package vetora.view;
 
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
+import java.util.concurrent.ExecutionException;
 
 /**
  *
  * @author ASUS
  */
-public class DialogUser extends javax.swing.JDialog {
-    
-    /**
-     * Creates new form DialogUser
-     */
+public class DialogUser extends JDialog {
+        
+    private boolean savingUser = false;
     
     private char passwordEchoChar;
     private char confirmPasswordEchoChar;
@@ -27,11 +28,106 @@ public class DialogUser extends javax.swing.JDialog {
         setupUserDialog();
         setLocationRelativeTo(parent);
         
+        cmbUserRole.setSelectedItem("Admin");
+        cmbUserRole.setEnabled(false);
+        chkUserActive.setSelected(true);
+        chkUserActive.setEnabled(false);
+        
         
         //Set password
         passwordEchoChar = pwdUserPassword.getEchoChar();
         confirmPasswordEchoChar = pwdUserConfirmPassword.getEchoChar();
     }
+    //this 
+    private void setSavingUser(boolean saving) {
+
+    savingUser = saving;
+
+    btnSaveUser.setEnabled(!saving);
+    btnSaveUser.setText(saving ? "Saving..." : "Save");
+    btnCancelUser.setEnabled(!saving);
+
+    txtUserFullName.setEditable(!saving);
+    txtUserUsername.setEditable(!saving);
+    pwdUserPassword.setEditable(!saving);
+    pwdUserConfirmPassword.setEditable(!saving);
+
+    setDefaultCloseOperation(
+            saving
+            ? javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE
+            : javax.swing.WindowConstants.DISPOSE_ON_CLOSE
+    );
+}
+    private void saveFirstAdmin() {
+
+        if (savingUser) {
+             return;
+        }
+
+        final String fullName = txtUserFullName.getText();
+        final String username = txtUserUsername.getText();
+        final char[] password = pwdUserPassword.getPassword();
+        final char[] confirmation = pwdUserConfirmPassword.getPassword();
+
+    lblUserError.setText(" ");
+    setSavingUser(true);
+
+    new javax.swing.SwingWorker<Void, Void>() {
+
+        @Override
+        protected Void doInBackground() throws Exception {
+
+            try {
+                new vetora.controller.UserController()
+                        .createFirstAdmin(
+                                fullName,
+                                username,
+                                password,
+                                confirmation
+                        );
+
+                return null;
+
+            } finally {
+                java.util.Arrays.fill(password, '\0');
+                java.util.Arrays.fill(confirmation, '\0');
+            }
+        }
+
+        @Override
+        protected void done() {
+
+            try {
+                get();
+                JOptionPane.showMessageDialog(DialogUser.this,"Administrator account created.");
+                dispose();
+            } 
+            catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+                lblUserError.setText("Operation interrupted.");
+
+            } 
+            catch (ExecutionException ex) {
+
+                Throwable cause = ex.getCause();
+
+                if (cause instanceof vetora.exception.ValidationException) {
+                        lblUserError.setText(cause.getMessage());
+
+                } 
+                else {
+                    cause.printStackTrace();
+                    lblUserError.setText("Could not save user. Check the Output window.");
+                }
+
+            }
+            finally {
+                setSavingUser(false);
+            }
+        }
+    }.execute();
+}
+    //to this
     
     private void setupUserDialog(){
         scrUserForm.getViewport().setBackground(Color.WHITE);
@@ -191,9 +287,9 @@ public class DialogUser extends javax.swing.JDialog {
         pnlUserRoleGroup.add(lblUserRole, java.awt.BorderLayout.NORTH);
 
         cmbUserRole.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        cmbUserRole.setPreferredSize(new java.awt.Dimension(233, 55));
+        cmbUserRole.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Select role", "Admin", "Staff", "Veterinarian" }));
         cmbUserRole.setMinimumSize(new java.awt.Dimension(0, 55));
-        cmbUserRole.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Select role", "Administrator", "Clinic staff" }));
+        cmbUserRole.setPreferredSize(new java.awt.Dimension(233, 55));
         pnlUserRoleGroup.add(cmbUserRole, java.awt.BorderLayout.CENTER);
 
         pnlUserRoleRow.add(pnlUserRoleGroup, java.awt.BorderLayout.CENTER);
@@ -347,10 +443,10 @@ public class DialogUser extends javax.swing.JDialog {
         btnSaveUser.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
         btnSaveUser.setForeground(new java.awt.Color(255, 255, 255));
         btnSaveUser.setText("Save");
-        btnSaveUser.setEnabled(false);
         btnSaveUser.setMaximumSize(new java.awt.Dimension(144, 55));
         btnSaveUser.setMinimumSize(new java.awt.Dimension(144, 55));
         btnSaveUser.setPreferredSize(new java.awt.Dimension(144, 55));
+        btnSaveUser.addActionListener(this::btnSaveUserActionPerformed);
         pnlUserDialogButtons.add(btnSaveUser);
 
         pnlUserDialogButtonRow.add(pnlUserDialogButtons, java.awt.BorderLayout.EAST);
@@ -379,6 +475,10 @@ public class DialogUser extends javax.swing.JDialog {
             pwdUserConfirmPassword.setEchoChar(confirmPasswordEchoChar);
         }
     }//GEN-LAST:event_chkShowUserPasswordActionPerformed
+
+    private void btnSaveUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveUserActionPerformed
+        saveFirstAdmin();
+    }//GEN-LAST:event_btnSaveUserActionPerformed
 
     /**
      * @param args the command line arguments

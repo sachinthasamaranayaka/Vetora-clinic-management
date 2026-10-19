@@ -8,6 +8,11 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Frame;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
+import javax.swing.table.DefaultTableModel;
+import java.util.List;
+import vetora.model.User;
+import java.util.concurrent.ExecutionException;
 
 /**
  *
@@ -21,6 +26,7 @@ public class PanelUser extends javax.swing.JPanel {
     public PanelUser() {
         initComponents();
         setupUserUI();
+        loadUsers();
     }
     
     private void setupUserUI(){
@@ -32,6 +38,48 @@ public class PanelUser extends javax.swing.JPanel {
         scrUsers.getVerticalScrollBar().setUnitIncrement(16);
         
         
+    }
+    
+    private void loadUsers() {
+
+        btnNewUser.setEnabled(false);
+        lblUserCount.setText("Loading users...");
+
+        new SwingWorker<List<User>, Void>() {
+            @Override
+            protected List<User>doInBackground()throws Exception {
+                
+                return new vetora.dao.UserDAO().getAllUsers();
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    List<User> users = get();
+                    DefaultTableModel model =(DefaultTableModel)tblUsers.getModel();
+                    model.setRowCount(0);
+
+                    for (vetora.model.User user : users) {
+                        model.addRow(new Object[]{user.getUserId(),user.getFullName(),user.getUsername(),user.getRole(),user.getStatus()});
+                    }
+
+                    lblUserCount.setText("Users: " + users.size());
+
+                    // Initial administrator setup only.
+                    btnNewUser.setEnabled(users.isEmpty());
+
+                }
+                catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                    lblUserCount.setText("Loading interrupted.");
+
+                }
+                catch (ExecutionException ex) {
+                    ex.getCause().printStackTrace();
+                    lblUserCount.setText("Could not load users. Check the Output window.");
+                }
+            }
+        }.execute();
     }
 
     /**
@@ -164,7 +212,6 @@ public class PanelUser extends javax.swing.JPanel {
             }
         });
         tblUsers.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
-        tblUsers.setColumnSelectionAllowed(true);
         tblUsers.setFillsViewportHeight(true);
         tblUsers.setGridColor(new java.awt.Color(226, 232, 240));
         tblUsers.setRowHeight(34);
@@ -211,6 +258,8 @@ public class PanelUser extends javax.swing.JPanel {
         Frame parent = (Frame)SwingUtilities.getWindowAncestor(this);
         DialogUser dialog = new DialogUser(parent, true);
         dialog.setVisible(true);
+        
+        loadUsers();
     }//GEN-LAST:event_btnNewUserActionPerformed
 
 

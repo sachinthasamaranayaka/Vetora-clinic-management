@@ -22,13 +22,24 @@ import javax.swing.JPanel;
  */
 public class FormMain extends javax.swing.JFrame {
     
+    private final vetora.model.User currentUser;
+    
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(FormMain.class.getName());
 
     /**
      * Creates new form FormMain
      */
-    public FormMain() {
+    public FormMain(vetora.model.User user) {
+        
+        if (user == null || !"Active".equals(user.getStatus())){
+            throw new IllegalArgumentException("An active signed-in user is required.");
+        }
+        this.currentUser = user;
+        
         initComponents();
+        
+        jLabelUserName.setText(currentUser.getFullName());
+        jLabelUserRole.setText(currentUser.getRole());
         
         setupNavigation();
         
@@ -451,6 +462,7 @@ public class FormMain extends javax.swing.JFrame {
         btnLogout.setMinimumSize(new java.awt.Dimension(0, 55));
         btnLogout.setOpaque(true);
         btnLogout.setPreferredSize(new java.awt.Dimension(207, 55));
+        btnLogout.addActionListener(this::btnLogoutActionPerformed);
         jPanelFooter.add(btnLogout, java.awt.BorderLayout.CENTER);
 
         jPanelSidebar.add(jPanelFooter, java.awt.BorderLayout.SOUTH);
@@ -461,6 +473,12 @@ public class FormMain extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
+        FormLogin loginForm = new FormLogin();
+        loginForm.setVisible(true);
+        dispose();
+    }//GEN-LAST:event_btnLogoutActionPerformed
 
     /**
      * @param args the command line arguments
