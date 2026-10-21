@@ -391,7 +391,7 @@ public class DialogUser extends JDialog {
 
         lblUserPasswordHint.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         lblUserPasswordHint.setForeground(new java.awt.Color(71, 85, 105));
-        lblUserPasswordHint.setText("<html>Use 15-128 characters. A longer passphrase is easier to remember.</html>");
+        lblUserPasswordHint.setText("<html>Use a password of 6–128 characters.</html>");
         lblUserPasswordHint.setMaximumSize(new java.awt.Dimension(32767, 42));
         lblUserPasswordHint.setMinimumSize(new java.awt.Dimension(0, 42));
         lblUserPasswordHint.setPreferredSize(new java.awt.Dimension(233, 42));

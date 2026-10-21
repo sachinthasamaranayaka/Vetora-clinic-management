@@ -34,8 +34,8 @@ public class UserController {
         
         int length = password == null ? 0 : Character.codePointCount(password, 0, password.length);
         
-        if (length < 15 || length > 128){
-            throw new ValidationException("Use a password of 15-128 characters.");
+        if (length < 6 || length > 128){
+            throw new ValidationException("Use a password of 6-128 characters.");
         }
         
         if (!Arrays.equals(password, confirmation)){
