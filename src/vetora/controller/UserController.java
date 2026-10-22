@@ -54,27 +54,4 @@ public class UserController {
             }
         }.execute();
     }
-    
-    public void createFirstAdmin(String fullName , String username , char[] password , char[] confirmation)throws ValidationException,SQLException,GeneralSecurityException{
-        fullName = fullName == null ? "" : fullName.trim();
-        username = username == null ? "" : username.trim();
-        
-        if (fullName.isEmpty()|| fullName.length() > 100){
-            throw new ValidationException("Enter a full name of 1-100 characters.");
-        }
-        
-        if (!username.matches("[A-Za-z0-9._-]{3,50}")){
-            throw new ValidationException("Username: 3-50 letters, numbers, dots, underscores or hyphens.");
-        }
-        
-        int length = password == null ? 0 : Character.codePointCount(password, 0, password.length);
-        
-        if (length < 6 || length > 128){
-            throw new ValidationException("Use a password of 6-128 characters.");
-        }
-        
-        if (!Arrays.equals(password, confirmation)){
-            throw new ValidationException("Passwords do not match.");
-        }
-    }
 }

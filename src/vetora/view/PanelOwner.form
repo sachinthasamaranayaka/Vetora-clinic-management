@@ -111,6 +111,9 @@
               <Dimension value="[233, 55]"/>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="txtOwnerSearchActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="btnSearchOwner">
           <Properties>
@@ -125,6 +128,9 @@
               <Dimension value="[89, 55]"/>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnSearchOwnerActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="btnNewOwner">
           <Properties>
@@ -139,6 +145,9 @@
               <Dimension value="[144, 55]"/>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnNewOwnerActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>
@@ -224,7 +233,7 @@
                     </Property>
                     <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
                       <Table columnCount="4" rowCount="0">
-                        <Column editable="false" title="Owner ID" type="java.lang.Integer"/>
+                        <Column editable="false" title="Owner ID" type="java.lang.Long"/>
                         <Column editable="false" title="Full Name" type="java.lang.String"/>
                         <Column editable="false" title="Phone" type="java.lang.String"/>
                         <Column editable="false" title="Pets" type="java.lang.Integer"/>
@@ -255,6 +264,7 @@
                         </Column>
                       </TableColumnModel>
                     </Property>
+                    <Property name="columnSelectionAllowed" type="boolean" value="true"/>
                     <Property name="fillsViewportHeight" type="boolean" value="true"/>
                     <Property name="gridColor" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
                       <Color blue="f0" green="e8" red="e2" type="rgb"/>
@@ -685,6 +695,9 @@
                           <Dimension value="[90, 55]"/>
                         </Property>
                       </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnSaveOwnerActionPerformed"/>
+                      </Events>
                     </Component>
                     <Component class="javax.swing.JButton" name="btnClearOwner">
                       <Properties>
@@ -702,6 +715,9 @@
                           <Dimension value="[90, 55]"/>
                         </Property>
                       </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnClearOwnerActionPerformed"/>
+                      </Events>
                     </Component>
                     <Component class="javax.swing.JButton" name="btnDeleteOwner">
                       <Properties>

@@ -7,7 +7,13 @@ package vetora.view;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.util.List;
 import javax.swing.SwingUtilities;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+import vetora.model.Owner;
+import vetora.controller.OwnerController;
 
 /**
  *
@@ -15,6 +21,7 @@ import javax.swing.SwingUtilities;
  */
 public class PanelOwner extends javax.swing.JPanel {
 
+    private OwnerController controller;
     /**
      * Creates new form PanelOwner
      */
@@ -22,6 +29,28 @@ public class PanelOwner extends javax.swing.JPanel {
         initComponents();
         setupOwnerUI();
     }
+    
+    public String getOwnerName(){
+        return txtOwnerName.getText();
+    }
+    public String getOwnerPhone(){
+        return txtOwnerPhone.getText();
+    }
+    public String getOwnerEmail(){
+        return txtOwnerEmail.getText();
+    }
+    public String getOwnerAddress(){
+        return txtOwnerAddress.getText();
+    }
+    public String getOwnerSearch() {
+        return txtOwnerSearch.getText();
+    }
+    public void showOwnerError(String message){
+        lblOwnerError.setText(message);
+    }
+
+    
+    
     
     private void setupOwnerUI(){
         tblOwners.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
@@ -34,6 +63,63 @@ public class PanelOwner extends javax.swing.JPanel {
         scrOwnersTable.getVerticalScrollBar().setPreferredSize(new Dimension(8,0));
         
         SwingUtilities.invokeLater(() -> splitOwners.setDividerLocation(0.618));
+    }
+    
+    public void displayOwners(List<Owner> owners){
+        DefaultTableModel tableModel = (DefaultTableModel)tblOwners.getModel();
+        
+        tableModel.setRowCount(0);
+        
+        for(Owner owner : owners){
+            tableModel.addRow(new Object[]{
+                owner.getOwnerId(),
+                owner.getFullName(),
+                owner.getPhone(),
+                null
+            });
+        }
+        
+        lblOwnerCount.setText("Owners: "+owners.size());
+    }
+    
+    public void showOwnerListMessage(String message){
+        lblOwnerCount.setText(message);
+    }
+    
+    public void setController(OwnerController controller){
+        this.controller = controller;
+    }
+    
+    public void clearOwnerForm(){
+        txtOwnerName.setText("");
+        txtOwnerPhone.setText("");
+        txtOwnerEmail.setText("");
+        txtOwnerAddress.setText("");
+
+        lblOwnerID.setText("Owner ID: Auto-generated");
+        lblOwnerFormTitle.setText("Add owner");
+        showOwnerError(" ");
+
+        tblOwners.clearSelection();
+        btnDeleteOwner.setEnabled(false);
+        txtOwnerName.requestFocusInWindow();
+    }
+    
+    public void setSavingOwner(boolean saving){
+        btnSaveOwner.setEnabled(!saving);
+        btnClearOwner.setEnabled(!saving);
+        btnNewOwner.setEnabled(!saving);
+
+        txtOwnerName.setEditable(!saving);
+        txtOwnerPhone.setEditable(!saving);
+        txtOwnerEmail.setEditable(!saving);
+        txtOwnerAddress.setEditable(!saving);
+
+        btnSaveOwner.setText(saving ? "Saving..." : "Save");
+    }
+    
+    public void showOwnerSaved(){
+        JOptionPane.showMessageDialog(this,"Owner saved successfully.","Owners",JOptionPane.INFORMATION_MESSAGE);
     }
 
     /**
@@ -99,16 +185,19 @@ public class PanelOwner extends javax.swing.JPanel {
 
         txtOwnerSearch.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         txtOwnerSearch.setPreferredSize(new java.awt.Dimension(233, 55));
+        txtOwnerSearch.addActionListener(this::txtOwnerSearchActionPerformed);
 
         btnSearchOwner.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         btnSearchOwner.setForeground(new java.awt.Color(15, 118, 110));
         btnSearchOwner.setText("Search");
         btnSearchOwner.setPreferredSize(new java.awt.Dimension(89, 55));
+        btnSearchOwner.addActionListener(this::btnSearchOwnerActionPerformed);
 
         btnNewOwner.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         btnNewOwner.setForeground(new java.awt.Color(15, 118, 110));
         btnNewOwner.setText("New owner");
         btnNewOwner.setPreferredSize(new java.awt.Dimension(144, 55));
+        btnNewOwner.addActionListener(this::btnNewOwnerActionPerformed);
 
         javax.swing.GroupLayout pnlOwnerToolBarLayout = new javax.swing.GroupLayout(pnlOwnerToolBar);
         pnlOwnerToolBar.setLayout(pnlOwnerToolBarLayout);
@@ -169,7 +258,7 @@ public class PanelOwner extends javax.swing.JPanel {
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class
+                java.lang.Long.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class
             };
             boolean[] canEdit = new boolean [] {
                 false, false, false, false
@@ -184,6 +273,7 @@ public class PanelOwner extends javax.swing.JPanel {
             }
         });
         tblOwners.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
+        tblOwners.setColumnSelectionAllowed(true);
         tblOwners.setFillsViewportHeight(true);
         tblOwners.setGridColor(new java.awt.Color(226, 232, 240));
         tblOwners.setRowHeight(38);
@@ -310,6 +400,7 @@ public class PanelOwner extends javax.swing.JPanel {
         btnSaveOwner.setText("Save");
         btnSaveOwner.setMargin(new java.awt.Insets(8, 5, 8, 5));
         btnSaveOwner.setPreferredSize(new java.awt.Dimension(90, 55));
+        btnSaveOwner.addActionListener(this::btnSaveOwnerActionPerformed);
         pnlOwnerButtons.add(btnSaveOwner);
 
         btnClearOwner.setFont(new java.awt.Font("Segoe UI", 1, 13)); // NOI18N
@@ -317,6 +408,7 @@ public class PanelOwner extends javax.swing.JPanel {
         btnClearOwner.setText("Clear");
         btnClearOwner.setMargin(new java.awt.Insets(8, 5, 8, 5));
         btnClearOwner.setPreferredSize(new java.awt.Dimension(90, 55));
+        btnClearOwner.addActionListener(this::btnClearOwnerActionPerformed);
         pnlOwnerButtons.add(btnClearOwner);
 
         btnDeleteOwner.setFont(new java.awt.Font("Segoe UI", 1, 13)); // NOI18N
@@ -334,6 +426,26 @@ public class PanelOwner extends javax.swing.JPanel {
 
         add(splitOwners, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnSaveOwnerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveOwnerActionPerformed
+        controller.saveOwner();
+    }//GEN-LAST:event_btnSaveOwnerActionPerformed
+
+    private void btnClearOwnerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearOwnerActionPerformed
+        controller.newOwner();
+    }//GEN-LAST:event_btnClearOwnerActionPerformed
+
+    private void btnNewOwnerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNewOwnerActionPerformed
+        controller.newOwner();
+    }//GEN-LAST:event_btnNewOwnerActionPerformed
+
+    private void btnSearchOwnerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchOwnerActionPerformed
+        controller.loadOwners();
+    }//GEN-LAST:event_btnSearchOwnerActionPerformed
+
+    private void txtOwnerSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtOwnerSearchActionPerformed
+        controller.loadOwners();
+    }//GEN-LAST:event_txtOwnerSearchActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

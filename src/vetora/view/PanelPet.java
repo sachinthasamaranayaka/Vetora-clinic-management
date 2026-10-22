@@ -7,7 +7,11 @@ package vetora.view;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.util.Date;
+import java.util.List;
 import javax.swing.JSpinner;
+import javax.swing.table.DefaultTableModel;
+import vetora.model.Pet;
 
 /**
  *
@@ -23,6 +27,28 @@ public class PanelPet extends javax.swing.JPanel {
         setupPetUI();
     }
     
+    public String getOwnerName(){
+        return cmbPetOwner.toString();
+   }
+    public String getPetName(){
+        return txtPetName.getText();
+    }
+    public String getSpecies(){
+        return (String)cmbSpecies.getSelectedItem();
+    }
+    public String getGender(){
+        return (String)cmbGender.getSelectedItem();
+    }
+    public String getBreed(){
+        return txtBreed.getText();
+    }
+    public Date getBirthDay(){
+        return chkDobUnknown.isSelected()? null : (Date)spnPetDob.getValue();
+    }
+    public boolean getBirthdayUnknown(){
+        return chkDobUnknown.isSelected();
+    } 
+    
     private void setupPetUI(){
         tblPets.getTableHeader().setFont(new Font("Segoe UI",Font.BOLD,13));
         scrPetForm.getViewport().setBackground(Color.WHITE);
@@ -31,6 +57,29 @@ public class PanelPet extends javax.swing.JPanel {
         
         scrPetForm.getVerticalScrollBar().setUnitIncrement(16);
         spnPetDob.setEditor(new JSpinner.DateEditor(spnPetDob,"dd/MM/yyyy"));
+    }
+    
+    
+    public void displayUser(List<Pet> pets){
+        DefaultTableModel tableModel = (DefaultTableModel)tblPets.getModel();
+        
+        tableModel.setRowCount(0);
+        
+        for(Pet pet : pets){
+            tableModel.addRow(new Object[]{
+                pet.getPetID(),
+                pet.getPetName(),
+                pet.getOwnerID(),
+                pet.getSpecies(),
+                pet.getAge() == null ? "Unknown" : pet.getAge()+"years"
+            });
+        }
+        
+        lblPetCount.setText("Pets: "+pets.size());
+    }
+    
+    public void showPetListMessage(String message){
+        lblPetCount.setText(message);
     }
 
     /**

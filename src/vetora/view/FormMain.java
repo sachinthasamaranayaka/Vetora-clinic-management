@@ -17,6 +17,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import vetora.model.UserModel;
 import vetora.controller.UserController;
+import vetora.model.OwnerModel;
+import vetora.controller.OwnerController;
+import vetora.controller.LoginController;
 
 /**
  *
@@ -82,7 +85,15 @@ public class FormMain extends javax.swing.JFrame {
         PanelDashboard dashboard = new PanelDashboard();
         
         registerPage("dashboard",dashboard,btnDashboard,"Dashboard","Clinic at a glance");
-        registerPage("owners",new PanelOwner(),btnOwners,"Owners","Manage owner details");
+        
+        PanelOwner ownerView = new PanelOwner();
+        OwnerModel ownerModel = new OwnerModel();
+        OwnerController ownnerController = new OwnerController(ownerModel, ownerView);
+        ownerView.setController(ownnerController);
+        registerPage("owners",ownerView,btnOwners,"Owners","Manage owner details");
+        ownnerController.loadOwners();
+        
+        
         registerPage("pets",new PanelPet(),btnPets,"Pets","Manage pet records");
         registerPage("veterinarians", new PanelVeterinarian(),btnVeterinarians,"Veterinarians","Manage clinic staff");
         registerPage("appointments", new PanelAppointment(),btnAppointments,"Appointments","Manage clinic visits");
@@ -483,6 +494,7 @@ public class FormMain extends javax.swing.JFrame {
 
     private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
         FormLogin loginForm = new FormLogin();
+        loginForm.setController(new LoginController(new UserModel(), loginForm));
         loginForm.setVisible(true);
         dispose();
     }//GEN-LAST:event_btnLogoutActionPerformed

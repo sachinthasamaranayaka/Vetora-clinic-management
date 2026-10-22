@@ -36,6 +36,7 @@ public class LoginController {
         final char[] password = view.getPassword();
         
         view.showError(" ");
+        signingIn = true;
         view.setSigningIn(true);
         
         new SwingWorker<vetora.model.User , Void > () {
@@ -77,6 +78,7 @@ public class LoginController {
                 }
                 
                 finally {
+                    signingIn = false;
                     view.clearPassword();
                     view.setSigningIn(false);
                 }
