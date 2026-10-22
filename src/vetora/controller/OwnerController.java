@@ -70,6 +70,7 @@ public class OwnerController {
             return ;
         }
         
+        Long ownerId = view.getEditingOwnerId();
         String fullName = view.getOwnerName();
         String phone = view.getOwnerPhone();
         String email = view.getOwnerEmail();
@@ -82,7 +83,7 @@ public class OwnerController {
         new SwingWorker<Void, Void>(){
             @Override
             protected Void doInBackground()throws Exception {
-                model.createOwner(fullName, phone, email, address);
+                model.saveOwner(ownerId, fullName, phone, email, address);
                 return null;
             }
             
@@ -126,6 +127,18 @@ public class OwnerController {
     public void newOwner(){
         if (!savingOwner){
             view.clearOwnerForm();
+        }
+    }
+    
+    public void selectOwner(){
+        if (savingOwner){
+            return;
+        }
+        
+        Owner owner = view.getSelectedOwner();
+        
+        if (owner != null){
+            view.showOwnerDetails(owner);
         }
     }
 }

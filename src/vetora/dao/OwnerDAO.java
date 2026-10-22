@@ -66,4 +66,20 @@ public class OwnerDAO {
         
         return owners;
     }
+    
+    public void updateOwner(long ownerId, String fullName, String phone, String email, String address) throws  SQLException {
+        String sql = "UPDATE owners SET full_name = ?, phone = ?, email = ?, address = ? WHERE owner_id = ?";
+        
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)){
+            stmt.setString(1, fullName);
+            stmt.setString(2, phone);
+            stmt.setString(3, email);
+            stmt.setString(4, address);
+            stmt.setLong(5, ownerId);
+            
+            if (stmt.executeUpdate() != 1){
+                throw new SQLException("Owner was not updated. Reload the list.");
+            }
+        }
+    }
 }

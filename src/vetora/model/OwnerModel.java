@@ -22,7 +22,7 @@ public class OwnerModel {
         return ownerDao.getAllOwners();
     }
     
-    public void createOwner(String fullName, String phone, String email,String address)throws ValidationException,SQLException {
+    public void saveOwner(Long ownerId, String fullName, String phone, String email,String address)throws ValidationException,SQLException {
         fullName = fullName == null ? "" : fullName.trim();
         phone = phone == null ? "" : phone.trim();
         email = email == null ? "" : email.trim();
@@ -38,7 +38,15 @@ public class OwnerModel {
             throw new ValidationException("Enter a valid email address.");
         }
         
-        ownerDao.createOwner(fullName, phone, email.isEmpty()? null : email, address.isEmpty() ? null : address);
+        String savedEmail = email.isEmpty() ? null : email;
+        String savedAddress = address.isEmpty() ? null : address;
+        
+        if (ownerId == null){
+            ownerDao.createOwner(fullName, phone, email, address);
+        }
+        else{
+            ownerDao.updateOwner(ownerId, fullName, phone, savedEmail, savedAddress);
+        }
     }
     
     public List<Owner> searchOwners(String keyword) throws SQLException {

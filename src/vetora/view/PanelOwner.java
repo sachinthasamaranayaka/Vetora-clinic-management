@@ -7,11 +7,12 @@ package vetora.view;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JOptionPane;
-import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import vetora.model.Owner;
 import vetora.controller.OwnerController;
 
@@ -22,12 +23,22 @@ import vetora.controller.OwnerController;
 public class PanelOwner extends javax.swing.JPanel {
 
     private OwnerController controller;
+    
+    private List<Owner> displayedOwners = new ArrayList<>();
+    private Long editingOwnerId;
     /**
      * Creates new form PanelOwner
      */
     public PanelOwner() {
         initComponents();
         setupOwnerUI();
+        
+        tblOwners.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tblOwners.getSelectionModel().addListSelectionListener(e -> {
+            if(!e.getValueIsAdjusting() && controller != null){
+                controller.selectOwner();
+            }
+        });
     }
     
     public String getOwnerName(){
@@ -49,7 +60,9 @@ public class PanelOwner extends javax.swing.JPanel {
         lblOwnerError.setText(message);
     }
 
-    
+    public Long getEditingOwnerId(){
+        return editingOwnerId;
+    }
     
     
     private void setupOwnerUI(){
@@ -66,6 +79,9 @@ public class PanelOwner extends javax.swing.JPanel {
     }
     
     public void displayOwners(List<Owner> owners){
+        
+        displayedOwners = new ArrayList<>(owners);
+        
         DefaultTableModel tableModel = (DefaultTableModel)tblOwners.getModel();
         
         tableModel.setRowCount(0);
@@ -91,6 +107,9 @@ public class PanelOwner extends javax.swing.JPanel {
     }
     
     public void clearOwnerForm(){
+        editingOwnerId = null;
+        btnSaveOwner.setText("Save");
+        
         txtOwnerName.setText("");
         txtOwnerPhone.setText("");
         txtOwnerEmail.setText("");
@@ -114,12 +133,41 @@ public class PanelOwner extends javax.swing.JPanel {
         txtOwnerPhone.setEditable(!saving);
         txtOwnerEmail.setEditable(!saving);
         txtOwnerAddress.setEditable(!saving);
+        tblOwners.setEnabled(!saving);
 
-        btnSaveOwner.setText(saving ? "Saving..." : "Save");
+        String normalText = editingOwnerId == null ? "Save" : "Update";
+        btnSaveOwner.setText(saving ? "Saving..." : normalText);
     }
     
     public void showOwnerSaved(){
         JOptionPane.showMessageDialog(this,"Owner saved successfully.","Owners",JOptionPane.INFORMATION_MESSAGE);
+    }
+    
+    public Owner getSelectedOwner(){
+        int selectedRow = tblOwners.getSelectedRow();
+        
+        if (selectedRow < 0){
+            return null;
+        }
+        
+        int modelRow = tblOwners.convertRowIndexToModel(selectedRow);
+        
+        return displayedOwners.get(modelRow);
+    }
+    
+    public void showOwnerDetails(Owner owner){
+        editingOwnerId = owner.getOwnerId();
+        
+        txtOwnerName.setText(owner.getFullName());
+        txtOwnerPhone.setText(owner.getPhone());
+        txtOwnerEmail.setText(owner.getemail() == null ? "" : owner.getemail());
+        txtOwnerAddress.setText(owner.getAddress() == null ? "" : owner.getAddress());
+        
+        lblOwnerID.setText("Owner ID: " + editingOwnerId);
+        lblOwnerFormTitle.setText("Edit owner");
+        btnSaveOwner.setText("Update");
+        
+        showOwnerError(" ");
     }
 
     /**
