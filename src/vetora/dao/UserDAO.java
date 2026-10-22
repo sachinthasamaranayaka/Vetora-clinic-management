@@ -37,49 +37,6 @@ public class UserDAO {
         return users;
     }
     
-    public boolean createFirstAdmin(String fullName , String username , String passwordHash) throws SQLException{
-        
-        try(Connection connection = DBConnection.getConnection()){
-            connection.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
-            connection.setAutoCommit(false);
-            
-            try{
-                try(PreparedStatement check = connection.prepareStatement("SELECT user_id FROM users LIMIT 1");ResultSet result = check.executeQuery()){
-                    if(result.next()){
-                        connection.rollback();
-                        return false;
-                    }
-                }
-                
-                String sql = "INSERT INTO users (full_name,username,password_hash,role,status,veterinarian_id) VALUES (?,?,?,'Admin','Active',NULL)";
-                
-                try(PreparedStatement statement = connection.prepareStatement(sql)){
-                    statement.setString(1, fullName);
-                    statement.setString(2, username);
-                    statement.setString(3, passwordHash);
-                    
-                    if (statement.executeUpdate()!= 1){
-                        throw new SQLException("User was not inserted.");
-                    }
-                }
-                
-                connection.commit();
-                return true;
-            }
-            
-            catch (SQLException ex){
-                try{
-                    connection.rollback();
-                }
-                catch (SQLException rollbackError){
-                    ex.addSuppressed(rollbackError);
-                }
-                
-                throw ex;
-            }
-        }
-    }
-    
     public User authenticate(String username , char[] password) throws SQLException,GeneralSecurityException{
         User user = null;
         // Used when the username is not found.

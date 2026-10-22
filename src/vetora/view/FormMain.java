@@ -15,6 +15,8 @@ import java.util.Locale;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import vetora.model.UserModel;
+import vetora.controller.UserController;
 
 /**
  *
@@ -87,7 +89,12 @@ public class FormMain extends javax.swing.JFrame {
         registerPage("consultations",new PanelConsultation() , btnConsultations,"Consultations", "Record consultations");
         registerPage("billing", new PanelBilling(),btnBilling,"Billing","Manage invoices");
         registerPage("reports", new PanelReports(),btnReports,"Reports","Review clinic activity");
-        registerPage("users",new PanelUser(),btnUser,"Users","Manage staff accounts");
+        
+        PanelUser userView = new PanelUser();
+        UserModel userModel = new UserModel();
+        UserController userController = new UserController(userModel, userView);
+        registerPage("users",userView,btnUser,"Users","Manage staff accounts");
+        userController.loadUsers();
         
         btnDashboard.doClick();
     }

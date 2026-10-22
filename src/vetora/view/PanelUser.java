@@ -8,11 +8,9 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Frame;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 import java.util.List;
 import vetora.model.User;
-import java.util.concurrent.ExecutionException;
 
 /**
  *
@@ -26,7 +24,6 @@ public class PanelUser extends javax.swing.JPanel {
     public PanelUser() {
         initComponents();
         setupUserUI();
-        loadUsers();
     }
     
     private void setupUserUI(){
@@ -36,50 +33,29 @@ public class PanelUser extends javax.swing.JPanel {
         scrUsers.getViewport().setBackground(Color.WHITE);
         scrUsers.getVerticalScrollBar().setSize(8,0);
         scrUsers.getVerticalScrollBar().setUnitIncrement(16);
-        
-        
+             
     }
     
-    private void loadUsers() {
-
-        btnNewUser.setEnabled(false);
-        lblUserCount.setText("Loading users...");
-
-        new SwingWorker<List<User>, Void>() {
-            @Override
-            protected List<User>doInBackground()throws Exception {
-                
-                return new vetora.dao.UserDAO().getAllUsers();
-            }
-
-            @Override
-            protected void done() {
-                try {
-                    List<User> users = get();
-                    DefaultTableModel model =(DefaultTableModel)tblUsers.getModel();
-                    model.setRowCount(0);
-
-                    for (vetora.model.User user : users) {
-                        model.addRow(new Object[]{user.getUserId(),user.getFullName(),user.getUsername(),user.getRole(),user.getStatus()});
-                    }
-
-                    lblUserCount.setText("Users: " + users.size());
-
-                    // Initial administrator setup only.
-                    btnNewUser.setEnabled(users.isEmpty());
-
-                }
-                catch (InterruptedException ex) {
-                    Thread.currentThread().interrupt();
-                    lblUserCount.setText("Loading interrupted.");
-
-                }
-                catch (ExecutionException ex) {
-                    ex.getCause().printStackTrace();
-                    lblUserCount.setText("Could not load users. Check the Output window.");
-                }
-            }
-        }.execute();
+    public void displayUser(List<User> users){
+        DefaultTableModel tableModel = (DefaultTableModel)tblUsers.getModel();
+        
+        tableModel.setRowCount(0);
+        
+        for(User user : users){
+            tableModel.addRow(new Object[]{
+                user.getUserId(),
+                user.getFullName(),
+                user.getUsername(),
+                user.getRole(),
+                user.getStatus()
+            });
+        }
+        
+        lblUserCount.setText("Users: "+users.size());
+    }
+    
+    public void showUserListMessage(String message){
+        lblUserCount.setText(message);
     }
 
     /**
@@ -153,6 +129,7 @@ public class PanelUser extends javax.swing.JPanel {
         btnNewUser.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
         btnNewUser.setForeground(new java.awt.Color(255, 255, 255));
         btnNewUser.setText("New user");
+        btnNewUser.setEnabled(false);
         btnNewUser.setMaximumSize(new java.awt.Dimension(144, 55));
         btnNewUser.setMinimumSize(new java.awt.Dimension(144, 55));
         btnNewUser.setPreferredSize(new java.awt.Dimension(144, 55));
@@ -258,8 +235,6 @@ public class PanelUser extends javax.swing.JPanel {
         Frame parent = (Frame)SwingUtilities.getWindowAncestor(this);
         DialogUser dialog = new DialogUser(parent, true);
         dialog.setVisible(true);
-        
-        loadUsers();
     }//GEN-LAST:event_btnNewUserActionPerformed
 
 

@@ -5,12 +5,15 @@
 package vetora.controller;
 
 import java.security.GeneralSecurityException;
-import vetora.dao.UserDAO;
 import vetora.exception.ValidationException;
 import java.sql.SQLException;
 import java.util.Arrays;
-import vetora.util.PasswordUtils;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import javax.swing.SwingWorker;
 import vetora.model.User;
+import vetora.model.UserModel;
+import vetora.view.PanelUser;
 
 /**
  *
@@ -18,7 +21,39 @@ import vetora.model.User;
  */
 public class UserController {
     
-    private final UserDAO userDAO = new UserDAO();
+    private final UserModel model;
+    private final PanelUser view;
+    
+    public UserController(UserModel model, PanelUser view){
+        this.model = model;
+        this.view = view;
+    }
+    
+    public void loadUsers(){
+        view.showUserListMessage("Loading users...");
+        
+        new SwingWorker<List<User>,Void>(){
+            @Override
+            protected List<User> doInBackground() throws Exception {
+                return model.getAllUser();
+            }
+            @Override
+            protected void done(){
+                try{
+                    List<User> users = get();
+                    view.displayUser(users);
+                }
+                catch (InterruptedException ex){
+                    Thread.currentThread().interrupt();
+                    view.showUserListMessage("Loading interrupted.");
+                }
+                catch (ExecutionException ex){
+                    ex.getCause().printStackTrace();
+                    view.showUserListMessage("Could not load users.");
+                }
+            }
+        }.execute();
+    }
     
     public void createFirstAdmin(String fullName , String username , char[] password , char[] confirmation)throws ValidationException,SQLException,GeneralSecurityException{
         fullName = fullName == null ? "" : fullName.trim();
@@ -41,39 +76,5 @@ public class UserController {
         if (!Arrays.equals(password, confirmation)){
             throw new ValidationException("Passwords do not match.");
         }
-        
-        String hash = PasswordUtils.hashPassword(password);
-        
-        boolean created = userDAO.createFirstAdmin(fullName, username, hash);
-        
-        if (!created){
-            throw new ValidationException("An account already exists. Sign in as an administrator.");
-        }
-    }
-    
-    public User login(String username, char[] password) throws ValidationException,SQLException,GeneralSecurityException{
-        username = username == null ? "" : username.trim();
-        
-        if (username.isEmpty()){
-            throw new ValidationException("Enter your username.");
-        }
-        
-        if (password == null || password.length == 0){
-            throw new ValidationException("Enter your password.");
-        }
-        
-        int length = Character.codePointCount(password, 0, password.length);
-        
-        if (!username.matches("[A-Za-z0-9._-]{3,50}")|| length > 128){
-            throw new ValidationException("Invalid username or password.");
-        }
-        
-        User user = userDAO.authenticate(username, password);
-        
-        if (user == null){
-            throw new ValidationException("Invalid username or password.");
-        }
-        
-        return user;
     }
 }
