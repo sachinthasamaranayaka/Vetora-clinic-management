@@ -7,29 +7,41 @@ package vetora.view;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JSpinner;
 import javax.swing.table.DefaultTableModel;
 import vetora.model.Pet;
+import vetora.model.Owner;
+import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
+import javax.swing.JOptionPane;
+import vetora.controller.PetController;
 
 /**
  *
  * @author ASUS
  */
 public class PanelPet extends javax.swing.JPanel {
-
+    
+    private List<Owner> ownerOptions = new ArrayList<>();
+    private PetController controller;
+    private boolean ownerOptionsLoading;
+    private boolean savingPet;
+    private Long editingPetId;
+    private List<Pet> displayedPets = new ArrayList<>();
     /**
      * Creates new form PanelPet
      */
     public PanelPet() {
         initComponents();
         setupPetUI();
+        clearPetForm();
+        tblPets.getSelectionModel().addListSelectionListener(e -> {if (!e.getValueIsAdjusting() && controller != null){controller.selectPet();}});
     }
     
-    public String getOwnerName(){
-        return cmbPetOwner.toString();
-   }
     public String getPetName(){
         return txtPetName.getText();
     }
@@ -42,12 +54,101 @@ public class PanelPet extends javax.swing.JPanel {
     public String getBreed(){
         return txtBreed.getText();
     }
-    public Date getBirthDay(){
-        return chkDobUnknown.isSelected()? null : (Date)spnPetDob.getValue();
-    }
     public boolean getBirthdayUnknown(){
         return chkDobUnknown.isSelected();
-    } 
+    }
+    public LocalDate getBirthDay() throws ParseException{
+        if(getBirthdayUnknown()){
+            return null;
+        }
+        
+        spnPetDob.commitEdit();
+        Date value = (Date)spnPetDob.getValue();
+        
+        return value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    }
+    public Long getSelectedOwnerId() {
+        int index = cmbPetOwner.getSelectedIndex();
+        
+        if (index <= 0){
+            return null;
+        }
+        
+        return ownerOptions.get( index -1).getOwnerId();
+    }
+    public Long getEditingPetId(){
+        return editingPetId;
+    }
+    public Pet getSelectedPet(){
+        int row = tblPets.getSelectedRow();
+        
+        if (row <0){
+            return null;
+        }
+        
+        int modelRow = tblPets.convertRowIndexToModel(row);
+        return displayedPets.get(modelRow);
+    }
+    
+    public void setController(PetController controller){
+        this.controller = controller;
+    }
+    
+    public void displayOwnerOptions(List<Owner> owners){
+        Long previousOwnerId = getSelectedOwnerId();
+        
+        ownerOptions = new ArrayList<>(owners);
+        
+        cmbPetOwner.removeAllItems();
+        cmbPetOwner.addItem("Select owner");
+        
+        int selectedIndex = 0;
+        
+        for (int i = 0; i < ownerOptions.size(); i++){
+            Owner owner = ownerOptions.get(i);
+            
+            cmbPetOwner.addItem(owner.getOwnerId() + " - " + owner.getFullName() + "(" + owner.getPhone() + ")");
+            
+            if (previousOwnerId != null && owner.getOwnerId() == previousOwnerId){
+                selectedIndex = i +1;
+            }
+        }
+        
+        cmbPetOwner.setSelectedIndex(selectedIndex);
+    }
+    
+    public void setOwnerOptionsLoading(boolean loading){
+        ownerOptionsLoading = loading;
+        updatePetFormState();
+    }
+    public void setSavingPet(boolean saving){
+        savingPet = saving;
+        updatePetFormState();
+    }
+    public void updatePetFormState(){
+        boolean editable = !savingPet;
+        boolean ownerReady = !ownerOptionsLoading && !ownerOptions.isEmpty();
+
+        cmbPetOwner.setEnabled(editable && ownerReady);
+        btnSavePet.setEnabled(editable && ownerReady);
+        btnSavePet.setText(savingPet ? "Saving..." : editingPetId == null ? "Save" : "Update");
+
+        txtPetName.setEditable(editable);
+        txtBreed.setEditable(editable);
+        cmbSpecies.setEnabled(editable);
+        cmbGender.setEnabled(editable);
+
+        chkDobUnknown.setEnabled(editable);
+        spnPetDob.setEnabled(editable && !chkDobUnknown.isSelected());
+
+        btnNewPet.setEnabled(editable);
+        btnCancelPet.setEnabled(editable);
+        tblPets.setEnabled(editable && ownerReady);
+    }
+    
+    public void showPetError(String message){
+        lblPetError.setText(message);
+    }
     
     private void setupPetUI(){
         tblPets.getTableHeader().setFont(new Font("Segoe UI",Font.BOLD,13));
@@ -56,22 +157,39 @@ public class PanelPet extends javax.swing.JPanel {
         scrPetTable.getVerticalScrollBar().setPreferredSize(new Dimension(8,0));
         
         scrPetForm.getVerticalScrollBar().setUnitIncrement(16);
-        spnPetDob.setEditor(new JSpinner.DateEditor(spnPetDob,"dd/MM/yyyy"));
+        JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(spnPetDob,"dd/MM/yyyy");
+        dateEditor.getFormat().setLenient(false);
+        spnPetDob.setEditor(dateEditor);
     }
     
     
-    public void displayUser(List<Pet> pets){
+    public void displayPets(List<Pet> pets){
+        tblPets.clearSelection();
+        displayedPets = new ArrayList<>(pets);
         DefaultTableModel tableModel = (DefaultTableModel)tblPets.getModel();
         
         tableModel.setRowCount(0);
         
         for(Pet pet : pets){
+            Integer age = pet.getAge();
+            String ageText;
+            
+            if (age == null){
+                ageText = "Unknown";
+            }
+            else if (age == 0){
+                ageText = "Under 1 year";
+            }
+            else {
+                ageText = age + (age == 1 ? "year" : "years");
+            }
+            
             tableModel.addRow(new Object[]{
                 pet.getPetID(),
                 pet.getPetName(),
-                pet.getOwnerID(),
+                pet.getOwnerName(),
                 pet.getSpecies(),
-                pet.getAge() == null ? "Unknown" : pet.getAge()+"years"
+                ageText
             });
         }
         
@@ -81,7 +199,74 @@ public class PanelPet extends javax.swing.JPanel {
     public void showPetListMessage(String message){
         lblPetCount.setText(message);
     }
+    
+   public void showPetSaved() {
+        JOptionPane.showMessageDialog(this, "Pet saved successfully.", "Pet registration", JOptionPane.INFORMATION_MESSAGE);
+    }
 
+    
+    public void clearPetForm() {
+        editingPetId = null;
+        cmbPetOwner.setSelectedIndex(0);
+        txtPetName.setText("");
+        cmbSpecies.setSelectedIndex(0);
+        cmbGender.setSelectedIndex(0);
+        txtBreed.setText("");
+
+        chkDobUnknown.setSelected(true);
+        spnPetDob.setValue(new Date());
+
+        lblPetAge.setText("Age: Unknown");
+        lblPetId.setText("Pet ID: Auto-generated");
+        lblPetFormTitle.setText("Add pet");
+        lblPetError.setText(" ");
+
+        tblPets.clearSelection();
+        btnDeletePet.setEnabled(false);
+
+        updatePetFormState();
+        txtPetName.requestFocusInWindow();
+    }
+    
+    public void showPetDetails(Pet pet){
+        editingPetId = pet.getPetID();
+        txtPetName.setText(pet.getPetName());
+        cmbSpecies.setSelectedItem(pet.getSpecies());
+        cmbGender.setSelectedItem(pet.getGender());
+        txtBreed.setText(pet.getBreed() == null ? "" : pet.getBreed());
+        cmbPetOwner.setSelectedIndex(0);
+
+        for (int i = 0; i < ownerOptions.size(); i++) {
+            if (ownerOptions.get(i).getOwnerId() == pet.getOwnerID()) {
+                cmbPetOwner.setSelectedIndex(i + 1);
+                break;
+            }
+        }
+
+        Date dob = pet.getDob();
+        chkDobUnknown.setSelected(dob == null);
+        spnPetDob.setValue(dob == null ? new Date() : new Date(dob.getTime()));
+        
+        Integer age = pet.getAge();
+        String ageText;
+
+        if (age == null) {
+            ageText = "Unknown";
+        } 
+        else if (age == 0) {
+            ageText = "Under 1 year";
+        }
+        else {
+            ageText = age + (age == 1 ? " year" : " years");
+        }
+
+        lblPetAge.setText("Age: " + ageText);
+        lblPetId.setText("Pet ID: " + pet.getPetID());
+        lblPetFormTitle.setText("Edit pet");
+        lblPetError.setText(" ");
+
+        updatePetFormState();
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -227,6 +412,7 @@ public class PanelPet extends javax.swing.JPanel {
         btnNewPet.setMaximumSize(new java.awt.Dimension(144, 55));
         btnNewPet.setMinimumSize(new java.awt.Dimension(144, 55));
         btnNewPet.setPreferredSize(new java.awt.Dimension(144, 55));
+        btnNewPet.addActionListener(this::btnNewPetActionPerformed);
         pnlPetToolbar.add(btnNewPet);
 
         add(pnlPetToolbar, java.awt.BorderLayout.NORTH);
@@ -254,7 +440,7 @@ public class PanelPet extends javax.swing.JPanel {
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+                java.lang.Long.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
                 false, false, false, false, false
@@ -453,12 +639,14 @@ public class PanelPet extends javax.swing.JPanel {
         btnSavePet.setForeground(new java.awt.Color(255, 255, 255));
         btnSavePet.setText("Save");
         btnSavePet.setMargin(new java.awt.Insets(8, 5, 8, 5));
+        btnSavePet.addActionListener(this::btnSavePetActionPerformed);
         pnlPetButtons.add(btnSavePet);
 
         btnCancelPet.setFont(new java.awt.Font("Segoe UI", 1, 13)); // NOI18N
         btnCancelPet.setForeground(new java.awt.Color(71, 85, 105));
         btnCancelPet.setText("Cancel");
         btnCancelPet.setMargin(new java.awt.Insets(8, 5, 8, 5));
+        btnCancelPet.addActionListener(this::btnCancelPetActionPerformed);
         pnlPetButtons.add(btnCancelPet);
 
         btnDeletePet.setFont(new java.awt.Font("Segoe UI", 1, 13)); // NOI18N
@@ -478,10 +666,21 @@ public class PanelPet extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void chkDobUnknownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkDobUnknownActionPerformed
-      boolean unknown = chkDobUnknown.isSelected();
-      spnPetDob.setEnabled(!unknown);
-      lblPetAge.setText(unknown ? "Age: Unknown" : "Age: —");
+      updatePetFormState();
+      lblPetAge.setText(chkDobUnknown.isSelected() ? "Age: Unknown" : "Age: —");
     }//GEN-LAST:event_chkDobUnknownActionPerformed
+
+    private void btnSavePetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSavePetActionPerformed
+        controller.savePet();
+    }//GEN-LAST:event_btnSavePetActionPerformed
+
+    private void btnCancelPetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelPetActionPerformed
+        controller.newPet();
+    }//GEN-LAST:event_btnCancelPetActionPerformed
+
+    private void btnNewPetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNewPetActionPerformed
+        controller.newPet();
+    }//GEN-LAST:event_btnNewPetActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

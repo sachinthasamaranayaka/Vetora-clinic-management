@@ -73,7 +73,6 @@ public class Pet {
         
         ZoneId zone = ZoneId.of("Asia/Colombo");
         LocalDate today = LocalDate.now(zone);
-        
         LocalDate birthDate;
         
         if (dob instanceof Date){

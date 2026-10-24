@@ -137,6 +137,8 @@ public class PanelOwner extends javax.swing.JPanel {
 
         String normalText = editingOwnerId == null ? "Save" : "Update";
         btnSaveOwner.setText(saving ? "Saving..." : normalText);
+        
+        btnDeleteOwner.setEnabled(!saving && editingOwnerId != null);
     }
     
     public void showOwnerSaved(){
@@ -168,6 +170,26 @@ public class PanelOwner extends javax.swing.JPanel {
         btnSaveOwner.setText("Update");
         
         showOwnerError(" ");
+        
+        btnDeleteOwner.setEnabled(true);
+    }
+    
+    public boolean confirmOwnerDelete(long ownerId){
+        String[] options = {"Delete","Cancel"};
+        
+        int choice = JOptionPane.showOptionDialog( this, "Delete owner ID" + ownerId + "?\nThis action cannot be undone.", "Delete owner", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, options,options[1]);
+        
+        return choice == 0;
+    }
+    
+    public void setDeletingOwner(boolean deleting){
+        setSavingOwner(deleting);
+        btnSaveOwner.setText(editingOwnerId == null ? "Save" : "Update");
+        btnDeleteOwner.setText(deleting ? "Deleting..." : "Delete");
+    } 
+    
+    public void ShowOwnerDeleted(){
+        JOptionPane.showMessageDialog( this, "Owner deleted successfully.", "Owners", JOptionPane.INFORMATION_MESSAGE);
     }
 
     /**
@@ -464,6 +486,7 @@ public class PanelOwner extends javax.swing.JPanel {
         btnDeleteOwner.setText("Delete");
         btnDeleteOwner.setEnabled(false);
         btnDeleteOwner.setMargin(new java.awt.Insets(8, 5, 8, 5));
+        btnDeleteOwner.addActionListener(this::btnDeleteOwnerActionPerformed);
         pnlOwnerButtons.add(btnDeleteOwner);
 
         pnlOwnerActions.add(pnlOwnerButtons, java.awt.BorderLayout.CENTER);
@@ -494,6 +517,10 @@ public class PanelOwner extends javax.swing.JPanel {
     private void txtOwnerSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtOwnerSearchActionPerformed
         controller.loadOwners();
     }//GEN-LAST:event_txtOwnerSearchActionPerformed
+
+    private void btnDeleteOwnerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteOwnerActionPerformed
+        controller.deleteOwner();
+    }//GEN-LAST:event_btnDeleteOwnerActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

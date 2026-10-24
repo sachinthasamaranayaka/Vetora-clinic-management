@@ -733,6 +733,9 @@
                           <Insets value="[8, 5, 8, 5]"/>
                         </Property>
                       </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnDeleteOwnerActionPerformed"/>
+                      </Events>
                     </Component>
                   </SubComponents>
                 </Container>

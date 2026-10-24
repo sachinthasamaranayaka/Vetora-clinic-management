@@ -5,6 +5,7 @@
 package vetora.dao;
 
 
+import com.mysql.cj.x.protobuf.MysqlxSql;
 import java.util.List;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -80,6 +81,16 @@ public class OwnerDAO {
             if (stmt.executeUpdate() != 1){
                 throw new SQLException("Owner was not updated. Reload the list.");
             }
+        }
+    }
+    
+    public boolean deleteOwner(long ownerId) throws SQLException {
+        String sql = "DELETE FROM owners WHERE owner_id = ?";
+        
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)){
+            stmt.setLong(1,ownerId);
+            
+            return stmt.executeUpdate() == 1;
         }
     }
 }

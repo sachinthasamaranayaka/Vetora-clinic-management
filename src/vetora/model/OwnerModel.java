@@ -54,4 +54,25 @@ public class OwnerModel {
         
         return ownerDao.searchOwners(keyword);
     }
+    
+    public void deleteOwner(Long ownerId) throws SQLException,ValidationException {
+        if (ownerId == null || ownerId <= 0){
+            throw new ValidationException("Select an owner to delete.");
+        }
+        
+        try {
+            boolean deleted = ownerDao.deleteOwner(ownerId);
+            
+            if (!deleted){
+                throw new ValidationException("Owner was not found. Reload the owners list.");
+            }
+        }
+        catch (SQLException ex){
+            if (ex.getErrorCode() == 1451){
+                throw new ValidationException("Cannot delete this owner because pets or other records are linked.");
+            }
+            
+            throw ex;
+        }
+    }
 }

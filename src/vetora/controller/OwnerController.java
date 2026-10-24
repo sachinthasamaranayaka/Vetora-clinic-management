@@ -141,4 +141,68 @@ public class OwnerController {
             view.showOwnerDetails(owner);
         }
     }
+    
+    public void deleteOwner(){
+        if (savingOwner){
+            return;
+        }
+        
+        Long ownerId = view.getEditingOwnerId();
+        
+        if (ownerId == null){
+            view.showOwnerError("Select an owner to delete.");
+            return;
+        }
+        
+        if (!view.confirmOwnerDelete(ownerId)){
+            return;
+        }
+        
+        savingOwner = true;
+        view.setDeletingOwner(true);
+        view.showOwnerError(" ");
+        
+        new SwingWorker<Void,Void>(){
+            @Override
+            protected Void doInBackground() throws Exception {
+                model.deleteOwner(ownerId);
+                return null;
+            }
+            
+            @Override
+            protected void done(){
+                boolean deleted = false;
+                
+                try {
+                    get();
+                    deleted = true;
+                }
+                catch (InterruptedException ex){
+                    Thread.currentThread().interrupt();
+                    view.showOwnerError("Deleting interrupted.");
+                }
+                catch (ExecutionException ex){
+                    Throwable cause = ex.getCause();
+                    
+                    if (cause instanceof ValidationException){
+                        view.showOwnerError(cause.getMessage());
+                    }
+                    else {
+                        cause.printStackTrace();
+                        view.showOwnerError("Could not delete owner. Please try again.");
+                    }
+                }
+                finally {
+                    savingOwner =false;
+                    view.setDeletingOwner(false);
+                }
+                
+                if (deleted){
+                    view.clearOwnerForm();
+                    loadOwners();
+                    view.ShowOwnerDeleted();
+                }
+            }
+        }.execute();
+    }
 }

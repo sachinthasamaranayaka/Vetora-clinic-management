@@ -4,6 +4,7 @@
  */
 package vetora.view;
 
+import java.util.logging.Logger;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -15,11 +16,16 @@ import java.util.Locale;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import vetora.controller.AppointmentController;
 import vetora.model.UserModel;
 import vetora.controller.UserController;
 import vetora.model.OwnerModel;
 import vetora.controller.OwnerController;
 import vetora.controller.LoginController;
+import vetora.model.PetModel;
+import vetora.controller.PetController;
+import vetora.model.AppointmentModel;
+import vetora.model.User;
 
 /**
  *
@@ -27,14 +33,14 @@ import vetora.controller.LoginController;
  */
 public class FormMain extends javax.swing.JFrame {
     
-    private final vetora.model.User currentUser;
+    private final User currentUser;
     
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(FormMain.class.getName());
+    private static final Logger logger = Logger.getLogger(FormMain.class.getName());
 
     /**
      * Creates new form FormMain
      */
-    public FormMain(vetora.model.User user) {
+    public FormMain(User user) {
         
         if (user == null || !"Active".equals(user.getStatus())){
             throw new IllegalArgumentException("An active signed-in user is required.");
@@ -67,7 +73,7 @@ public class FormMain extends javax.swing.JFrame {
         jLabelPageTitle.setText(title);
         jLabelPageSubtitle.setText(subtitle);
         
-        JButton[] menuButtons = {btnDashboard,btnOwners,btnPets,btnVeterinarians,btnAppointments,btnConsultations,btnBilling,btnReports,btnUser};
+        JButton[] menuButtons = {btnDashboard,btnOwners,btnPets,btnAppointments,btnConsultations,btnBilling,btnReports,btnUser};
             for(JButton button : menuButtons){
                 boolean selected = button == selectedButton;
                 button.setBackground(selected ? new Color(15,118,110): new Color(23,43,54));
@@ -93,10 +99,21 @@ public class FormMain extends javax.swing.JFrame {
         registerPage("owners",ownerView,btnOwners,"Owners","Manage owner details");
         ownnerController.loadOwners();
         
+        PanelPet petView = new PanelPet();
+        PetModel petModel = new PetModel();
+        PetController petController = new PetController(petModel, petView);
+        petView.setController(petController);
+        registerPage("pets",petView,btnPets,"Pets","Manage pet records");
+        btnPets.addActionListener(e ->{ petController.loadOwnerOptions(); petController.loadPets();});
         
-        registerPage("pets",new PanelPet(),btnPets,"Pets","Manage pet records");
-        registerPage("veterinarians", new PanelVeterinarian(),btnVeterinarians,"Veterinarians","Manage clinic staff");
-        registerPage("appointments", new PanelAppointment(),btnAppointments,"Appointments","Manage clinic visits");
+        PanelAppointment appointmentView = new PanelAppointment();
+        AppointmentModel appointmentModel = new AppointmentModel();
+        AppointmentController appointmentController = new AppointmentController(appointmentModel, appointmentView);
+        appointmentView.setController(appointmentController);
+        registerPage("appointments", appointmentView , btnAppointments,"Appointments","Manage clinic visits");
+        btnAppointments.addActionListener(e -> {appointmentController.loadFormOptions(); appointmentController.loadAppointments();});
+        
+        
         registerPage("consultations",new PanelConsultation() , btnConsultations,"Consultations", "Record consultations");
         registerPage("billing", new PanelBilling(),btnBilling,"Billing","Manage invoices");
         registerPage("reports", new PanelReports(),btnReports,"Reports","Review clinic activity");
@@ -144,8 +161,6 @@ public class FormMain extends javax.swing.JFrame {
         filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8));
         btnPets = new javax.swing.JButton();
         filler3 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8));
-        btnVeterinarians = new javax.swing.JButton();
-        filler4 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8));
         btnAppointments = new javax.swing.JButton();
         filler5 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8));
         btnConsultations = new javax.swing.JButton();
@@ -369,21 +384,6 @@ public class FormMain extends javax.swing.JFrame {
         jPanelNavMenu.add(btnPets);
         jPanelNavMenu.add(filler3);
 
-        btnVeterinarians.setBackground(new java.awt.Color(23, 43, 54));
-        btnVeterinarians.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        btnVeterinarians.setForeground(new java.awt.Color(203, 213, 255));
-        btnVeterinarians.setText("Veterinarians");
-        btnVeterinarians.setBorderPainted(false);
-        btnVeterinarians.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        btnVeterinarians.setIconTextGap(13);
-        btnVeterinarians.setMargin(new java.awt.Insets(0, 13, 0, 13));
-        btnVeterinarians.setMaximumSize(new java.awt.Dimension(32767, 55));
-        btnVeterinarians.setMinimumSize(new java.awt.Dimension(0, 55));
-        btnVeterinarians.setOpaque(true);
-        btnVeterinarians.setPreferredSize(new java.awt.Dimension(207, 55));
-        jPanelNavMenu.add(btnVeterinarians);
-        jPanelNavMenu.add(filler4);
-
         btnAppointments.setBackground(new java.awt.Color(23, 43, 54));
         btnAppointments.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         btnAppointments.setForeground(new java.awt.Color(203, 213, 255));
@@ -513,11 +513,9 @@ public class FormMain extends javax.swing.JFrame {
     private javax.swing.JButton btnPets;
     private javax.swing.JButton btnReports;
     private javax.swing.JButton btnUser;
-    private javax.swing.JButton btnVeterinarians;
     private javax.swing.Box.Filler filler1;
     private javax.swing.Box.Filler filler2;
     private javax.swing.Box.Filler filler3;
-    private javax.swing.Box.Filler filler4;
     private javax.swing.Box.Filler filler5;
     private javax.swing.Box.Filler filler6;
     private javax.swing.Box.Filler filler7;

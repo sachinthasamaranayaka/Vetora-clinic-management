@@ -6,6 +6,21 @@ package vetora.view;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.ZoneId;
+import java.util.Date;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.JOptionPane;
+import vetora.model.Pet;
+import vetora.model.Veterinarian;
+import vetora.controller.AppointmentController;
+import vetora.model.Appointment;
 
 /**
  *
@@ -13,6 +28,10 @@ import java.awt.Font;
  */
 public class PanelAppointment extends javax.swing.JPanel {
 
+    private AppointmentController controller;
+    private final List<Pet> appointmentPets = new ArrayList<>();
+    private boolean clinicVetReady;
+    private final List<Appointment> displayedAppointments = new ArrayList<>();
     /**
      * Creates new form PanelAppointment
      */
@@ -30,6 +49,143 @@ public class PanelAppointment extends javax.swing.JPanel {
             cmbTimeSlot.addItem(String.format("%02d:00", hour) );
             cmbTimeSlot.addItem(String.format("%02d:30", hour));
         }
+        
+        clearAppointmentForm();
+        setAppointmentBusy(true);
+        
+        tblAppointments.getSelectionModel().addListSelectionListener(e -> {if(!e.getValueIsAdjusting()){showSelectedAppointment();}});
+    }
+    
+    public Long getAppointmentPetId() {
+        Pet pet = getSelectedAppointmentPet();
+        return pet == null ? null : pet.getPetID();
+    }
+
+    public LocalDate getAppointmentDate() throws ParseException {
+        spnAppointmentDate.commitEdit();
+        Date date = (Date) spnAppointmentDate.getValue();
+        return date.toInstant().atZone(ZoneId.of("Asia/Colombo")).toLocalDate();    
+    }
+
+    public LocalTime getAppointmentTime() {
+        return cmbTimeSlot.getSelectedIndex() <= 0 ? null : LocalTime.parse(cmbTimeSlot.getSelectedItem().toString());
+    }
+
+    public String getAppointmentReason() {
+        return txtVisitReason.getText();
+    }
+
+    public void setController(AppointmentController controller) {
+        this.controller = controller;
+    }
+    
+    public void setAppointmentBusy(boolean busy) {
+        cmbAppointmentPet.setEnabled(!busy && !appointmentPets.isEmpty());
+
+        spnAppointmentDate.setEnabled(!busy);
+        cmbTimeSlot.setEnabled(!busy);
+        txtVisitReason.setEnabled(!busy);
+
+        btnNewAppointment.setEnabled(!busy);
+        btnClearAppointment.setEnabled(!busy);
+
+        btnBook.setEnabled(!busy && clinicVetReady && !appointmentPets.isEmpty());
+
+        btnBook.setText(busy ? "Please wait..." : "Book");
+    }
+
+    public void showAppointmentError(String message) {
+        lblAppointmentError.setText(message);
+    }
+
+    private Pet getSelectedAppointmentPet() {
+        int index = cmbAppointmentPet.getSelectedIndex() - 1;
+
+        return index >= 0 && index < appointmentPets.size() ? appointmentPets.get(index) : null;
+    }
+    
+    public LocalDate getAppointmentFilterDate() throws ParseException {
+        spnAppointmentFilterDate.commitEdit();
+        Date date =(Date) spnAppointmentFilterDate.getValue();
+        return date.toInstant().atZone(ZoneId.of("Asia/Colombo")).toLocalDate();
+    }
+
+    public String getAppointmentStatusFilter() {
+        return cmbStatusFilter.getSelectedIndex() <= 0 ? null : cmbStatusFilter.getSelectedItem().toString();
+    }
+
+    public void showAppointmentListMessage(String message) {
+        lblAppointmentCount.setText(message);
+    }
+
+    public void clearAppointmentList() {
+        tblAppointments.clearSelection();
+        displayedAppointments.clear();
+
+        DefaultTableModel tableModel = (DefaultTableModel) tblAppointments.getModel();
+
+        tableModel.setRowCount(0);
+
+        lblSelectedAppoinment.setText("Selected appointment: None");
+    }
+    
+    public void displayPetOptions(List<Pet> pets) {
+        Pet previous = getSelectedAppointmentPet();
+
+        appointmentPets.clear();
+        appointmentPets.addAll(pets);
+
+        cmbAppointmentPet.removeAllItems();
+        cmbAppointmentPet.addItem("Select pet");
+
+        int selectedIndex = 0;
+
+        for (int i = 0; i < appointmentPets.size(); i++) {
+            Pet pet = appointmentPets.get(i);
+
+            cmbAppointmentPet.addItem(pet.getPetID() + " - " + pet.getPetName() + " (" + pet.getOwnerName() + ")" );
+
+            if (previous != null && previous.getPetID() == pet.getPetID()) {
+                selectedIndex = i + 1;
+            }
+        }
+
+        cmbAppointmentPet.setSelectedIndex(selectedIndex);
+        showSelectedPetOwner();
+    }
+    
+    public void showSelectedPetOwner(){
+        Pet pet = getSelectedAppointmentPet();
+        
+        lblAppointmentOwner.setText(pet == null ? "Owner: —" : "Owner: " + pet.getOwnerName());
+    }
+    public void displayClinicVet(Veterinarian vet){
+        String state = !vet.isActive() ? " (Inactive) " : !vet.isAvailable() ? " (Unavailable) " : "";
+        lblAppointmentVet.setText("Veterinarian: " + vet.getFullName() + state);
+        clinicVetReady = vet.isActive() && vet.isAvailable();
+    }
+    
+    public void clearAppointmentOptions(){
+        clinicVetReady = false;
+        displayPetOptions(Collections.emptyList());
+        lblAppointmentVet.setText("Veterinarian: —");
+    }
+    
+    public void clearAppointmentForm(){
+        cmbAppointmentPet.setSelectedIndex(0);
+        cmbTimeSlot.setSelectedIndex(0);
+        txtVisitReason.setText("");
+        ZoneId zone = ZoneId.of("Asia/Colombo");
+        spnAppointmentDate.setValue(Date.from(LocalDate.now(zone).atStartOfDay(zone).toInstant()));
+        lblAppointmentId.setText("Appointment ID: Auto-generated");
+        lblAppointmentFormTitle.setText("New appointment");
+        lblAppointmentStatus.setText("Status: New");
+        showSelectedPetOwner();
+        showAppointmentError(" ");
+    }
+    
+    public void showAppointmentBooked(long id){
+        JOptionPane.showMessageDialog(this, "Appointment  " + id + "  booked successfully.", "Appointment saved", JOptionPane.INFORMATION_MESSAGE);
     }
     
     private void setupDateSpinner(
@@ -45,6 +201,51 @@ public class PanelAppointment extends javax.swing.JPanel {
 
         spinner.setEditor(editor);
         editor.getTextField().setValue(today);
+    }
+    
+    public void displayAppointments( List<Appointment> appointments, LocalDate date,String status) {
+        clearAppointmentList();
+        displayedAppointments.addAll(appointments);
+
+        DefaultTableModel tableModel = (DefaultTableModel) tblAppointments.getModel();
+
+        DateTimeFormatter timeFormat = DateTimeFormatter.ofPattern("HH:mm");
+
+        for (Appointment appointment : appointments) {
+            tableModel.addRow(new Object[]{
+                appointment.getAppointmentId(),
+                appointment.getAppointmentTime().format(timeFormat),
+                appointment.getPetName(),
+                appointment.getVeterinarianName(),
+                appointment.getStatus()
+            });
+        }
+        lblAppointmentListTitle.setText("Daily schedule: " + date);
+        lblAppointmentCount.setText(appointments.size() + " appointment(s) | "+ (status == null ? "All statuses" : status));
+    }
+    
+    public void showBookedDateInFilters(LocalDate date) {
+        ZoneId zone = ZoneId.of("Asia/Colombo");
+        spnAppointmentFilterDate.setValue(Date.from(date.atStartOfDay(zone).toInstant()));
+        cmbStatusFilter.setSelectedIndex(0);
+    }
+    
+    public Appointment getSelectedAppointment() {
+        int row = tblAppointments.getSelectedRow();
+
+        if (row < 0) {
+            return null;
+        }
+
+        int modelRow = tblAppointments.convertRowIndexToModel(row);
+
+        return modelRow < displayedAppointments.size() ? displayedAppointments.get(modelRow) : null;
+    }
+
+    private void showSelectedAppointment() {
+        Appointment appointment = getSelectedAppointment();
+
+        lblSelectedAppoinment.setText(appointment == null ? "Selected appointment: None" : "Selected appointment: " + appointment.getAppointmentId());
     }
     
     private void setupAppointmentUI(){
@@ -68,11 +269,6 @@ public class PanelAppointment extends javax.swing.JPanel {
         filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8));
         spnAppointmentFilterDate = new javax.swing.JSpinner();
         filler4 = new javax.swing.Box.Filler(new java.awt.Dimension(13, 0), new java.awt.Dimension(13, 0), new java.awt.Dimension(13, 0));
-        pnlAppointmentVetFilterGroup = new javax.swing.JPanel();
-        lblAppointmentVetFilter = new javax.swing.JLabel();
-        filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8));
-        cmbAppointmentVetFilter = new javax.swing.JComboBox<>();
-        filler5 = new javax.swing.Box.Filler(new java.awt.Dimension(13, 0), new java.awt.Dimension(13, 0), new java.awt.Dimension(13, 0));
         pnlAppointmentStatusFilterGroup = new javax.swing.JPanel();
         lblStatusFilter = new javax.swing.JLabel();
         filler3 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8));
@@ -107,11 +303,9 @@ public class PanelAppointment extends javax.swing.JPanel {
         cmbAppointmentPet = new javax.swing.JComboBox<>();
         filler12 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8));
         lblAppointmentOwner = new javax.swing.JLabel();
-        filler13 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 21), new java.awt.Dimension(0, 21), new java.awt.Dimension(0, 21));
-        lblAppointmentVet = new javax.swing.JLabel();
-        filler14 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8));
-        cmbAppointmentVet = new javax.swing.JComboBox<>();
         filler15 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 21), new java.awt.Dimension(0, 21), new java.awt.Dimension(0, 21));
+        lblAppointmentVet = new javax.swing.JLabel();
+        filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 21), new java.awt.Dimension(0, 21), new java.awt.Dimension(0, 21));
         lblAppointmentDate = new javax.swing.JLabel();
         filler16 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8));
         spnAppointmentDate = new javax.swing.JSpinner();
@@ -166,32 +360,6 @@ public class PanelAppointment extends javax.swing.JPanel {
         pnlAppointmentToolbar.add(pnlAppointmentDateFilterGroup);
         pnlAppointmentToolbar.add(filler4);
 
-        pnlAppointmentVetFilterGroup.setBackground(new java.awt.Color(245, 247, 250));
-        pnlAppointmentVetFilterGroup.setAlignmentY(1.0F);
-        pnlAppointmentVetFilterGroup.setMaximumSize(new java.awt.Dimension(233, 84));
-        pnlAppointmentVetFilterGroup.setMinimumSize(new java.awt.Dimension(233, 84));
-        pnlAppointmentVetFilterGroup.setPreferredSize(new java.awt.Dimension(233, 84));
-        pnlAppointmentVetFilterGroup.setLayout(new javax.swing.BoxLayout(pnlAppointmentVetFilterGroup, javax.swing.BoxLayout.Y_AXIS));
-
-        lblAppointmentVetFilter.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
-        lblAppointmentVetFilter.setText("Veterinarian");
-        lblAppointmentVetFilter.setMaximumSize(new java.awt.Dimension(32767, 21));
-        lblAppointmentVetFilter.setMinimumSize(new java.awt.Dimension(0, 21));
-        lblAppointmentVetFilter.setPreferredSize(new java.awt.Dimension(233, 21));
-        pnlAppointmentVetFilterGroup.add(lblAppointmentVetFilter);
-        pnlAppointmentVetFilterGroup.add(filler2);
-
-        cmbAppointmentVetFilter.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        cmbAppointmentVetFilter.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All Veterinarians" }));
-        cmbAppointmentVetFilter.setAlignmentX(0.0F);
-        cmbAppointmentVetFilter.setMaximumSize(new java.awt.Dimension(32767, 55));
-        cmbAppointmentVetFilter.setMinimumSize(new java.awt.Dimension(0, 55));
-        cmbAppointmentVetFilter.setPreferredSize(new java.awt.Dimension(233, 55));
-        pnlAppointmentVetFilterGroup.add(cmbAppointmentVetFilter);
-
-        pnlAppointmentToolbar.add(pnlAppointmentVetFilterGroup);
-        pnlAppointmentToolbar.add(filler5);
-
         pnlAppointmentStatusFilterGroup.setBackground(new java.awt.Color(245, 247, 250));
         pnlAppointmentStatusFilterGroup.setAlignmentY(1.0F);
         pnlAppointmentStatusFilterGroup.setMaximumSize(new java.awt.Dimension(144, 84));
@@ -208,7 +376,7 @@ public class PanelAppointment extends javax.swing.JPanel {
         pnlAppointmentStatusFilterGroup.add(filler3);
 
         cmbStatusFilter.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        cmbStatusFilter.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All statuses", "Booked", "Checked in", "Completed", "Cancelled", "No-show" }));
+        cmbStatusFilter.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All statuses", "Scheduled", "Checked-In", "Completed", "Cancelled", "No-Show" }));
         cmbStatusFilter.setAlignmentX(0.0F);
         cmbStatusFilter.setMaximumSize(new java.awt.Dimension(32767, 55));
         cmbStatusFilter.setMinimumSize(new java.awt.Dimension(0, 55));
@@ -224,6 +392,7 @@ public class PanelAppointment extends javax.swing.JPanel {
         btnRefreshAppointments.setMaximumSize(new java.awt.Dimension(89, 55));
         btnRefreshAppointments.setMinimumSize(new java.awt.Dimension(89, 55));
         btnRefreshAppointments.setPreferredSize(new java.awt.Dimension(89, 55));
+        btnRefreshAppointments.addActionListener(this::btnRefreshAppointmentsActionPerformed);
         pnlAppointmentToolbar.add(btnRefreshAppointments);
         pnlAppointmentToolbar.add(filler7);
         pnlAppointmentToolbar.add(filler8);
@@ -234,6 +403,7 @@ public class PanelAppointment extends javax.swing.JPanel {
         btnNewAppointment.setMaximumSize(new java.awt.Dimension(233, 55));
         btnNewAppointment.setMinimumSize(new java.awt.Dimension(233, 55));
         btnNewAppointment.setPreferredSize(new java.awt.Dimension(233, 55));
+        btnNewAppointment.addActionListener(this::btnNewAppointmentActionPerformed);
         pnlAppointmentToolbar.add(btnNewAppointment);
 
         add(pnlAppointmentToolbar, java.awt.BorderLayout.NORTH);
@@ -260,7 +430,7 @@ public class PanelAppointment extends javax.swing.JPanel {
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+                java.lang.Long.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
                 false, false, false, false, false
@@ -366,27 +536,19 @@ public class PanelAppointment extends javax.swing.JPanel {
         cmbAppointmentPet.setMaximumSize(new java.awt.Dimension(32767, 55));
         cmbAppointmentPet.setMinimumSize(new java.awt.Dimension(0, 55));
         cmbAppointmentPet.setPreferredSize(new java.awt.Dimension(233, 55));
+        cmbAppointmentPet.addActionListener(this::cmbAppointmentPetActionPerformed);
         pnlAppointmentForm.add(cmbAppointmentPet);
         pnlAppointmentForm.add(filler12);
 
         lblAppointmentOwner.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         lblAppointmentOwner.setText("Owner: —");
         pnlAppointmentForm.add(lblAppointmentOwner);
-        pnlAppointmentForm.add(filler13);
+        pnlAppointmentForm.add(filler15);
 
         lblAppointmentVet.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        lblAppointmentVet.setText("Veterinarian *");
+        lblAppointmentVet.setText("Veterinarian: —");
         pnlAppointmentForm.add(lblAppointmentVet);
-        pnlAppointmentForm.add(filler14);
-
-        cmbAppointmentVet.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        cmbAppointmentVet.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select Veterinarian" }));
-        cmbAppointmentVet.setAlignmentX(0.0F);
-        cmbAppointmentVet.setMaximumSize(new java.awt.Dimension(32767, 55));
-        cmbAppointmentVet.setMinimumSize(new java.awt.Dimension(0, 55));
-        cmbAppointmentVet.setPreferredSize(new java.awt.Dimension(233, 55));
-        pnlAppointmentForm.add(cmbAppointmentVet);
-        pnlAppointmentForm.add(filler15);
+        pnlAppointmentForm.add(filler2);
 
         lblAppointmentDate.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         lblAppointmentDate.setText("Appointment date *");
@@ -468,13 +630,16 @@ public class PanelAppointment extends javax.swing.JPanel {
         btnBook.setFont(new java.awt.Font("Segoe UI", 1, 13)); // NOI18N
         btnBook.setForeground(new java.awt.Color(255, 255, 255));
         btnBook.setText("Book");
+        btnBook.setEnabled(false);
         btnBook.setMargin(new java.awt.Insets(8, 5, 8, 5));
+        btnBook.addActionListener(this::btnBookActionPerformed);
         pnlAppointmentFormButtons.add(btnBook);
 
         btnClearAppointment.setFont(new java.awt.Font("Segoe UI", 1, 13)); // NOI18N
         btnClearAppointment.setForeground(new java.awt.Color(71, 85, 105));
         btnClearAppointment.setText("Clear");
         btnClearAppointment.setMargin(new java.awt.Insets(8, 5, 8, 5));
+        btnClearAppointment.addActionListener(this::btnClearAppointmentActionPerformed);
         pnlAppointmentFormButtons.add(btnClearAppointment);
 
         pnlAppointmentFormActions.add(pnlAppointmentFormButtons, java.awt.BorderLayout.CENTER);
@@ -485,6 +650,36 @@ public class PanelAppointment extends javax.swing.JPanel {
 
         add(splitAppointments, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void cmbAppointmentPetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbAppointmentPetActionPerformed
+        if(controller != null){
+            controller.petSelected();
+        }
+    }//GEN-LAST:event_cmbAppointmentPetActionPerformed
+
+    private void btnBookActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBookActionPerformed
+        if(controller != null){
+            controller.bookAppointment();
+        }
+    }//GEN-LAST:event_btnBookActionPerformed
+
+    private void btnClearAppointmentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearAppointmentActionPerformed
+        if (controller != null){
+            controller.newAppointment();
+        }
+    }//GEN-LAST:event_btnClearAppointmentActionPerformed
+
+    private void btnNewAppointmentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNewAppointmentActionPerformed
+        if (controller != null){
+            controller.newAppointment();
+        }
+    }//GEN-LAST:event_btnNewAppointmentActionPerformed
+
+    private void btnRefreshAppointmentsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshAppointmentsActionPerformed
+        if (controller != null){
+            controller.loadAppointments();
+        }
+    }//GEN-LAST:event_btnRefreshAppointmentsActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -497,16 +692,12 @@ public class PanelAppointment extends javax.swing.JPanel {
     private javax.swing.JButton btnRefreshAppointments;
     private javax.swing.JButton btnReschedule;
     private javax.swing.JComboBox<String> cmbAppointmentPet;
-    private javax.swing.JComboBox<String> cmbAppointmentVet;
-    private javax.swing.JComboBox<String> cmbAppointmentVetFilter;
     private javax.swing.JComboBox<String> cmbStatusFilter;
     private javax.swing.JComboBox<String> cmbTimeSlot;
     private javax.swing.Box.Filler filler1;
     private javax.swing.Box.Filler filler10;
     private javax.swing.Box.Filler filler11;
     private javax.swing.Box.Filler filler12;
-    private javax.swing.Box.Filler filler13;
-    private javax.swing.Box.Filler filler14;
     private javax.swing.Box.Filler filler15;
     private javax.swing.Box.Filler filler16;
     private javax.swing.Box.Filler filler17;
@@ -518,7 +709,6 @@ public class PanelAppointment extends javax.swing.JPanel {
     private javax.swing.Box.Filler filler22;
     private javax.swing.Box.Filler filler3;
     private javax.swing.Box.Filler filler4;
-    private javax.swing.Box.Filler filler5;
     private javax.swing.Box.Filler filler6;
     private javax.swing.Box.Filler filler7;
     private javax.swing.Box.Filler filler8;
@@ -535,7 +725,6 @@ public class PanelAppointment extends javax.swing.JPanel {
     private javax.swing.JLabel lblAppointmentPet;
     private javax.swing.JLabel lblAppointmentStatus;
     private javax.swing.JLabel lblAppointmentVet;
-    private javax.swing.JLabel lblAppointmentVetFilter;
     private javax.swing.JLabel lblSelectedAppoinment;
     private javax.swing.JLabel lblStatusFilter;
     private javax.swing.JLabel lblTimeSlot;
@@ -550,7 +739,6 @@ public class PanelAppointment extends javax.swing.JPanel {
     private javax.swing.JPanel pnlAppointmentList;
     private javax.swing.JPanel pnlAppointmentStatusFilterGroup;
     private javax.swing.JPanel pnlAppointmentToolbar;
-    private javax.swing.JPanel pnlAppointmentVetFilterGroup;
     private javax.swing.JScrollPane scrAppointmentForm;
     private javax.swing.JScrollPane scrAppointmentTable;
     private javax.swing.JScrollPane scrVisitReasonText;
