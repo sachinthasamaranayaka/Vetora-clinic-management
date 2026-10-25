@@ -27,6 +27,7 @@ public class AppointmentController {
     private boolean savingAppointment;
     private int appointmentLoadVersion;
     private boolean loadingOptions;
+    private boolean changingAppointmentStatus;
 
     public AppointmentController(AppointmentModel model, PanelAppointment view) {
         this.model = model;
@@ -34,7 +35,7 @@ public class AppointmentController {
     }
     
     public void loadFormOptions() {
-        if (loadingOptions || savingAppointment) {
+        if (loadingOptions || savingAppointment || changingAppointmentStatus) {
             return;
         }
 
@@ -99,7 +100,7 @@ public class AppointmentController {
     }
     
     public void bookAppointment() {
-        if (loadingOptions || savingAppointment) {
+        if (loadingOptions || savingAppointment || changingAppointmentStatus) {
             return;
         }
 
@@ -173,12 +174,16 @@ public class AppointmentController {
     }
     
     public void newAppointment(){
-        if(!loadingOptions && !savingAppointment){
+        if(!loadingOptions && !savingAppointment && !changingAppointmentStatus){
             view.clearAppointmentForm();
         }
     }
     
     public void loadAppointments() {
+        if(changingAppointmentStatus){
+            return;
+        }
+        
         int requestVersion = ++appointmentLoadVersion;
 
         view.clearAppointmentList();
@@ -229,6 +234,87 @@ public class AppointmentController {
                         cause.printStackTrace();
                         view.showAppointmentListMessage("Could not load appointments. Click Refresh to retry.");
                     }
+                }
+            }
+        }.execute();
+    }
+    
+    public void checkInAppointment() {
+        changeSelectedAppointmentStatus("Checked-In");
+    }
+
+    public void cancelAppointment() {
+        changeSelectedAppointmentStatus("Cancelled");
+    }
+
+    private void changeSelectedAppointmentStatus(String newStatus) {
+        if (loadingOptions || savingAppointment || changingAppointmentStatus) {
+            return;
+        }
+
+        Appointment selected = view.getSelectedAppointment();
+
+        if (selected == null) {
+            view.showAppointmentListMessage("Select an appointment.");
+            return;
+        }
+
+        long appointmentId = selected.getAppointmentId();
+
+        if ("Cancelled".equals(newStatus) && !view.confirmCancelAppointment(appointmentId)) {
+            return;
+        }
+
+        changingAppointmentStatus = true;
+
+        appointmentLoadVersion++;
+
+        view.setAppointmentBusy(true);
+        view.showAppointmentListMessage("Updating appointment...");
+
+        new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                model.changeAppointmentStatus(appointmentId, newStatus);
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                String error = null;
+
+                try {
+                    get();
+
+                } 
+                catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                    error = "Status update interrupted. Check the schedule.";
+
+                } 
+                catch (ExecutionException ex) {
+                    Throwable cause = ex.getCause();
+
+                    if (cause instanceof ValidationException) {
+                        error = cause.getMessage();
+
+                    } 
+                    else {
+                        cause.printStackTrace();
+
+                        error =  "Could not confirm the status update. Check the schedule.";
+                    }
+
+                } 
+                finally {
+                    changingAppointmentStatus = false;
+                    view.setAppointmentBusy(false);
+                }
+
+                loadAppointments();
+
+                if (error != null) {
+                    view.showAppointmentActionError(error);
                 }
             }
         }.execute();

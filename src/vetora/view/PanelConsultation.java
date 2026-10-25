@@ -7,6 +7,15 @@ package vetora.view;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.JSpinner;
+import javax.swing.table.DefaultTableModel;
+import vetora.controller.ConsultationController;
+import vetora.model.Consultation;
+import vetora.model.PrescriptionItem;
 
 /**
  *
@@ -14,25 +23,315 @@ import java.awt.Font;
  */
 public class PanelConsultation extends javax.swing.JPanel {
 
-    /**
-     * Creates new form PanelConsultation
-     */
-    
+    private ConsultationController controller;
+    private final List<Consultation> consultationVisits = new ArrayList<>();
+    private final List<PrescriptionItem> prescriptionItems = new ArrayList<>();
+    private Consultation loadedVisit;
+    private boolean consultationBusy;
     private boolean consultationSplitReady = false;
-    
+
     public PanelConsultation() {
         initComponents();
         setupConsultationUI();
+        clearLoadedVisit();
+        setConsultationBusy(false);
     }
-    
-    private void setupConsultationUI(){
-        tblPrescriptionItems.getTableHeader().setFont(new Font("Segoe UI",Font.BOLD,13));
+
+    private void setupConsultationUI() {
+        tblPrescriptionItems.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
         scrClinicalNotes.getViewport().setBackground(Color.WHITE);
         scrClinicalNotes.getVerticalScrollBar().setUnitIncrement(21);
         scrPrescription.getViewport().setBackground(Color.WHITE);
         scrPrescription.getVerticalScrollBar().setUnitIncrement(21);
         scrPrescriptionItems.getViewport().setBackground(Color.WHITE);
-        scrPrescriptionItems.getVerticalScrollBar().setUnitIncrement(21);   
+        scrPrescriptionItems.getVerticalScrollBar().setUnitIncrement(21);
+        spnPrescribedQuantity.setEditor(new JSpinner.NumberEditor(spnPrescribedQuantity, "0"));
+        tblPrescriptionItems.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                updatePrescriptionButtons();
+            }
+        });
+    }
+
+    public void setController(ConsultationController controller) {
+        this.controller = controller;
+    }
+
+    public Long getLoadedConsultationAppointmentId() {
+        return loadedVisit == null ? null : loadedVisit.getAppointmentId();
+    }
+
+    public String getConsultationSymptoms() {
+        return txtSymptoms.getText();
+    }
+
+    public String getConsultationDiagnosis() {
+        return txtDiagnosis.getText();
+    }
+
+    public String getConsultationTreatment() {
+        return txtTreatmentNotes.getText();
+    }
+
+    public void showConsultationMessage(String message) {
+        lblConsultationError.setForeground(new Color(185, 28, 28));
+        lblConsultationError.setText(message);
+        lblConsultationError.setToolTipText(message.trim().isEmpty() ? null : message);
+    }
+
+    public Long getSelectedConsultationAppointmentId() {
+        int index = cmbConsultationAppointment.getSelectedIndex() - 1;
+        return index >= 0 && index < consultationVisits.size()
+                ? consultationVisits.get(index).getAppointmentId() : null;
+    }
+
+    public boolean isConsultationEditable() {
+        return !consultationBusy && loadedVisit != null
+                && (loadedVisit.getStatus() == null || "Draft".equals(loadedVisit.getStatus()));
+    }
+
+    public void setConsultationBusy(boolean busy) {
+        consultationBusy = busy;
+        cmbConsultationAppointment.setEnabled(!busy && !consultationVisits.isEmpty());
+        btnLoadConsultation.setEnabled(!busy && getSelectedConsultationAppointmentId() != null);
+        btnLoadConsultation.setText(busy ? "Please wait..." : "Load visit");
+        boolean editable = isConsultationEditable();
+        txtSymptoms.setEditable(editable);
+        txtDiagnosis.setEditable(editable);
+        txtTreatmentNotes.setEditable(editable);
+        txtExternalMedicine.setEnabled(editable);
+        spnPrescribedQuantity.setEnabled(editable);
+        txtDoseText.setEnabled(editable);
+        txtFrequency.setEnabled(editable);
+        txtDuration.setEnabled(editable);
+        txtPrescriptionInstructions.setEnabled(editable);
+        tblPrescriptionItems.setEnabled(!busy && loadedVisit != null);
+        btnSaveDraft.setEnabled(editable);
+        btnFinalizeConsultation.setEnabled(editable);
+        updatePrescriptionButtons();
+    }
+
+    private void updatePrescriptionButtons() {
+        boolean editable = isConsultationEditable();
+        btnAddPrescriptionItem.setEnabled(editable);
+        btnClearPrescriptionItem.setEnabled(editable);
+        btnRemovePrescriptionItem.setEnabled(editable && tblPrescriptionItems.getSelectedRow() >= 0);
+    }
+
+    private String formatVisit(Consultation visit) {
+        String status = visit.getStatus() == null ? "New" : visit.getStatus();
+        return "[" + status + "] " + visit.getAppointmentDate() + " " + visit.getAppointmentTime()
+                + " | #" + visit.getAppointmentId() + " | " + visit.getPetName()
+                + " (" + visit.getOwnerName() + ")";
+    }
+
+    public void displayVisitOptions(List<Consultation> visits) {
+        consultationVisits.clear();
+        consultationVisits.addAll(visits);
+        cmbConsultationAppointment.removeAllItems();
+        cmbConsultationAppointment.addItem("Select appointment");
+        for (Consultation visit : visits) {
+            cmbConsultationAppointment.addItem(formatVisit(visit));
+        }
+        cmbConsultationAppointment.setSelectedIndex(0);
+    }
+
+    public void clearLoadedVisit() {
+        loadedVisit = null;
+        lblPatientPet.setText("Pet: —");
+        lblPatientOwner.setText("Owner: —");
+        lblPatientSpecies.setText("Species: —");
+        lblPatientAge.setText("Age: —");
+        lblConsultationVet.setText("Veterinarian: —");
+        lblConsultationVisit.setText("Visit: —");
+        lblConsultationStatus.setText("Consultation: Not loaded");
+        txtSymptoms.setText("");
+        txtDiagnosis.setText("");
+        txtTreatmentNotes.setText("");
+        prescriptionItems.clear();
+        displayPrescriptionItems();
+        clearPrescriptionEntry();
+    }
+
+    public void displayVisit(Consultation visit) {
+        loadedVisit = visit;
+        lblPatientPet.setText("Pet: " + visit.getPetName());
+        lblPatientOwner.setText("Owner: " + visit.getOwnerName());
+        lblPatientSpecies.setText("Species: " + visit.getSpecies());
+        lblPatientAge.setText("Age: " + visit.getAgeText());
+        lblConsultationVet.setText("Veterinarian: " + visit.getVeterinarianName());
+        lblConsultationVisit.setText("Visit: " + visit.getAppointmentDate() + " " + visit.getAppointmentTime());
+        lblConsultationStatus.setText("Consultation: " + (visit.getStatus() == null ? "New" : visit.getStatus()));
+        txtSymptoms.setText(visit.getSymptoms());
+        txtDiagnosis.setText(visit.getDiagnosis());
+        txtTreatmentNotes.setText(visit.getTreatment());
+        prescriptionItems.clear();
+        prescriptionItems.addAll(visit.getPrescriptionItems());
+        displayPrescriptionItems();
+        clearPrescriptionEntry();
+        txtSymptoms.setCaretPosition(0);
+        txtDiagnosis.setCaretPosition(0);
+        txtTreatmentNotes.setCaretPosition(0);
+    }
+
+    private String cleanConsultationText(String text) {
+        return text == null ? "" : text.trim();
+    }
+
+    public boolean hasUnsavedConsultationChanges() {
+        return loadedVisit != null && (
+                !cleanConsultationText(txtSymptoms.getText()).equals(cleanConsultationText(loadedVisit.getSymptoms()))
+                || !cleanConsultationText(txtDiagnosis.getText()).equals(cleanConsultationText(loadedVisit.getDiagnosis()))
+                || !cleanConsultationText(txtTreatmentNotes.getText()).equals(cleanConsultationText(loadedVisit.getTreatment()))
+                || !samePrescriptionItems(loadedVisit.getPrescriptionItems())
+                || hasPendingPrescriptionInput());
+    }
+
+    private boolean samePrescriptionItems(List<PrescriptionItem> savedItems) {
+        if (savedItems.size() != prescriptionItems.size()) {
+            return false;
+        }
+        for (int i = 0; i < savedItems.size(); i++) {
+            if (!savedItems.get(i).sameDetails(prescriptionItems.get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean confirmDiscardConsultationChanges() {
+        return JOptionPane.showConfirmDialog(this,
+                "Discard unsaved clinical notes and prescription changes?", "Unsaved changes",
+                JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION;
+    }
+
+    public boolean confirmFinalizeConsultation() {
+        return JOptionPane.showConfirmDialog(this,
+                "Finalize this consultation and complete the appointment?\n"
+                + "Clinical notes and prescription items will become read-only.",
+                "Finalize consultation", JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION;
+    }
+
+    public void restoreLoadedAppointmentSelection() {
+        if (loadedVisit == null) {
+            return;
+        }
+        for (int i = 0; i < consultationVisits.size(); i++) {
+            if (consultationVisits.get(i).getAppointmentId() == loadedVisit.getAppointmentId()) {
+                cmbConsultationAppointment.setSelectedIndex(i + 1);
+                return;
+            }
+        }
+    }
+
+    public void markConsultationSaved(long appointmentId, String symptoms, String diagnosis,
+            String treatment, List<PrescriptionItem> items, boolean finalized) {
+        if (loadedVisit == null || loadedVisit.getAppointmentId() != appointmentId) {
+            return;
+        }
+        Consultation saved = loadedVisit.withSavedDetails(cleanConsultationText(symptoms),
+                cleanConsultationText(diagnosis), cleanConsultationText(treatment), items, finalized);
+        displayVisit(saved);
+        for (int i = 0; i < consultationVisits.size(); i++) {
+            if (consultationVisits.get(i).getAppointmentId() == appointmentId) {
+                consultationVisits.set(i, saved);
+                cmbConsultationAppointment.removeItemAt(i + 1);
+                cmbConsultationAppointment.insertItemAt(formatVisit(saved), i + 1);
+                cmbConsultationAppointment.setSelectedIndex(i + 1);
+                break;
+            }
+        }
+        lblConsultationError.setForeground(new Color(15, 118, 110));
+        String message = finalized ? "Consultation finalized. Appointment completed." : "Draft and prescription saved.";
+        lblConsultationError.setText(message);
+        lblConsultationError.setToolTipText(message);
+    }
+
+    public String getPrescriptionMedicine() {
+        return txtExternalMedicine.getText();
+    }
+
+    public int getPrescriptionQuantity() throws ParseException {
+        String text = getQuantityEditorText();
+        if (!text.matches("[0-9]{1,4}")) {
+            throw new ParseException("Invalid quantity.", 0);
+        }
+        spnPrescribedQuantity.commitEdit();
+        return Integer.parseInt(text);
+    }
+
+    private String getQuantityEditorText() {
+        return ((JSpinner.DefaultEditor) spnPrescribedQuantity.getEditor())
+                .getTextField().getText().trim();
+    }
+
+    public String getPrescriptionDose() {
+        return txtDoseText.getText();
+    }
+
+    public String getPrescriptionFrequency() {
+        return txtFrequency.getText();
+    }
+
+    public String getPrescriptionDuration() {
+        return txtDuration.getText();
+    }
+
+    public String getPrescriptionInstructions() {
+        return txtPrescriptionInstructions.getText();
+    }
+
+    public List<PrescriptionItem> getPrescriptionItems() {
+        return new ArrayList<>(prescriptionItems);
+    }
+
+    public boolean hasPendingPrescriptionInput() {
+        return !txtExternalMedicine.getText().trim().isEmpty()
+                || !txtDoseText.getText().trim().isEmpty()
+                || !txtFrequency.getText().trim().isEmpty()
+                || !txtDuration.getText().trim().isEmpty()
+                || !txtPrescriptionInstructions.getText().trim().isEmpty()
+                || !"1".equals(getQuantityEditorText());
+    }
+
+    public void clearPrescriptionEntry() {
+        txtExternalMedicine.setText("");
+        spnPrescribedQuantity.setValue(1);
+        ((JSpinner.DefaultEditor) spnPrescribedQuantity.getEditor()).getTextField().setValue(1);
+        txtDoseText.setText("");
+        txtFrequency.setText("");
+        txtDuration.setText("");
+        txtPrescriptionInstructions.setText("");
+    }
+
+    public void addPrescriptionItem(PrescriptionItem item) {
+        prescriptionItems.add(item);
+        displayPrescriptionItems();
+        clearPrescriptionEntry();
+        txtExternalMedicine.requestFocusInWindow();
+    }
+
+    public void removeSelectedPrescriptionItem() {
+        int selected = tblPrescriptionItems.getSelectedRow();
+        if (selected >= 0) {
+            int index = tblPrescriptionItems.convertRowIndexToModel(selected);
+            prescriptionItems.remove(index);
+            displayPrescriptionItems();
+        }
+    }
+
+    private void displayPrescriptionItems() {
+        tblPrescriptionItems.clearSelection();
+        DefaultTableModel tableModel = (DefaultTableModel) tblPrescriptionItems.getModel();
+        tableModel.setRowCount(0);
+        for (PrescriptionItem item : prescriptionItems) {
+            tableModel.addRow(new Object[]{item.getMedicineName(), item.getFulfilment(),
+                item.getQuantity(), item.getDoseText(), item.getFrequency(),
+                item.getDuration(), item.getInstructions()});
+        }
+        lblPrescriptionCount.setText(prescriptionItems.size() + " prescription item(s)");
+        updatePrescriptionButtons();
     }
 
     /**
@@ -116,6 +415,7 @@ public class PanelConsultation extends javax.swing.JPanel {
         pnlPrescriptionItemButtons = new javax.swing.JPanel();
         btnAddPrescriptionItem = new javax.swing.JButton();
         btnRemovePrescriptionItem = new javax.swing.JButton();
+        btnClearPrescriptionItem = new javax.swing.JButton();
         filler15 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13));
         scrPrescriptionItems = new javax.swing.JScrollPane();
         tblPrescriptionItems = new javax.swing.JTable();
@@ -145,7 +445,7 @@ public class PanelConsultation extends javax.swing.JPanel {
         pnlConsultationHeaderLables.setLayout(new java.awt.BorderLayout(13, 0));
 
         lblSelectedConsultationAppointment.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
-        lblSelectedConsultationAppointment.setText("Checked-in appointment");
+        lblSelectedConsultationAppointment.setText("Consultation appointment");
         pnlConsultationHeaderLables.add(lblSelectedConsultationAppointment, java.awt.BorderLayout.CENTER);
 
         lblConsultationStatus.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
@@ -161,11 +461,13 @@ public class PanelConsultation extends javax.swing.JPanel {
         cmbConsultationAppointment.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         cmbConsultationAppointment.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select appointment" }));
         cmbConsultationAppointment.setPreferredSize(new java.awt.Dimension(233, 55));
+        cmbConsultationAppointment.addActionListener(this::cmbConsultationAppointmentActionPerformed);
         pnlConsultationSeclector.add(cmbConsultationAppointment, java.awt.BorderLayout.CENTER);
 
         btnLoadConsultation.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         btnLoadConsultation.setText("Load visit");
         btnLoadConsultation.setPreferredSize(new java.awt.Dimension(144, 55));
+        btnLoadConsultation.addActionListener(this::btnLoadConsultationActionPerformed);
         pnlConsultationSeclector.add(btnLoadConsultation, java.awt.BorderLayout.EAST);
 
         pnlConsultationHeader.add(pnlConsultationSeclector, java.awt.BorderLayout.CENTER);
@@ -236,6 +538,7 @@ public class PanelConsultation extends javax.swing.JPanel {
         scrSymptomsText.setMinimumSize(new java.awt.Dimension(0, 89));
         scrSymptomsText.setPreferredSize(new java.awt.Dimension(233, 89));
 
+        txtSymptoms.setEditable(false);
         txtSymptoms.setColumns(20);
         txtSymptoms.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         txtSymptoms.setLineWrap(true);
@@ -258,6 +561,7 @@ public class PanelConsultation extends javax.swing.JPanel {
         scrDiagnosisText.setMinimumSize(new java.awt.Dimension(0, 89));
         scrDiagnosisText.setPreferredSize(new java.awt.Dimension(233, 89));
 
+        txtDiagnosis.setEditable(false);
         txtDiagnosis.setColumns(20);
         txtDiagnosis.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         txtDiagnosis.setLineWrap(true);
@@ -280,6 +584,7 @@ public class PanelConsultation extends javax.swing.JPanel {
         scrTreatmentNotesText.setMinimumSize(new java.awt.Dimension(0, 89));
         scrTreatmentNotesText.setPreferredSize(new java.awt.Dimension(233, 89));
 
+        txtTreatmentNotes.setEditable(false);
         txtTreatmentNotes.setColumns(20);
         txtTreatmentNotes.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         txtTreatmentNotes.setLineWrap(true);
@@ -343,6 +648,7 @@ public class PanelConsultation extends javax.swing.JPanel {
         pnlExternalMedicineGroup.add(lblExtterrnalMedicine, java.awt.BorderLayout.NORTH);
 
         txtExternalMedicine.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        txtExternalMedicine.setEnabled(false);
         pnlExternalMedicineGroup.add(txtExternalMedicine, java.awt.BorderLayout.CENTER);
 
         pnlPrescriptionMedicineRow.add(pnlExternalMedicineGroup, java.awt.BorderLayout.CENTER);
@@ -357,7 +663,8 @@ public class PanelConsultation extends javax.swing.JPanel {
         pnlPrescriptionQuantityGroup.add(lblPrescribedQuantity, java.awt.BorderLayout.NORTH);
 
         spnPrescribedQuantity.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        spnPrescribedQuantity.setModel(new javax.swing.SpinnerNumberModel(1, 1, null, 1));
+        spnPrescribedQuantity.setModel(new javax.swing.SpinnerNumberModel(1, 1, 9999, 1));
+        spnPrescribedQuantity.setEnabled(false);
         pnlPrescriptionQuantityGroup.add(spnPrescribedQuantity, java.awt.BorderLayout.CENTER);
 
         pnlPrescriptionMedicineRow.add(pnlPrescriptionQuantityGroup, java.awt.BorderLayout.EAST);
@@ -376,11 +683,13 @@ public class PanelConsultation extends javax.swing.JPanel {
         pnlPrescriptionDoseGroup.setLayout(new java.awt.BorderLayout(0, 8));
 
         lblDoseText.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        lblDoseText.setText("Dose");
+        lblDoseText.setText("Dose *");
+        lblDoseText.setToolTipText("Required when finalizing a prescription item.");
         lblDoseText.setPreferredSize(new java.awt.Dimension(0, 21));
         pnlPrescriptionDoseGroup.add(lblDoseText, java.awt.BorderLayout.NORTH);
 
         txtDoseText.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        txtDoseText.setEnabled(false);
         pnlPrescriptionDoseGroup.add(txtDoseText, java.awt.BorderLayout.CENTER);
 
         pnlPrescriptionDoseRow.add(pnlPrescriptionDoseGroup);
@@ -389,11 +698,13 @@ public class PanelConsultation extends javax.swing.JPanel {
         pnlPrescriptionFrequencyGroup.setLayout(new java.awt.BorderLayout(0, 8));
 
         lblFrequency.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        lblFrequency.setText("Frequency");
+        lblFrequency.setText("Frequency *");
+        lblFrequency.setToolTipText("Required when finalizing a prescription item.");
         lblFrequency.setPreferredSize(new java.awt.Dimension(0, 21));
         pnlPrescriptionFrequencyGroup.add(lblFrequency, java.awt.BorderLayout.NORTH);
 
         txtFrequency.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        txtFrequency.setEnabled(false);
         pnlPrescriptionFrequencyGroup.add(txtFrequency, java.awt.BorderLayout.CENTER);
 
         pnlPrescriptionDoseRow.add(pnlPrescriptionFrequencyGroup);
@@ -402,11 +713,13 @@ public class PanelConsultation extends javax.swing.JPanel {
         pnlPrescriptionDurationGroup.setLayout(new java.awt.BorderLayout(0, 8));
 
         lblDuration.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        lblDuration.setText("Duration");
+        lblDuration.setText("Duration *");
+        lblDuration.setToolTipText("Required when finalizing a prescription item.");
         lblDuration.setPreferredSize(new java.awt.Dimension(0, 21));
         pnlPrescriptionDurationGroup.add(lblDuration, java.awt.BorderLayout.NORTH);
 
         txtDuration.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        txtDuration.setEnabled(false);
         pnlPrescriptionDurationGroup.add(txtDuration, java.awt.BorderLayout.CENTER);
 
         pnlPrescriptionDoseRow.add(pnlPrescriptionDurationGroup);
@@ -430,6 +743,7 @@ public class PanelConsultation extends javax.swing.JPanel {
         txtPrescriptionInstructions.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         txtPrescriptionInstructions.setLineWrap(true);
         txtPrescriptionInstructions.setWrapStyleWord(true);
+        txtPrescriptionInstructions.setEnabled(false);
         txtPrescriptionInstructions.setMargin(new java.awt.Insets(8, 8, 8, 8));
         scrPrescriptionInstructions.setViewportView(txtPrescriptionInstructions);
 
@@ -441,21 +755,31 @@ public class PanelConsultation extends javax.swing.JPanel {
         pnlPrescriptionItemButtons.setMaximumSize(new java.awt.Dimension(32767, 55));
         pnlPrescriptionItemButtons.setMinimumSize(new java.awt.Dimension(0, 55));
         pnlPrescriptionItemButtons.setPreferredSize(new java.awt.Dimension(233, 55));
-        pnlPrescriptionItemButtons.setLayout(new java.awt.GridLayout(1, 2, 13, 0));
+        pnlPrescriptionItemButtons.setLayout(new java.awt.GridLayout(1, 3, 13, 0));
 
         btnAddPrescriptionItem.setFont(new java.awt.Font("Segoe UI", 1, 13)); // NOI18N
         btnAddPrescriptionItem.setForeground(new java.awt.Color(15, 118, 110));
         btnAddPrescriptionItem.setText("Add item");
         btnAddPrescriptionItem.setEnabled(false);
         btnAddPrescriptionItem.setPreferredSize(new java.awt.Dimension(0, 55));
+        btnAddPrescriptionItem.addActionListener(this::btnAddPrescriptionItemActionPerformed);
         pnlPrescriptionItemButtons.add(btnAddPrescriptionItem);
 
         btnRemovePrescriptionItem.setFont(new java.awt.Font("Segoe UI", 1, 13)); // NOI18N
         btnRemovePrescriptionItem.setForeground(new java.awt.Color(185, 28, 28));
-        btnRemovePrescriptionItem.setText("Remove selected");
+        btnRemovePrescriptionItem.setText("Remove");
         btnRemovePrescriptionItem.setEnabled(false);
         btnRemovePrescriptionItem.setPreferredSize(new java.awt.Dimension(0, 55));
+        btnRemovePrescriptionItem.addActionListener(this::btnRemovePrescriptionItemActionPerformed);
         pnlPrescriptionItemButtons.add(btnRemovePrescriptionItem);
+
+        btnClearPrescriptionItem.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        btnClearPrescriptionItem.setForeground(new java.awt.Color(71, 85, 105));
+        btnClearPrescriptionItem.setText("Clear fields");
+        btnClearPrescriptionItem.setEnabled(false);
+        btnClearPrescriptionItem.setPreferredSize(new java.awt.Dimension(0, 55));
+        btnClearPrescriptionItem.addActionListener(this::btnClearPrescriptionItemActionPerformed);
+        pnlPrescriptionItemButtons.add(btnClearPrescriptionItem);
 
         pnlPrescription.add(pnlPrescriptionItemButtons);
         pnlPrescription.add(filler15);
@@ -490,7 +814,8 @@ public class PanelConsultation extends javax.swing.JPanel {
             }
         });
         tblPrescriptionItems.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF);
-        tblPrescriptionItems.setColumnSelectionAllowed(true);
+        tblPrescriptionItems.setColumnSelectionAllowed(false);
+        tblPrescriptionItems.setRowSelectionAllowed(true);
         tblPrescriptionItems.setFillsViewportHeight(true);
         tblPrescriptionItems.setGridColor(new java.awt.Color(226, 232, 240));
         tblPrescriptionItems.setRowHeight(55);
@@ -541,6 +866,7 @@ public class PanelConsultation extends javax.swing.JPanel {
         btnSaveDraft.setMaximumSize(new java.awt.Dimension(144, 55));
         btnSaveDraft.setMinimumSize(new java.awt.Dimension(144, 55));
         btnSaveDraft.setPreferredSize(new java.awt.Dimension(144, 55));
+        btnSaveDraft.addActionListener(this::btnSaveDraftActionPerformed);
         pnlConsultationButtons.add(btnSaveDraft);
         pnlConsultationButtons.add(filler17);
 
@@ -552,6 +878,7 @@ public class PanelConsultation extends javax.swing.JPanel {
         btnFinalizeConsultation.setMaximumSize(new java.awt.Dimension(233, 55));
         btnFinalizeConsultation.setMinimumSize(new java.awt.Dimension(233, 55));
         btnFinalizeConsultation.setPreferredSize(new java.awt.Dimension(233, 55));
+        btnFinalizeConsultation.addActionListener(this::btnFinalizeConsultationActionPerformed);
         pnlConsultationButtons.add(btnFinalizeConsultation);
 
         pnlConsultationActions.add(pnlConsultationButtons, java.awt.BorderLayout.EAST);
@@ -574,9 +901,52 @@ public class PanelConsultation extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_formComponentShown
 
+    private void cmbConsultationAppointmentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbConsultationAppointmentActionPerformed
+        if (controller != null){
+            controller.appointmentChanged();
+        }
+    }//GEN-LAST:event_cmbConsultationAppointmentActionPerformed
+
+    private void btnLoadConsultationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoadConsultationActionPerformed
+        if(controller != null){
+            controller.loadVisit();
+        }
+    }//GEN-LAST:event_btnLoadConsultationActionPerformed
+
+    private void btnSaveDraftActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveDraftActionPerformed
+        if(controller != null){
+            controller.saveDraft();
+        }
+    }//GEN-LAST:event_btnSaveDraftActionPerformed
+
+
+    private void btnAddPrescriptionItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddPrescriptionItemActionPerformed
+        if (controller != null) {
+            controller.addPrescriptionItem();
+        }
+    }//GEN-LAST:event_btnAddPrescriptionItemActionPerformed
+
+    private void btnRemovePrescriptionItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemovePrescriptionItemActionPerformed
+        if (controller != null) {
+            controller.removePrescriptionItem();
+        }
+    }//GEN-LAST:event_btnRemovePrescriptionItemActionPerformed
+
+    private void btnClearPrescriptionItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearPrescriptionItemActionPerformed
+        if (controller != null) {
+            controller.clearPrescriptionItem();
+        }
+    }//GEN-LAST:event_btnClearPrescriptionItemActionPerformed
+
+    private void btnFinalizeConsultationActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFinalizeConsultationActionPerformed
+        if (controller != null) {
+            controller.finalizeConsultation();
+        }
+    }//GEN-LAST:event_btnFinalizeConsultationActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddPrescriptionItem;
+    private javax.swing.JButton btnClearPrescriptionItem;
     private javax.swing.JButton btnFinalizeConsultation;
     private javax.swing.JButton btnLoadConsultation;
     private javax.swing.JButton btnRemovePrescriptionItem;

@@ -32,6 +32,7 @@ public class PanelAppointment extends javax.swing.JPanel {
     private final List<Pet> appointmentPets = new ArrayList<>();
     private boolean clinicVetReady;
     private final List<Appointment> displayedAppointments = new ArrayList<>();
+    private boolean appointmentBusy;
     /**
      * Creates new form PanelAppointment
      */
@@ -80,18 +81,21 @@ public class PanelAppointment extends javax.swing.JPanel {
     }
     
     public void setAppointmentBusy(boolean busy) {
+        appointmentBusy = busy;
         cmbAppointmentPet.setEnabled(!busy && !appointmentPets.isEmpty());
-
         spnAppointmentDate.setEnabled(!busy);
         cmbTimeSlot.setEnabled(!busy);
         txtVisitReason.setEnabled(!busy);
-
         btnNewAppointment.setEnabled(!busy);
         btnClearAppointment.setEnabled(!busy);
-
         btnBook.setEnabled(!busy && clinicVetReady && !appointmentPets.isEmpty());
-
         btnBook.setText(busy ? "Please wait..." : "Book");
+        tblAppointments.setEnabled(!busy);
+        btnRefreshAppointments.setEnabled(!busy);
+        spnAppointmentFilterDate.setEnabled(!busy);
+        cmbStatusFilter.setEnabled(!busy);
+
+        updateAppointmentActions();
     }
 
     public void showAppointmentError(String message) {
@@ -127,6 +131,8 @@ public class PanelAppointment extends javax.swing.JPanel {
         tableModel.setRowCount(0);
 
         lblSelectedAppoinment.setText("Selected appointment: None");
+        
+        updateAppointmentActions();
     }
     
     public void displayPetOptions(List<Pet> pets) {
@@ -244,8 +250,9 @@ public class PanelAppointment extends javax.swing.JPanel {
 
     private void showSelectedAppointment() {
         Appointment appointment = getSelectedAppointment();
-
         lblSelectedAppoinment.setText(appointment == null ? "Selected appointment: None" : "Selected appointment: " + appointment.getAppointmentId());
+        
+        updateAppointmentActions();
     }
     
     private void setupAppointmentUI(){
@@ -253,6 +260,22 @@ public class PanelAppointment extends javax.swing.JPanel {
         scrAppointmentForm.getViewport().setBackground(Color.WHITE);
         scrAppointmentForm.getVerticalScrollBar().setUnitIncrement(21);
     }
+    
+    private void updateAppointmentActions() {
+        Appointment selected = getSelectedAppointment();
+
+        boolean scheduled = !appointmentBusy && selected != null && "Scheduled".equals(selected.getStatus());
+
+        btnCheckIn.setEnabled(scheduled && LocalDate.now(ZoneId.of("Asia/Colombo")).equals(selected.getAppointmentDate()));
+        btnCancelAppointment.setEnabled(scheduled);
+    }
+    
+    public boolean confirmCancelAppointment(long id) {
+        return JOptionPane.showConfirmDialog(this,"Cancel appointment " + id + "?","Cancel appointment",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION;
+    }
+    public void showAppointmentActionError(String message) {
+        JOptionPane.showMessageDialog(this,message,"Appointment",JOptionPane.ERROR_MESSAGE);
+    }        
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -476,6 +499,7 @@ public class PanelAppointment extends javax.swing.JPanel {
         btnCheckIn.setFont(new java.awt.Font("Segoe UI", 1, 13)); // NOI18N
         btnCheckIn.setText("Check in");
         btnCheckIn.setEnabled(false);
+        btnCheckIn.addActionListener(this::btnCheckInActionPerformed);
         pnlAppointmentActions.add(btnCheckIn);
 
         btnReschedule.setFont(new java.awt.Font("Segoe UI", 1, 13)); // NOI18N
@@ -486,6 +510,7 @@ public class PanelAppointment extends javax.swing.JPanel {
         btnCancelAppointment.setFont(new java.awt.Font("Segoe UI", 1, 13)); // NOI18N
         btnCancelAppointment.setText("Cancel appointment");
         btnCancelAppointment.setEnabled(false);
+        btnCancelAppointment.addActionListener(this::btnCancelAppointmentActionPerformed);
         pnlAppointmentActions.add(btnCancelAppointment);
 
         btnNoShow.setFont(new java.awt.Font("Segoe UI", 1, 13)); // NOI18N
@@ -680,6 +705,18 @@ public class PanelAppointment extends javax.swing.JPanel {
             controller.loadAppointments();
         }
     }//GEN-LAST:event_btnRefreshAppointmentsActionPerformed
+
+    private void btnCheckInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCheckInActionPerformed
+        if(controller != null){
+            controller.checkInAppointment();
+        }
+    }//GEN-LAST:event_btnCheckInActionPerformed
+
+    private void btnCancelAppointmentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelAppointmentActionPerformed
+        if(controller != null){
+            controller.cancelAppointment();
+        }
+    }//GEN-LAST:event_btnCancelAppointmentActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -80,4 +80,17 @@ public class AppointmentModel {
 
         return appointmentDao.getAppointments(date, status);
     }
+    
+    public void changeAppointmentStatus(Long appointmentId, String newStatus) throws SQLException, ValidationException {
+
+        if (appointmentId == null || appointmentId <= 0) {
+            throw new ValidationException("Select an appointment.");
+        }
+
+        if (!"Checked-In".equals(newStatus) && !"Cancelled".equals(newStatus)) {
+            throw new ValidationException("Invalid appointment action.");
+        }
+
+        appointmentDao.updateStatus(appointmentId, newStatus);
+    }
 }

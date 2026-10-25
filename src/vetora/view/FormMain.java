@@ -17,6 +17,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import vetora.controller.AppointmentController;
+import vetora.controller.ConsultationController;
 import vetora.model.UserModel;
 import vetora.controller.UserController;
 import vetora.model.OwnerModel;
@@ -25,6 +26,8 @@ import vetora.controller.LoginController;
 import vetora.model.PetModel;
 import vetora.controller.PetController;
 import vetora.model.AppointmentModel;
+import vetora.model.Consultation;
+import vetora.model.ConsultationModel;
 import vetora.model.User;
 
 /**
@@ -113,8 +116,14 @@ public class FormMain extends javax.swing.JFrame {
         registerPage("appointments", appointmentView , btnAppointments,"Appointments","Manage clinic visits");
         btnAppointments.addActionListener(e -> {appointmentController.loadFormOptions(); appointmentController.loadAppointments();});
         
+        PanelConsultation consultationView = new PanelConsultation();
+        ConsultationModel consultationModel = new ConsultationModel();
+        ConsultationController consultationController = new ConsultationController(consultationModel, consultationView);
+        consultationView.setController(consultationController);
+        registerPage("consultations",consultationView , btnConsultations,"Consultations", "Record consultations");
+        btnConsultations.addActionListener(e -> consultationController.loadAppointments());
         
-        registerPage("consultations",new PanelConsultation() , btnConsultations,"Consultations", "Record consultations");
+        
         registerPage("billing", new PanelBilling(),btnBilling,"Billing","Manage invoices");
         registerPage("reports", new PanelReports(),btnReports,"Reports","Review clinic activity");
         

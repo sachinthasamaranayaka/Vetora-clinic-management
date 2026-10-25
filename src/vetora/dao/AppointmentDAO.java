@@ -164,4 +164,28 @@ public class AppointmentDAO {
 
         return appointments;
     }
+    
+    public void updateStatus(long appointmentId, String newStatus)throws SQLException, ValidationException {
+        
+        boolean checkIn = "Checked-In".equals(newStatus);
+
+        String sql = "UPDATE appointments SET status = ? WHERE appointment_id = ? AND status = 'Scheduled'";
+
+        if (checkIn) {
+            sql += " AND appointment_date = ?";
+        }
+
+        try (Connection con = DBConnection.getConnection(); PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1, newStatus);
+            stmt.setLong(2, appointmentId);
+
+            if (checkIn) {
+                stmt.setDate(3,Date.valueOf( LocalDate.now(ZoneId.of("Asia/Colombo"))));
+            }
+
+            if (stmt.executeUpdate() != 1) {
+                throw new ValidationException( checkIn ? "Only today's scheduled appointments can be checked in." : "Only scheduled appointments can be cancelled.");
+            }
+        }
+    }
 }
