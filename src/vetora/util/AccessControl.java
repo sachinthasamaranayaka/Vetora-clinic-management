@@ -11,14 +11,14 @@ import vetora.model.User;
  * @author ASUS
  */
 public class AccessControl {
-    private final User currentUser;
+    private User currentUser;
 
     public AccessControl(User currentUser) {
         this.currentUser = currentUser;
     }
     
     private boolean hasRole(String role) {
-        return currentUser != null && role.equals(currentUser.getRole());
+        return currentUser != null && "Active".equals(currentUser.getStatus()) && role.equals(currentUser.getRole());
     }
     
     public boolean canViewDashboard(){
@@ -60,4 +60,8 @@ public class AccessControl {
     public boolean canManageUsers(){
         return hasRole("Admin");
     }
+    public void endSession(){
+        currentUser = null;
+    }
+
 }

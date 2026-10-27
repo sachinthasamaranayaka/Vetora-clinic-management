@@ -110,4 +110,48 @@ public class ConsultationModel {
     private String cleanText(String text) {
         return text == null ? "" : text.trim();
     }
+    
+    public String createPriscription(Consultation visit) throws ValidationException {
+        if (visit == null){
+            throw new ValidationException("Load a consultation first.");
+        }
+        if (!"Finalized".equals(visit.getStatus())){
+            throw new ValidationException("Finalize the consultation befor printing.");
+        }
+        List<PrescriptionItem> items = visit.getPrescriptionItems();
+        
+        if (items.isEmpty()){
+            throw new ValidationException("No priscription items to print.");
+        }
+        
+        StringBuilder txt = new StringBuilder();
+        txt.append("VETORA\n");
+        txt.append("Veterinary Clinic Management System\n");
+        txt.append("PRESCRIPTION\n\n");
+        txt.append("Appointment: #").append(visit.getAppointmentId()).append("\n");
+        txt.append("Visit date: ").append(visit.getAppointmentDate()).append("\n");
+        txt.append("Owner: ").append(visit.getOwnerName()).append("\n");
+        txt.append("Pet: ").append(visit.getPetName()).append("\n");
+        txt.append("Species: ").append(visit.getSpecies()).append("\n");
+        txt.append("Veterinarian: ").append(visit.getVeterinarianName()).append("\n\n");
+        
+        for (int i = 0; i < items.size(); i++) {
+            PrescriptionItem item = items.get(i);
+
+            txt.append(i + 1).append(". ").append(item.getMedicineName()).append("\n");
+            txt.append("Quantity: ").append(item.getQuantity()).append("\n");
+            txt.append("Dose: ").append(item.getDoseText()).append("\n");
+            txt.append("Frequency: ").append(item.getFrequency()).append("\n");
+            txt.append("Duration: ").append(item.getDuration()).append("\n");
+
+            if (!item.getInstructions().isEmpty()) {
+                txt.append("Instructions: ").append(item.getInstructions()).append("\n");
+            }
+
+            txt.append("\n");
+        }
+        txt.append("Veterinarian signature: ____________________\n");
+        
+        return txt.toString();
+    }
 }

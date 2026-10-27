@@ -16,7 +16,7 @@ import vetora.dao.DashboardDAO;
 public class DashboardModel {
     private final DashboardDAO dashboardDao = new DashboardDAO();
 
-    public Dashboard loadDashboard() throws SQLException {
-        return dashboardDao.getDashboard(LocalDate.now(ZoneId.of("Asia/Colombo")));
+    public Dashboard loadDashboard(boolean includeIncome) throws SQLException {
+        return dashboardDao.getDashboard(LocalDate.now(ZoneId.of("Asia/Colombo")), includeIncome);
     }
 }

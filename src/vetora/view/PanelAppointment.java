@@ -29,6 +29,7 @@ import vetora.model.Appointment;
  * @author ASUS
  */
 public class PanelAppointment extends javax.swing.JPanel {
+    private boolean canManageAppointments;
 
     private AppointmentController controller;
     private final List<Pet> appointmentPets = new ArrayList<>();
@@ -94,13 +95,13 @@ public class PanelAppointment extends javax.swing.JPanel {
     
     public void setAppointmentBusy(boolean busy) {
         appointmentBusy = busy;
-        cmbAppointmentPet.setEnabled(!busy && reschedulingAppointment == null && !appointmentPets.isEmpty());
-        spnAppointmentDate.setEnabled(!busy);
-        cmbTimeSlot.setEnabled(!busy);
-        txtVisitReason.setEnabled(!busy);
-        btnNewAppointment.setEnabled(!busy);
-        btnClearAppointment.setEnabled(!busy);
-        btnBook.setEnabled(!busy && clinicVetReady && !appointmentPets.isEmpty());
+        cmbAppointmentPet.setEnabled(canManageAppointments && !busy && reschedulingAppointment == null && !appointmentPets.isEmpty());
+        spnAppointmentDate.setEnabled(canManageAppointments && !busy);
+        cmbTimeSlot.setEnabled(canManageAppointments && !busy);
+        txtVisitReason.setEnabled(canManageAppointments && !busy);
+        btnNewAppointment.setEnabled(canManageAppointments && !busy);
+        btnClearAppointment.setEnabled(canManageAppointments && !busy);
+        btnBook.setEnabled(canManageAppointments && !busy && clinicVetReady && !appointmentPets.isEmpty());
         btnBook.setText(busy ? "Please wait..." : reschedulingAppointment == null ? "Book visit" : "Save changes");
         tblAppointments.setEnabled(!busy && reschedulingAppointment == null);
         btnRefreshAppointments.setEnabled(!busy && reschedulingAppointment == null);
@@ -290,7 +291,7 @@ public class PanelAppointment extends javax.swing.JPanel {
     private void updateAppointmentActions() {
         Appointment selected = getSelectedAppointment();
 
-        boolean scheduled = !appointmentBusy && reschedulingAppointment == null && selected != null && "Scheduled".equals(selected.getStatus());
+        boolean scheduled = canManageAppointments && !appointmentBusy && reschedulingAppointment == null && selected != null && "Scheduled".equals(selected.getStatus());
 
         btnCheckIn.setEnabled(scheduled && LocalDate.now(ZoneId.of("Asia/Colombo")).equals(selected.getAppointmentDate()));
         btnCancelAppointment.setEnabled(scheduled);
@@ -1047,4 +1048,9 @@ public class PanelAppointment extends javax.swing.JPanel {
     private javax.swing.JTable tblAppointments;
     private javax.swing.JTextArea txtVisitReason;
     // End of variables declaration//GEN-END:variables
+    public void setAppointmentPermissions(boolean canManage){
+        canManageAppointments = canManage;
+        setAppointmentBusy(appointmentBusy);
+    }
+
 }

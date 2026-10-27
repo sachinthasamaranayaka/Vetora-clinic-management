@@ -4,6 +4,8 @@
  */
 package vetora.controller;
 
+import vetora.util.AccessControl;
+
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import javax.swing.SwingWorker;
@@ -17,18 +19,27 @@ import vetora.view.DialogUser;
  * @author ASUS
  */
 public class UserDialogController {
+    private final AccessControl accessControl;
     private final UserModel model;
     private final DialogUser view;
     private final long currentUserId;
     private boolean savingUser;
 
-    public UserDialogController(UserModel model, DialogUser view, long currentUserId){
+    public UserDialogController(UserModel model, DialogUser view, long currentUserId, AccessControl accessControl){
+        if (accessControl == null) {
+            throw new IllegalArgumentException("Access control is required.");
+        }
+        this.accessControl = accessControl;
         this.model = model;
         this.view = view;
         this.currentUserId = currentUserId;
     }
 
     public void saveUser(){
+        if (!accessControl.canManageUsers()) {
+            view.showUserError("You do not have permission to perform this action.");
+            return;
+        }
         if (savingUser) {
             return;
         }

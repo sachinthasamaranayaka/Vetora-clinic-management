@@ -1,5 +1,7 @@
 package vetora.controller;
 
+import vetora.util.AccessControl;
+
 import java.awt.print.PrinterException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -16,6 +18,7 @@ import vetora.view.PanelBilling;
  * @author ASUS
  */
 public class BillingController {
+    private final AccessControl accessControl;
     private final BillingModel model;
     private final PanelBilling view;
     private boolean loading;
@@ -23,16 +26,28 @@ public class BillingController {
     private boolean printing;
     private boolean restoringSelection;
 
-    public BillingController(BillingModel model, PanelBilling view) {
+    public BillingController(BillingModel model, PanelBilling view, AccessControl accessControl) {
+        if (accessControl == null) {
+            throw new IllegalArgumentException("Access control is required.");
+        }
+        this.accessControl = accessControl;
         this.model = model;
         this.view = view;
     }
 
     private boolean isBusy() { return loading || saving || printing; }
 
-    public void loadConsultations() { load(null); }
+    public void loadConsultations() {
+        if (!accessControl.canManageBilling()) {
+            view.showBillingMessage("You do not have permission to perform this action.");
+            return;
+        } load(null); }
 
     public void loadInvoice() {
+        if (!accessControl.canManageBilling()) {
+            view.showBillingMessage("You do not have permission to perform this action.");
+            return;
+        }
         if (isBusy()) { return; }
         Long id = view.getSelectedBillingAppointmentId();
         if (id == null) {
@@ -43,6 +58,10 @@ public class BillingController {
     }
 
     private void load(Long appointmentId) {
+        if (!accessControl.canManageBilling()) {
+            view.showBillingMessage("You do not have permission to perform this action.");
+            return;
+        }
         if (isBusy()) {
             return; 
         }
@@ -90,6 +109,10 @@ public class BillingController {
     }
 
     public void addInvoiceItem() {
+        if (!accessControl.canManageBilling()) {
+            view.showBillingMessage("You do not have permission to perform this action.");
+            return;
+        }
         if (isBusy() || !view.isInvoiceEditable()) { 
             return; 
         }
@@ -109,6 +132,10 @@ public class BillingController {
     }
 
     public void removeInvoiceItem() {
+        if (!accessControl.canManageBilling()) {
+            view.showBillingMessage("You do not have permission to perform this action.");
+            return;
+        }
         if (!isBusy() && view.isInvoiceEditable()) {
             view.removeSelectedInvoiceItem();
             view.showBillingMessage(" ");
@@ -116,16 +143,32 @@ public class BillingController {
     }
 
     public void clearInvoiceItem() {
+        if (!accessControl.canManageBilling()) {
+            view.showBillingMessage("You do not have permission to perform this action.");
+            return;
+        }
         if (!isBusy() && view.isInvoiceEditable()) {
             view.clearInvoiceEntry();
             view.showBillingMessage(" ");
         }
     }
 
-    public void saveDraft() { save(false); }
-    public void recordPayment() { save(true); }
+    public void saveDraft() {
+        if (!accessControl.canManageBilling()) {
+            view.showBillingMessage("You do not have permission to perform this action.");
+            return;
+        } save(false); }
+    public void recordPayment() {
+        if (!accessControl.canManageBilling()) {
+            view.showBillingMessage("You do not have permission to perform this action.");
+            return;
+        } save(true); }
 
     private void save(boolean paid) {
+        if (!accessControl.canManageBilling()) {
+            view.showBillingMessage("You do not have permission to perform this action.");
+            return;
+        }
         if (isBusy()) { return; }
         if (!view.isInvoiceEditable()) {
             view.showBillingMessage("Load an unpaid consultation bill first.");
@@ -178,6 +221,10 @@ public class BillingController {
     }
 
     public void consultationChanged() {
+        if (!accessControl.canManageBilling()) {
+            view.showBillingMessage("You do not have permission to perform this action.");
+            return;
+        }
         if (isBusy() || restoringSelection) {
             return; 
         }
@@ -193,6 +240,10 @@ public class BillingController {
     }
 
     public void printReceipt() {
+        if (!accessControl.canManageBilling()) {
+            view.showBillingMessage("You do not have permission to perform this action.");
+            return;
+        }
         if (isBusy()) { 
             return;
         }

@@ -4,6 +4,8 @@
  */
 package vetora.controller;
 
+import vetora.util.AccessControl;
+
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import javax.swing.SwingWorker;
@@ -22,6 +24,7 @@ import vetora.view.PanelAppointment;
  * @author ASUS
  */
 public class AppointmentController {
+    private final AccessControl accessControl;
     private final AppointmentModel model;
     private final PanelAppointment view;
     private boolean savingAppointment;
@@ -29,12 +32,21 @@ public class AppointmentController {
     private boolean loadingOptions;
     private boolean changingAppointmentStatus;
 
-    public AppointmentController(AppointmentModel model, PanelAppointment view) {
+    public AppointmentController(AppointmentModel model, PanelAppointment view, AccessControl accessControl) {
+        if (accessControl == null) {
+            throw new IllegalArgumentException("Access control is required.");
+        }
+        this.accessControl = accessControl;
         this.model = model;
         this.view = view;
+        view.setAppointmentPermissions(accessControl.canManageAppointments());
     }
     
     public void loadFormOptions() {
+        if (!accessControl.canViewAppointments()) {
+            view.showAppointmentError("You do not have permission to perform this action.");
+            return;
+        }
         if (loadingOptions || savingAppointment || changingAppointmentStatus) {
             return;
         }
@@ -96,10 +108,18 @@ public class AppointmentController {
     }
     
     public void petSelected(){
+        if (!accessControl.canViewAppointments()) {
+            view.showAppointmentError("You do not have permission to perform this action.");
+            return;
+        }
         view.showSelectedPetOwner();
     }
     
     public void bookAppointment() {
+        if (!accessControl.canManageAppointments()) {
+            view.showAppointmentError("You do not have permission to perform this action.");
+            return;
+        }
         if (loadingOptions || savingAppointment || changingAppointmentStatus) {
             return;
         }
@@ -180,12 +200,20 @@ public class AppointmentController {
     }
     
     public void newAppointment(){
+        if (!accessControl.canManageAppointments()) {
+            view.showAppointmentError("You do not have permission to perform this action.");
+            return;
+        }
         if(!loadingOptions && !savingAppointment && !changingAppointmentStatus && view.confirmDiscardAppointmentChanges()){
             view.clearAppointmentForm();
         }
     }
     
     public void loadAppointments() {
+        if (!accessControl.canViewAppointments()) {
+            view.showAppointmentError("You do not have permission to perform this action.");
+            return;
+        }
         if(changingAppointmentStatus || savingAppointment){
             return;
         }
@@ -254,6 +282,10 @@ public class AppointmentController {
     }
 
     private void changeSelectedAppointmentStatus(String newStatus) {
+        if (!accessControl.canManageAppointments()) {
+            view.showAppointmentError("You do not have permission to perform this action.");
+            return;
+        }
         if (loadingOptions || savingAppointment || changingAppointmentStatus) {
             return;
         }
@@ -337,6 +369,10 @@ public class AppointmentController {
     }
 
     public void rescheduleAppointment(){
+        if (!accessControl.canManageAppointments()) {
+            view.showAppointmentError("You do not have permission to perform this action.");
+            return;
+        }
         if (loadingOptions || savingAppointment || changingAppointmentStatus) {
             return;
         }

@@ -1,5 +1,7 @@
 package vetora.controller;
 
+import vetora.util.AccessControl;
+
 import java.io.File;
 import java.util.concurrent.ExecutionException;
 import javax.swing.SwingWorker;
@@ -9,18 +11,27 @@ import vetora.view.PanelReports;
 
 /** Runs report generation/export without freezing the Swing event thread. */
 public class ReportController {
+    private final AccessControl accessControl;
 
     private final PanelReports view;
     private final ReportService service;
     private JasperPrint generatedReport;
     private boolean busy;
 
-    public ReportController(PanelReports view, ReportService service) {
+    public ReportController(PanelReports view, ReportService service, AccessControl accessControl) {
+        if (accessControl == null) {
+            throw new IllegalArgumentException("Access control is required.");
+        }
+        this.accessControl = accessControl;
         this.view = view;
         this.service = service;
     }
 
     public void generate() {
+        if (!accessControl.canViewClinicalReports()) {
+            view.setReportStatus("You do not have permission to perform this action.");
+            return;
+        }
         if (busy){
             return; 
         }
@@ -55,6 +66,10 @@ public class ReportController {
     }
 
     public void exportPdf() {
+        if (!accessControl.canViewClinicalReports()) {
+            view.setReportStatus("You do not have permission to perform this action.");
+            return;
+        }
         if (busy || generatedReport == null) return;
         File output = view.choosePdfDestination();
         if (output == null) return;

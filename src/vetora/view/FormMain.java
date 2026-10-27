@@ -42,6 +42,7 @@ import vetora.util.AccessControl;
 public class FormMain extends javax.swing.JFrame {
     
     private User currentUser;
+    private AccessControl accessControl;
     
     private static final Logger logger = Logger.getLogger(FormMain.class.getName());
 
@@ -51,7 +52,8 @@ public class FormMain extends javax.swing.JFrame {
             throw new IllegalArgumentException("An active signed-in user is required.");
         }
         this.currentUser = user;
-        if (!new AccessControl(currentUser).canViewDashboard()){
+        this.accessControl = new AccessControl(currentUser);
+        if (!accessControl.canViewDashboard()){
             throw new IllegalArgumentException("Unknownb user role.");
         }
         
@@ -109,7 +111,7 @@ public class FormMain extends javax.swing.JFrame {
     
     private void setupNavigation(){
         PanelDashboard dashboard = new PanelDashboard();
-        DashboardController dashboardController = new DashboardController(new DashboardModel(), dashboard);
+        DashboardController dashboardController = new DashboardController(new DashboardModel(), dashboard, accessControl);
         dashboard.setController(dashboardController);
         registerPage("dashboard",dashboard,btnDashboard,"Dashboard","Clinic at a glance");
         btnDashboard.addActionListener(e -> dashboardController.loadDashboard());
@@ -117,51 +119,64 @@ public class FormMain extends javax.swing.JFrame {
         
         PanelOwner ownerView = new PanelOwner();
         OwnerModel ownerModel = new OwnerModel();
-        OwnerController ownnerController = new OwnerController(ownerModel, ownerView);
+        OwnerController ownnerController = new OwnerController(ownerModel, ownerView, accessControl);
         ownerView.setController(ownnerController);
         registerPage("owners",ownerView,btnOwners,"Owners","Manage owner details");
         ownnerController.loadOwners();
         
         PanelPet petView = new PanelPet();
         PetModel petModel = new PetModel();
-        PetController petController = new PetController(petModel, petView);
+        PetController petController = new PetController(petModel, petView, accessControl);
         petView.setController(petController);
         registerPage("pets",petView,btnPets,"Pets","Register pets, update their details and find existing records");
         btnPets.addActionListener(e ->{ petController.loadOwnerOptions(); petController.loadPets();});
         
         PanelAppointment appointmentView = new PanelAppointment();
         AppointmentModel appointmentModel = new AppointmentModel();
-        AppointmentController appointmentController = new AppointmentController(appointmentModel, appointmentView);
+        AppointmentController appointmentController = new AppointmentController(appointmentModel, appointmentView, accessControl);
         appointmentView.setController(appointmentController);
         registerPage("appointments", appointmentView , btnAppointments,"Appointments","Book visits, check patients in and manage the daily schedule");
         btnAppointments.addActionListener(e -> {appointmentController.loadFormOptions(); appointmentController.loadAppointments();});
         
+        if (accessControl.canEditConsultation()) {
         PanelConsultation consultationView = new PanelConsultation();
         ConsultationModel consultationModel = new ConsultationModel();
-        ConsultationController consultationController = new ConsultationController(consultationModel, consultationView);
+        ConsultationController consultationController = new ConsultationController(consultationModel, consultationView, accessControl);
         consultationView.setController(consultationController);
         registerPage("consultations",consultationView , btnConsultations,"Consultations", "Record clinical notes and prescriptions");
         btnConsultations.addActionListener(e -> consultationController.loadAppointments());
+        }
         
         
+        if (accessControl.canManageBilling()) {
         PanelBilling billingView = new PanelBilling();
         BillingModel billingModel = new BillingModel();
-        BillingController billingController = new BillingController(billingModel, billingView);
+        BillingController billingController = new BillingController(billingModel, billingView, accessControl);
         billingView.setController(billingController);
         registerPage("billing", billingView, btnBilling, "Billing", "Manage invoices");
         btnBilling.addActionListener(e -> billingController.loadConsultations());
+        }
         
         
-        registerPage("reports", new PanelReports(),btnReports,"Reports","View consultation history and export reports");
+        if (accessControl.canViewClinicalReports()) {
+        registerPage("reports", new PanelReports(accessControl),btnReports,"Reports","View consultation history and export reports");
+        }
         
         
+        if (accessControl.canManageUsers()) {
         PanelUser userView = new PanelUser();
         UserModel userModel = new UserModel();
-        UserController userController = new UserController(userModel, userView, currentUser.getUserId());
+        UserController userController = new UserController(userModel, userView, currentUser.getUserId(), accessControl);
         registerPage("users",userView,btnUser,"Users","Create accounts, update details and manage account status");
         userView.setController(userController);
         userView.setSavedUserAction(saved -> {
                 if (saved.getUserId() == currentUser.getUserId()) {
+                    if (!currentUser.getRole().equals(saved.getRole())
+                            || !"Active".equals(saved.getStatus())) {
+                        JOptionPane.showMessageDialog(this, "Your account permissions changed. Please sign in again.");
+                        btnLogoutActionPerformed(null);
+                        return;
+                    }
                     currentUser = saved;
                     jLabelUserName.setText(saved.getFullName());
                     jLabelUserName.setToolTipText(saved.getFullName());
@@ -169,6 +184,7 @@ public class FormMain extends javax.swing.JFrame {
                 }
             });
         btnUser.addActionListener(e -> userController.loadUsers());
+        }
 
         dashboard.setNavigation(
                 () -> {
@@ -176,20 +192,22 @@ public class FormMain extends javax.swing.JFrame {
                     btnAppointments.doClick();
                 },
                 () -> {
+                    if (!accessControl.canManageAppointments()) { return; }
                     appointmentController.newAppointment();
                     btnAppointments.doClick();
                 },
                 () -> {
+                    if (!accessControl.canEditOwnersAndPets()) { return; }
                     ownnerController.newOwner();
                     btnOwners.doClick();
                 },
-                () -> btnBilling.doClick());
+                () -> { if (accessControl.canManageBilling()) { btnBilling.doClick(); } });
         
         btnDashboard.doClick();
     }
     
     private boolean canOpenPage(String cardName){
-        AccessControl access = new AccessControl(currentUser);
+        AccessControl access = accessControl;
         
         switch (cardName){
             case "dashboard":
@@ -568,6 +586,7 @@ public class FormMain extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnLogoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogoutActionPerformed
+        accessControl.endSession();
         FormLogin loginForm = new FormLogin();
         loginForm.setController(new LoginController(new UserModel(), loginForm));
         loginForm.setVisible(true);

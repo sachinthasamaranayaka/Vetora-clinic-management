@@ -27,6 +27,8 @@ import vetora.controller.PetController;
  * @author ASUS
  */
 public class PanelPet extends javax.swing.JPanel {
+    private boolean canEditPets;
+    private boolean canDeletePets;
     
     private List<Owner> ownerOptions = new ArrayList<>();
     private PetController controller;
@@ -133,7 +135,7 @@ public class PanelPet extends javax.swing.JPanel {
         updatePetFormState();
     }
     public void updatePetFormState(){
-        boolean editable = !savingPet;
+        boolean editable = canEditPets && !savingPet;
         boolean ownerReady = !ownerOptionsLoading && !ownerOptions.isEmpty();
 
         cmbPetOwner.setEnabled(editable && ownerReady);
@@ -150,11 +152,11 @@ public class PanelPet extends javax.swing.JPanel {
 
         btnNewPet.setEnabled(editable);
         btnCancelPet.setEnabled(editable);
-        tblPets.setEnabled(editable && ownerReady && !petListBusy);
-        btnDeletePet.setEnabled(editable && !ownerOptionsLoading && editingPetId != null);
-        btnSearchPet.setEnabled(editable && !petListBusy);
-        txtPetSearch.setEnabled(editable && !petListBusy);
-        cmbSpeciesFilter.setEnabled(editable && !petListBusy);
+        tblPets.setEnabled(!savingPet && !petListBusy);
+        btnDeletePet.setEnabled(canDeletePets && !savingPet && !ownerOptionsLoading && editingPetId != null);
+        btnSearchPet.setEnabled(!savingPet && !petListBusy);
+        txtPetSearch.setEnabled(!savingPet && !petListBusy);
+        cmbSpeciesFilter.setEnabled(!savingPet && !petListBusy);
     }
     
     public void showPetError(String message){
@@ -986,4 +988,10 @@ public class PanelPet extends javax.swing.JPanel {
     private javax.swing.JTextField txtPetName;
     private javax.swing.JTextField txtPetSearch;
     // End of variables declaration//GEN-END:variables
+    public void setPetPermissions(boolean canEdit, boolean canDelete){
+        canEditPets = canEdit;
+        canDeletePets = canDelete;
+        updatePetFormState();
+    }
+
 }

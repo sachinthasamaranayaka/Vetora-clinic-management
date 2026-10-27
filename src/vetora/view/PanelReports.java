@@ -4,6 +4,8 @@
  */
 package vetora.view;
 
+import vetora.util.AccessControl;
+
 import java.awt.BorderLayout;
 import java.io.File;
 import javax.swing.JFileChooser;
@@ -24,10 +26,15 @@ public class PanelReports extends javax.swing.JPanel {
      * Creates new form PanelReports
      */
     public PanelReports() {
+        this(new AccessControl(null));
+    }
+
+    public PanelReports(AccessControl accessControl) {
         initComponents();
-        ReportController controller = new ReportController(this, new ReportService());
+        ReportController controller = new ReportController(this, new ReportService(), accessControl);
         btnGenerateReport.addActionListener(e -> controller.generate());
         btnExportPdf.addActionListener(e -> controller.exportPdf());
+        btnGenerateReport.setEnabled(accessControl.canViewClinicalReports());
         btnExportPdf.setEnabled(false);
         lblReportStatus.setText("Ready to generate report.");
     }

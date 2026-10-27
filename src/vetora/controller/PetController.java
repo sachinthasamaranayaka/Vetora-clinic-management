@@ -4,6 +4,8 @@
  */
 package vetora.controller;
 
+import vetora.util.AccessControl;
+
 import java.util.List;
 import java.util.Collections;
 import java.util.concurrent.ExecutionException;
@@ -20,18 +22,28 @@ import vetora.model.Pet;
  * @author ASUS
  */
 public class PetController {
+    private final AccessControl accessControl;
     private final PetModel model;
     private final PanelPet view;
     private int ownerLoadVersion;
     private boolean savingPet;
     private int petLoadVersion;
     
-    public PetController(PetModel model, PanelPet view){
+    public PetController(PetModel model, PanelPet view, AccessControl accessControl){
+        if (accessControl == null) {
+            throw new IllegalArgumentException("Access control is required.");
+        }
+        this.accessControl = accessControl;
         this.model = model;
         this.view = view;
+        view.setPetPermissions(accessControl.canEditOwnersAndPets(), accessControl.canDeleteOwnersAndPets());
     }
     
     public void loadOwnerOptions(){
+        if (!accessControl.canViewOwnwrsAndPets()) {
+            view.showPetError("You do not have permission to perform this action.");
+            return;
+        }
         if (savingPet) {
             return;
         }
@@ -79,6 +91,10 @@ public class PetController {
     }
     
     public void savePet() {
+        if (!accessControl.canEditOwnersAndPets()) {
+            view.showPetError("You do not have permission to perform this action.");
+            return;
+        }
         if (savingPet || view.isOwnerOptionsLoading()) {
             return;
         }
@@ -151,12 +167,20 @@ public class PetController {
     }
     
     public void newPet(){
+        if (!accessControl.canEditOwnersAndPets()) {
+            view.showPetError("You do not have permission to perform this action.");
+            return;
+        }
         if (!savingPet && view.confirmDiscardPetChanges()){
             view.clearPetForm();
         }
     }
     
     public void loadPets() {
+        if (!accessControl.canViewOwnwrsAndPets()) {
+            view.showPetError("You do not have permission to perform this action.");
+            return;
+        }
         if (savingPet) {
             return;
         }
@@ -199,6 +223,10 @@ public class PetController {
     }
 
     public void selectPet() {
+        if (!accessControl.canViewOwnwrsAndPets()) {
+            view.showPetError("You do not have permission to perform this action.");
+            return;
+        }
         if (savingPet || view.isRestoringPetSelection()) {
             return;
         }
@@ -214,6 +242,10 @@ public class PetController {
     }
 
     public void deletePet(){
+        if (!accessControl.canDeleteOwnersAndPets()) {
+            view.showPetError("You do not have permission to perform this action.");
+            return;
+        }
         if (savingPet || view.isOwnerOptionsLoading()) {
             return;
         }

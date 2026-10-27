@@ -7,9 +7,9 @@ package vetora.view;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JOptionPane;
 import javax.swing.ListSelectionModel;
@@ -21,12 +21,14 @@ import vetora.controller.OwnerController;
  * @author ASUS
  */
 public class PanelOwner extends javax.swing.JPanel {
-
     private OwnerController controller;
     
     private List<Owner> displayedOwners = new ArrayList<>();
     private Long editingOwnerId;
     private boolean ownerSplitReady;
+    private boolean canEditOwners;
+    private boolean canDeleteOwners;
+    private boolean ownerBusy;
     /**
      * Creates new form PanelOwner
      */
@@ -121,25 +123,16 @@ public class PanelOwner extends javax.swing.JPanel {
         showOwnerError(" ");
 
         tblOwners.clearSelection();
-        btnDeleteOwner.setEnabled(false);
+        updateOwnerControls();
         txtOwnerName.requestFocusInWindow();
     }
     
     public void setSavingOwner(boolean saving){
-        btnSaveOwner.setEnabled(!saving);
-        btnClearOwner.setEnabled(!saving);
-        btnNewOwner.setEnabled(!saving);
-
-        txtOwnerName.setEditable(!saving);
-        txtOwnerPhone.setEditable(!saving);
-        txtOwnerEmail.setEditable(!saving);
-        txtOwnerAddress.setEditable(!saving);
-        tblOwners.setEnabled(!saving);
-
+        ownerBusy = saving;
         String normalText = editingOwnerId == null ? "Save" : "Update";
         btnSaveOwner.setText(saving ? "Saving..." : normalText);
         
-        btnDeleteOwner.setEnabled(!saving && editingOwnerId != null);
+        updateOwnerControls();
     }
     
     public void showOwnerSaved(){
@@ -172,7 +165,7 @@ public class PanelOwner extends javax.swing.JPanel {
         
         showOwnerError(" ");
         
-        btnDeleteOwner.setEnabled(true);
+        updateOwnerControls();
     }
     
     public boolean confirmOwnerDelete(long ownerId){
@@ -202,6 +195,41 @@ public class PanelOwner extends javax.swing.JPanel {
             splitOwners.setDividerLocation(Math.max(300, width - editorWidth));
             ownerSplitReady = true;
         }
+    }
+    
+    public void setOwnerPermissions(boolean canEdit, boolean canDelete) {
+        this.canEditOwners = canEdit;
+        this.canDeleteOwners = canDelete;
+
+    
+        if (splitOwners.getParent() != this) {
+            remove(pnlOwnerList);
+            splitOwners.setLeftComponent(pnlOwnerList);
+            add(splitOwners, BorderLayout.CENTER);
+            ownerSplitReady = false;
+        }
+
+        btnNewOwner.setVisible(true);
+        btnDeleteOwner.setVisible(true);
+        pnlOwnerToolbarButtons.setPreferredSize(new Dimension(246, 42));
+
+        updateOwnerControls();
+        revalidate();
+        repaint();
+    }
+    
+    private void updateOwnerControls(){
+        boolean editable = canEditOwners && !ownerBusy;
+        
+        btnNewOwner.setEnabled(editable);
+        btnSaveOwner.setEnabled(editable);
+        btnClearOwner.setEnabled(editable);
+        btnDeleteOwner.setEnabled(canDeleteOwners && !ownerBusy && editingOwnerId != null);
+        txtOwnerName.setEditable(editable);
+        txtOwnerPhone.setEditable(editable);
+        txtOwnerEmail.setEditable(editable);
+        txtOwnerAddress.setEditable(editable);
+        tblOwners.setEnabled(!ownerBusy);
     }
 
     /**

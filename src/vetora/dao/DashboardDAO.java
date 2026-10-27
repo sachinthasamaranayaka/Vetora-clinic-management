@@ -21,13 +21,14 @@ import vetora.model.Dashboard;
  * @author ASUS
  */
 public class DashboardDAO {
-    public Dashboard getDashboard(LocalDate date) throws SQLException {
+    public Dashboard getDashboard(LocalDate date, boolean includeIncome) throws SQLException {
         try (Connection con = DBConnection.getConnection()) {
             con.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
             con.setAutoCommit(false);
             try {
                 List<Appointment> appointments = new AppointmentDAO().getAppointments(con, date, null);
                 BigDecimal income = BigDecimal.ZERO;
+                if (includeIncome) {
                 String sql = "SELECT COALESCE(SUM(amount), 0) AS income FROM payments WHERE paid_at >= ? AND paid_at < ?";
                 try (PreparedStatement stmt = con.prepareStatement(sql)) {
                     stmt.setTimestamp(1, Timestamp.valueOf(date.atStartOfDay()));
@@ -37,6 +38,7 @@ public class DashboardDAO {
                             income = result.getBigDecimal("income");
                         }
                     }
+                }
                 }
                 con.commit();
                 return new Dashboard(date, appointments, income);

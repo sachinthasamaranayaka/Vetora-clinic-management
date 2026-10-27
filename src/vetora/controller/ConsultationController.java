@@ -4,9 +4,13 @@
  */
 package vetora.controller;
 
+import java.awt.print.PrinterException;
+import vetora.util.AccessControl;
+
 import java.text.ParseException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import javax.print.PrintException;
 import javax.swing.SwingWorker;
 import vetora.exception.ValidationException;
 import vetora.model.Consultation;
@@ -18,23 +22,37 @@ import vetora.view.PanelConsultation;
  * @author ASUS
  */
 public class ConsultationController {
+    private final AccessControl accessControl;
     private final ConsultationModel model;
     private final PanelConsultation view;
     private boolean loading;
     private boolean savingConsultation;
     private boolean restoringSelection;
+    private boolean printing;
 
-    public ConsultationController(ConsultationModel model, PanelConsultation view) {
+    public ConsultationController(ConsultationModel model, PanelConsultation view, AccessControl accessControl) {
+        if (accessControl == null) {
+            throw new IllegalArgumentException("Access control is required.");
+        }
+        this.accessControl = accessControl;
         this.model = model;
         this.view = view;
     }
 
     public void loadAppointments() {
+        if (!accessControl.canEditConsultation()) {
+            view.showConsultationMessage("You do not have permission to perform this action.");
+            return;
+        }
         load(null);
     }
 
     public void loadVisit() {
-        if (loading || savingConsultation) {
+        if (!accessControl.canEditConsultation()) {
+            view.showConsultationMessage("You do not have permission to perform this action.");
+            return;
+        }
+        if (loading || savingConsultation || printing) {
             return;
         }
         Long id = view.getSelectedConsultationAppointmentId();
@@ -46,7 +64,11 @@ public class ConsultationController {
     }
 
     private void load(Long appointmentId) {
-        if (loading || savingConsultation) {
+        if (!accessControl.canEditConsultation()) {
+            view.showConsultationMessage("You do not have permission to perform this action.");
+            return;
+        }
+        if (loading || savingConsultation || printing) {
             return;
         }
         if (view.hasUnsavedConsultationChanges() && !view.confirmDiscardConsultationChanges()) {
@@ -92,7 +114,11 @@ public class ConsultationController {
     }
 
     public void addPrescriptionItem() {
-        if (loading || savingConsultation || !view.isConsultationEditable()) {
+        if (!accessControl.canEditConsultation()) {
+            view.showConsultationMessage("You do not have permission to perform this action.");
+            return;
+        }
+        if (loading || savingConsultation || !view.isConsultationEditable() || printing) {
             return;
         }
         try {
@@ -121,28 +147,46 @@ public class ConsultationController {
     }
 
     public void removePrescriptionItem() {
-        if (!loading && !savingConsultation && view.isConsultationEditable()) {
-            view.removeSelectedPrescriptionItem();
-            view.showConsultationMessage(" ");
+        if (!accessControl.canEditConsultation()) {
+            view.showConsultationMessage("You do not have permission to perform this action.");
+            return;
+        }
+        if (loading || savingConsultation || printing || restoringSelection) {
+            return;
         }
     }
 
     public void clearPrescriptionItem() {
-        if (!loading && !savingConsultation && view.isConsultationEditable()) {
-            view.clearPrescriptionEntry();
-            view.showConsultationMessage(" ");
+        if (!accessControl.canEditConsultation()) {
+            view.showConsultationMessage("You do not have permission to perform this action.");
+            return;
+        }
+        if (loading || savingConsultation || printing || restoringSelection) {
+            return;
         }
     }
 
     public void saveDraft() {
+        if (!accessControl.canEditConsultation()) {
+            view.showConsultationMessage("You do not have permission to perform this action.");
+            return;
+        }
         save(false);
     }
 
     public void finalizeConsultation() {
+        if (!accessControl.canEditConsultation()) {
+            view.showConsultationMessage("You do not have permission to perform this action.");
+            return;
+        }
         save(true);
     }
 
     private void save(boolean finalized) {
+        if (!accessControl.canEditConsultation()) {
+            view.showConsultationMessage("You do not have permission to perform this action.");
+            return;
+        }
         if (loading || savingConsultation) {
             return;
         }
@@ -205,6 +249,10 @@ public class ConsultationController {
     }
 
     public void appointmentChanged() {
+        if (!accessControl.canEditConsultation()) {
+            view.showConsultationMessage("You do not have permission to perform this action.");
+            return;
+        }
         if (loading || savingConsultation || restoringSelection) {
             return;
         }
@@ -231,6 +279,39 @@ public class ConsultationController {
         else {
             cause.printStackTrace();
             view.showConsultationMessage(message);
+        }
+    }
+    
+    public boolean canPrintPrescription() {
+        return accessControl.canEditConsultation();
+    }
+    
+    public void printPrescription() {
+        if (!canPrintPrescription()) {
+            view.showConsultationMessage("You do not have permission to print prescriptions.");
+            return;
+        }
+        if (loading || savingConsultation || printing) {
+            return;
+        }
+        
+        try {
+            String txt = model.createPriscription(view.getLoadedConsultation());
+            printing = true;
+            view.setConsultationBusy(true);
+            boolean printed = view.printConsultationPrescription(txt);
+            view.showPrescriptionPrinted(printed ? "Prescription sent to the printer." : "Printing cancelled.");
+        }
+        catch (ValidationException ex) {
+            view.showConsultationMessage(ex.getMessage());
+        }
+        catch (PrinterException | SecurityException ex) {
+            ex.printStackTrace();
+            view.showConsultationMessage("Could not print. You can try again.");
+        }
+        finally {
+            printing = false;
+            view.setConsultationBusy(false);
         }
     }
 }

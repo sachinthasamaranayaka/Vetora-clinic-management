@@ -12,6 +12,7 @@ import vetora.model.OwnerModel;
 import vetora.model.Owner;
 import vetora.view.PanelOwner;
 import vetora.exception.ValidationException;
+import vetora.util.AccessControl;
 /**
  *
  * @author ASUS
@@ -19,16 +20,29 @@ import vetora.exception.ValidationException;
 public class OwnerController {
     private final OwnerModel model;
     private final PanelOwner view;
+    private final AccessControl accessControl;
     
     private boolean savingOwner;
     private int ownerLoadVersion;
-    
-    public OwnerController(OwnerModel model, PanelOwner view){
+
+    public OwnerController(OwnerModel model, PanelOwner view, AccessControl accessControl) {
+        if (accessControl == null){
+            throw new IllegalArgumentException("Access control is required.");
+        }
         this.model = model;
         this.view = view;
+        this.accessControl = accessControl;
+        view.setOwnerPermissions(accessControl.canEditOwnersAndPets(), accessControl.canDeleteOwnersAndPets());
     }
     
+    
+    
     public void loadOwners(){
+        if (!accessControl.canViewOwnwrsAndPets()) {
+            view.showOwnerError("You do not have permission to view owners.");
+            return;
+        }
+        
         String keyword = view.getOwnerSearch();
         int requestVersion = ++ownerLoadVersion;
         
@@ -66,6 +80,11 @@ public class OwnerController {
     }
     
     public void saveOwner(){
+        if (!accessControl.canEditOwnersAndPets()){
+            view.showOwnerError("You do not have permission to add or update owners.");
+            return;
+        }
+        
         if (savingOwner){
             return ;
         }
@@ -125,12 +144,22 @@ public class OwnerController {
     }
     
     public void newOwner(){
+        if (!accessControl.canEditOwnersAndPets()) {
+            view.showOwnerError("You do not have permission to add owners.");
+            return;
+        }
+        
         if (!savingOwner){
             view.clearOwnerForm();
         }
     }
     
     public void selectOwner(){
+        if (!accessControl.canViewOwnwrsAndPets()) {
+            view.showOwnerError("You do not have permission to view owners.");
+            return;
+        }
+        
         if (savingOwner){
             return;
         }
@@ -143,6 +172,11 @@ public class OwnerController {
     }
     
     public void deleteOwner(){
+        if (!accessControl.canDeleteOwnersAndPets()){
+            view.showOwnerError("Only an addministrator can delete owners.");
+            return;
+        }
+        
         if (savingOwner){
             return;
         }

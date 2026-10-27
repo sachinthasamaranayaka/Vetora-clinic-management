@@ -4,6 +4,8 @@
  */
 package vetora.view;
 
+import vetora.util.AccessControl;
+
 import java.awt.Font;
 import javax.swing.table.DefaultTableModel;
 import java.text.NumberFormat;
@@ -516,4 +518,14 @@ public class PanelDashboard extends javax.swing.JPanel {
     private javax.swing.JScrollPane scrDashboardAppointments;
     private javax.swing.JTable tblDashboardAppointments;
     // End of variables declaration//GEN-END:variables
+    public void setDashboardPermissions(AccessControl accessControl){
+        btnViewAllAppointments.setEnabled(accessControl.canViewAppointments());
+        btnDashboardNewAppointment.setEnabled(accessControl.canManageAppointments());
+        btnDashboardRegisterOwner.setEnabled(accessControl.canEditOwnersAndPets());
+        btnDashboardOpenBilling.setEnabled(accessControl.canManageBilling());
+        pnlCardIncome.setVisible(accessControl.canManageBilling());
+        pnlSummaryCards.setLayout(new java.awt.GridLayout(1,
+                accessControl.canManageBilling() ? 4 : 3, 13, 0));
+    }
+
 }

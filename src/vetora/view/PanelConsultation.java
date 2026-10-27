@@ -7,11 +7,15 @@ package vetora.view;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.print.PrinterException;
+import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.print.PrintException;
 import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
+import javax.swing.JTextArea;
 import javax.swing.table.DefaultTableModel;
 import vetora.controller.ConsultationController;
 import vetora.model.Consultation;
@@ -74,6 +78,7 @@ public class PanelConsultation extends javax.swing.JPanel {
 
     public void setController(ConsultationController controller) {
         this.controller = controller;
+        updatePrescriptionButtons();
     }
 
     public Long getLoadedConsultationAppointmentId() {
@@ -135,6 +140,7 @@ public class PanelConsultation extends javax.swing.JPanel {
         btnAddPrescriptionItem.setEnabled(editable);
         btnClearPrescriptionItem.setEnabled(editable);
         btnRemovePrescriptionItem.setEnabled(editable && tblPrescriptionItems.getSelectedRow() >= 0);
+        btnPrintPrescription.setEnabled(!consultationBusy && controller != null && controller.canPrintPrescription() && loadedVisit != null && "Finalized".equals(loadedVisit.getStatus()) && !loadedVisit.getPrescriptionItems().isEmpty());
     }
 
     private String formatVisit(Consultation visit) {
@@ -230,8 +236,7 @@ public class PanelConsultation extends javax.swing.JPanel {
 
     public boolean confirmFinalizeConsultation() {
         return JOptionPane.showConfirmDialog(this,
-                "Finalize this consultation and complete the appointment?\n"
-                + "Clinical notes and prescription items will become read-only.",
+                "Finalize this consultation and complete the appointment?\nClinical notes and prescription items will become read-only.",
                 "Finalize consultation", JOptionPane.YES_NO_OPTION,
                 JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION;
     }
@@ -371,6 +376,25 @@ public class PanelConsultation extends javax.swing.JPanel {
             consultationSplitReady = true;
         }
     }
+    
+    public Consultation getLoadedConsultation() {
+        return loadedVisit;
+    }
+    
+    public boolean printConsultationPrescription(String txt) throws PrinterException {
+        JTextArea prescription = new JTextArea(txt);
+        prescription.setFont(new Font("Monospaced", Font.PLAIN, 11));
+        prescription.setEditable(false);
+        prescription.setLineWrap(true);
+        prescription.setWrapStyleWord(true);
+        
+        return prescription.print(new MessageFormat("Vetora - Prescription"), new MessageFormat("Page {0}"));
+    }
+    
+    public void showPrescriptionPrinted(String message) {
+        showConsultationMessage(message);
+        lblConsultationError.setForeground(new Color(15,118,110));
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -380,22 +404,6 @@ public class PanelConsultation extends javax.swing.JPanel {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-        lblPrescriptionListHint = new javax.swing.JLabel();
-        pnlPrescriptionListFooter = new javax.swing.JPanel();
-        lblPrescriptionListTitle = new javax.swing.JLabel();
-        pnlPrescriptionListHeader = new javax.swing.JPanel();
-        pnlPrescriptionList = new javax.swing.JPanel();
-        pnlPrescriptionEntryGlue = new javax.swing.JPanel();
-        pnlPrescriptionInstructionsGroup = new javax.swing.JPanel();
-        pnlPrescriptionHeader = new javax.swing.JPanel();
-        pnlPrescriptionEditor = new javax.swing.JPanel();
-        pnlConsultationPrescription = new javax.swing.JPanel();
-        pnlClinicalNotesGlue = new javax.swing.JPanel();
-        pnlAssessmentRow = new javax.swing.JPanel();
-        pnlTreatmentGroup = new javax.swing.JPanel();
-        pnlDiagnosisGroup = new javax.swing.JPanel();
-        pnlSymptomsGroup = new javax.swing.JPanel();
-        pnlClinicalNotesHeading = new javax.swing.JPanel();
 
         pnlConsultationHeader = new javax.swing.JPanel();
         pnlConsultationHeaderLables = new javax.swing.JPanel();
@@ -413,26 +421,35 @@ public class PanelConsultation extends javax.swing.JPanel {
         lblConsultationVisit = new javax.swing.JLabel();
         tabConsultation = new javax.swing.JTabbedPane();
         pnlCurrentConsultation = new javax.swing.JPanel();
-        splitConsultation = new javax.swing.JSplitPane();
         scrClinicalNotes = new javax.swing.JScrollPane();
         pnlClinicalNotes = new javax.swing.JPanel();
+        pnlClinicalNotesHeading = new javax.swing.JPanel();
         lblClinicalNotesTitle = new javax.swing.JLabel();
+        lblClinicalNotesHint = new javax.swing.JLabel();
         filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13));
+        pnlAssessmentRow = new javax.swing.JPanel();
+        pnlSymptomsGroup = new javax.swing.JPanel();
         lblSymptoms = new javax.swing.JLabel();
         scrSymptomsText = new javax.swing.JScrollPane();
         txtSymptoms = new javax.swing.JTextArea();
-        filler3 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13));
+        pnlDiagnosisGroup = new javax.swing.JPanel();
         lblDiagnosis = new javax.swing.JLabel();
         scrDiagnosisText = new javax.swing.JScrollPane();
         txtDiagnosis = new javax.swing.JTextArea();
+        filler3 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13));
+        pnlTreatmentGroup = new javax.swing.JPanel();
         lblTreatmentNotes = new javax.swing.JLabel();
         scrTreatmentNotesText = new javax.swing.JScrollPane();
         txtTreatmentNotes = new javax.swing.JTextArea();
-        lblClinicalNotesHint = new javax.swing.JLabel();
-        scrPrescription = new javax.swing.JScrollPane();
-        pnlPrescription = new javax.swing.JPanel();
+        pnlClinicalNotesGlue = new javax.swing.JPanel();
+        pnlConsultationPrescription = new javax.swing.JPanel();
+        splitConsultation = new javax.swing.JSplitPane();
+        pnlPrescriptionEditor = new javax.swing.JPanel();
+        pnlPrescriptionHeader = new javax.swing.JPanel();
         lblPrescriptionTitle = new javax.swing.JLabel();
         lblFulfilment = new javax.swing.JLabel();
+        scrPrescription = new javax.swing.JScrollPane();
+        pnlPrescription = new javax.swing.JPanel();
         pnlPrescriptionMedicineRow = new javax.swing.JPanel();
         pnlExternalMedicineGroup = new javax.swing.JPanel();
         lblExtterrnalMedicine = new javax.swing.JLabel();
@@ -452,22 +469,31 @@ public class PanelConsultation extends javax.swing.JPanel {
         lblDuration = new javax.swing.JLabel();
         txtDuration = new javax.swing.JTextField();
         filler12 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8));
+        pnlPrescriptionInstructionsGroup = new javax.swing.JPanel();
         lblPrescriptionInsructions = new javax.swing.JLabel();
         scrPrescriptionInstructions = new javax.swing.JScrollPane();
         txtPrescriptionInstructions = new javax.swing.JTextArea();
+        pnlPrescriptionEntryGlue = new javax.swing.JPanel();
         pnlPrescriptionItemButtons = new javax.swing.JPanel();
         btnAddPrescriptionItem = new javax.swing.JButton();
-        btnRemovePrescriptionItem = new javax.swing.JButton();
         btnClearPrescriptionItem = new javax.swing.JButton();
+        pnlPrescriptionList = new javax.swing.JPanel();
+        pnlPrescriptionListHeader = new javax.swing.JPanel();
+        lblPrescriptionListTitle = new javax.swing.JLabel();
+        lblPrescriptionCount = new javax.swing.JLabel();
         scrPrescriptionItems = new javax.swing.JScrollPane();
         tblPrescriptionItems = new javax.swing.JTable();
-        lblPrescriptionCount = new javax.swing.JLabel();
+        pnlPrescriptionListFooter = new javax.swing.JPanel();
+        lblPrescriptionListHint = new javax.swing.JLabel();
+        btnRemovePrescriptionItem = new javax.swing.JButton();
         pnlConsultationActions = new javax.swing.JPanel();
         lblConsultationError = new javax.swing.JLabel();
         pnlConsultationButtons = new javax.swing.JPanel();
         btnSaveDraft = new javax.swing.JButton();
         filler17 = new javax.swing.Box.Filler(new java.awt.Dimension(13, 0), new java.awt.Dimension(13, 0), new java.awt.Dimension(13, 0));
         btnFinalizeConsultation = new javax.swing.JButton();
+        filler18 = new javax.swing.Box.Filler(new java.awt.Dimension(13, 0), new java.awt.Dimension(13, 0), new java.awt.Dimension(13, 0));
+        btnPrintPrescription = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(245, 247, 250));
         addComponentListener(new java.awt.event.ComponentAdapter() {
@@ -485,69 +511,82 @@ public class PanelConsultation extends javax.swing.JPanel {
         pnlConsultationHeaderLables.setPreferredSize(new java.awt.Dimension(0, 21));
         pnlConsultationHeaderLables.setLayout(new java.awt.BorderLayout(13, 0));
 
-        lblSelectedConsultationAppointment.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblSelectedConsultationAppointment.setText("Consultation appointment");
+        lblSelectedConsultationAppointment.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         lblSelectedConsultationAppointment.setForeground(new java.awt.Color(71, 85, 105));
+        pnlConsultationHeaderLables.add(lblSelectedConsultationAppointment, java.awt.BorderLayout.CENTER);
 
-        lblConsultationStatus.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblConsultationStatus.setText("Consultation: Not loaded");
+        lblConsultationStatus.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         lblConsultationStatus.setForeground(new java.awt.Color(71, 85, 105));
+        pnlConsultationHeaderLables.add(lblConsultationStatus, java.awt.BorderLayout.EAST);
 
+        pnlConsultationHeader.add(pnlConsultationHeaderLables, java.awt.BorderLayout.NORTH);
 
         pnlConsultationSeclector.setBackground(new java.awt.Color(255, 255, 255));
-        pnlConsultationSeclector.setPreferredSize(new java.awt.Dimension(0, 42));
-        pnlConsultationSeclector.setLayout(new java.awt.BorderLayout(13, 0));
         pnlConsultationSeclector.setMinimumSize(new java.awt.Dimension(0, 42));
+        pnlConsultationSeclector.setPreferredSize(new java.awt.Dimension(0, 42));
         pnlConsultationSeclector.setMaximumSize(new java.awt.Dimension(32767, 42));
         pnlConsultationSeclector.setAlignmentX(0.0F);
+        pnlConsultationSeclector.setLayout(new java.awt.BorderLayout(13, 0));
 
-        cmbConsultationAppointment.setFont(new java.awt.Font("Segoe UI", 0, 16));
         cmbConsultationAppointment.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select appointment" }));
-        cmbConsultationAppointment.setPreferredSize(new java.awt.Dimension(233, 42));
         cmbConsultationAppointment.setMinimumSize(new java.awt.Dimension(0, 42));
+        cmbConsultationAppointment.setPreferredSize(new java.awt.Dimension(233, 42));
         cmbConsultationAppointment.setMaximumSize(new java.awt.Dimension(32767, 42));
         cmbConsultationAppointment.setAlignmentX(0.0F);
+        cmbConsultationAppointment.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         cmbConsultationAppointment.addActionListener(this::cmbConsultationAppointmentActionPerformed);
+        pnlConsultationSeclector.add(cmbConsultationAppointment, java.awt.BorderLayout.CENTER);
 
-        btnLoadConsultation.setFont(new java.awt.Font("Segoe UI", 0, 14));
         btnLoadConsultation.setText("Load visit");
-        btnLoadConsultation.setPreferredSize(new java.awt.Dimension(144, 42));
-        btnLoadConsultation.setMinimumSize(new java.awt.Dimension(144, 42));
-        btnLoadConsultation.setMaximumSize(new java.awt.Dimension(144, 42));
-        btnLoadConsultation.setBackground(new java.awt.Color(255, 255, 255));
+        btnLoadConsultation.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btnLoadConsultation.setForeground(new java.awt.Color(15, 118, 110));
+        btnLoadConsultation.setMinimumSize(new java.awt.Dimension(144, 42));
+        btnLoadConsultation.setPreferredSize(new java.awt.Dimension(144, 42));
+        btnLoadConsultation.setMaximumSize(new java.awt.Dimension(144, 42));
         btnLoadConsultation.addActionListener(this::btnLoadConsultationActionPerformed);
+        pnlConsultationSeclector.add(btnLoadConsultation, java.awt.BorderLayout.EAST);
 
+        pnlConsultationHeader.add(pnlConsultationSeclector, java.awt.BorderLayout.CENTER);
 
         pnlConsultationPatientSummary.setBackground(new java.awt.Color(255, 255, 255));
         pnlConsultationPatientSummary.setPreferredSize(new java.awt.Dimension(0, 39));
         pnlConsultationPatientSummary.setLayout(new java.awt.GridLayout(2, 3, 13, 5));
 
-        lblPatientPet.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblPatientPet.setText("Pet: —");
+        lblPatientPet.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         lblPatientPet.setForeground(new java.awt.Color(71, 85, 105));
+        pnlConsultationPatientSummary.add(lblPatientPet);
 
-        lblPatientOwner.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblPatientOwner.setText("Owner: —");
+        lblPatientOwner.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         lblPatientOwner.setForeground(new java.awt.Color(71, 85, 105));
+        pnlConsultationPatientSummary.add(lblPatientOwner);
 
-        lblPatientSpecies.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblPatientSpecies.setText("Species: —");
+        lblPatientSpecies.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         lblPatientSpecies.setForeground(new java.awt.Color(71, 85, 105));
+        pnlConsultationPatientSummary.add(lblPatientSpecies);
 
-        lblPatientAge.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblPatientAge.setText("Age: —");
+        lblPatientAge.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         lblPatientAge.setForeground(new java.awt.Color(71, 85, 105));
+        pnlConsultationPatientSummary.add(lblPatientAge);
 
-        lblConsultationVet.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblConsultationVet.setText("Veterinarian: —");
+        lblConsultationVet.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         lblConsultationVet.setForeground(new java.awt.Color(71, 85, 105));
+        pnlConsultationPatientSummary.add(lblConsultationVet);
 
-        lblConsultationVisit.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblConsultationVisit.setText("Visit: —");
+        lblConsultationVisit.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         lblConsultationVisit.setForeground(new java.awt.Color(71, 85, 105));
+        pnlConsultationPatientSummary.add(lblConsultationVisit);
 
+        pnlConsultationHeader.add(pnlConsultationPatientSummary, java.awt.BorderLayout.SOUTH);
 
+        add(pnlConsultationHeader, java.awt.BorderLayout.NORTH);
 
         tabConsultation.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
 
@@ -555,298 +594,426 @@ public class PanelConsultation extends javax.swing.JPanel {
         pnlCurrentConsultation.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         pnlCurrentConsultation.setLayout(new java.awt.BorderLayout(0, 13));
 
-        splitConsultation.setDividerSize(5);
-        splitConsultation.setResizeWeight(0.382);
-
-        scrClinicalNotes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        scrClinicalNotes.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrClinicalNotes.setMinimumSize(new java.awt.Dimension(300, 0));
+        scrClinicalNotes.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrClinicalNotes.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
         pnlClinicalNotes.setBackground(new java.awt.Color(255, 255, 255));
         pnlClinicalNotes.setBorder(javax.swing.BorderFactory.createEmptyBorder(13, 13, 13, 13));
         pnlClinicalNotes.setLayout(new javax.swing.BoxLayout(pnlClinicalNotes, javax.swing.BoxLayout.Y_AXIS));
 
-        lblClinicalNotesTitle.setFont(new java.awt.Font("Segoe UI", 1, 21));
-        lblClinicalNotesTitle.setText("Clinical notes");
-        lblClinicalNotesTitle.setForeground(new java.awt.Color(15, 23, 42));
+        pnlClinicalNotesHeading.setBackground(new java.awt.Color(255, 255, 255));
+        pnlClinicalNotesHeading.setMinimumSize(new java.awt.Dimension(0, 26));
+        pnlClinicalNotesHeading.setPreferredSize(new java.awt.Dimension(233, 26));
+        pnlClinicalNotesHeading.setMaximumSize(new java.awt.Dimension(32767, 26));
+        pnlClinicalNotesHeading.setAlignmentX(0.0F);
+        pnlClinicalNotesHeading.setLayout(new java.awt.BorderLayout(13, 0));
 
-        lblSymptoms.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblClinicalNotesTitle.setText("Clinical notes");
+        lblClinicalNotesTitle.setFont(new java.awt.Font("Segoe UI", 1, 21)); // NOI18N
+        lblClinicalNotesTitle.setForeground(new java.awt.Color(15, 23, 42));
+        pnlClinicalNotesHeading.add(lblClinicalNotesTitle, java.awt.BorderLayout.CENTER);
+
+        lblClinicalNotesHint.setText("* Required when finalizing");
+        lblClinicalNotesHint.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        lblClinicalNotesHint.setForeground(new java.awt.Color(71, 85, 105));
+        pnlClinicalNotesHeading.add(lblClinicalNotesHint, java.awt.BorderLayout.EAST);
+
+        pnlClinicalNotes.add(pnlClinicalNotesHeading);
+        pnlClinicalNotes.add(filler1);
+
+        pnlAssessmentRow.setBackground(new java.awt.Color(255, 255, 255));
+        pnlAssessmentRow.setMinimumSize(new java.awt.Dimension(0, 115));
+        pnlAssessmentRow.setPreferredSize(new java.awt.Dimension(233, 115));
+        pnlAssessmentRow.setMaximumSize(new java.awt.Dimension(32767, 115));
+        pnlAssessmentRow.setAlignmentX(0.0F);
+        pnlAssessmentRow.setLayout(new java.awt.GridLayout(1, 2, 13, 0));
+
+        pnlSymptomsGroup.setBackground(new java.awt.Color(255, 255, 255));
+        pnlSymptomsGroup.setMinimumSize(new java.awt.Dimension(0, 115));
+        pnlSymptomsGroup.setPreferredSize(new java.awt.Dimension(233, 115));
+        pnlSymptomsGroup.setMaximumSize(new java.awt.Dimension(32767, 115));
+        pnlSymptomsGroup.setAlignmentX(0.0F);
+        pnlSymptomsGroup.setLayout(new java.awt.BorderLayout(0, 5));
+
         lblSymptoms.setText("Symptoms *");
         lblSymptoms.setPreferredSize(new java.awt.Dimension(0, 21));
+        lblSymptoms.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         lblSymptoms.setForeground(new java.awt.Color(71, 85, 105));
+        pnlSymptomsGroup.add(lblSymptoms, java.awt.BorderLayout.NORTH);
 
         scrSymptomsText.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(226, 232, 240)));
-        scrSymptomsText.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        scrSymptomsText.setAlignmentX(0.0F);
-        scrSymptomsText.setMaximumSize(new java.awt.Dimension(32767, 89));
+        scrSymptomsText.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         scrSymptomsText.setMinimumSize(new java.awt.Dimension(0, 89));
         scrSymptomsText.setPreferredSize(new java.awt.Dimension(233, 89));
+        scrSymptomsText.setMaximumSize(new java.awt.Dimension(32767, 89));
+        scrSymptomsText.setAlignmentX(0.0F);
+        scrSymptomsText.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         txtSymptoms.setEditable(false);
-        txtSymptoms.setColumns(0);
-        txtSymptoms.setFont(new java.awt.Font("Segoe UI", 0, 16));
+        txtSymptoms.setRows(3);
         txtSymptoms.setLineWrap(true);
         txtSymptoms.setWrapStyleWord(true);
         txtSymptoms.setMargin(new java.awt.Insets(4, 8, 4, 8));
-        txtSymptoms.setRows(3);
-        scrSymptomsText.setFont(new java.awt.Font("Segoe UI", 0, 16));
-        scrSymptomsText.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        txtSymptoms.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        scrSymptomsText.setViewportView(txtSymptoms);
 
+        pnlSymptomsGroup.add(scrSymptomsText, java.awt.BorderLayout.CENTER);
 
-        lblDiagnosis.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        pnlAssessmentRow.add(pnlSymptomsGroup);
+
+        pnlDiagnosisGroup.setBackground(new java.awt.Color(255, 255, 255));
+        pnlDiagnosisGroup.setMinimumSize(new java.awt.Dimension(0, 115));
+        pnlDiagnosisGroup.setPreferredSize(new java.awt.Dimension(233, 115));
+        pnlDiagnosisGroup.setMaximumSize(new java.awt.Dimension(32767, 115));
+        pnlDiagnosisGroup.setAlignmentX(0.0F);
+        pnlDiagnosisGroup.setLayout(new java.awt.BorderLayout(0, 5));
+
         lblDiagnosis.setText("Diagnosis *");
         lblDiagnosis.setPreferredSize(new java.awt.Dimension(0, 21));
+        lblDiagnosis.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         lblDiagnosis.setForeground(new java.awt.Color(71, 85, 105));
+        pnlDiagnosisGroup.add(lblDiagnosis, java.awt.BorderLayout.NORTH);
 
         scrDiagnosisText.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(226, 232, 240)));
-        scrDiagnosisText.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        scrDiagnosisText.setAlignmentX(0.0F);
-        scrDiagnosisText.setMaximumSize(new java.awt.Dimension(32767, 89));
+        scrDiagnosisText.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         scrDiagnosisText.setMinimumSize(new java.awt.Dimension(0, 89));
         scrDiagnosisText.setPreferredSize(new java.awt.Dimension(233, 89));
+        scrDiagnosisText.setMaximumSize(new java.awt.Dimension(32767, 89));
+        scrDiagnosisText.setAlignmentX(0.0F);
+        scrDiagnosisText.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         txtDiagnosis.setEditable(false);
-        txtDiagnosis.setColumns(0);
-        txtDiagnosis.setFont(new java.awt.Font("Segoe UI", 0, 16));
+        txtDiagnosis.setRows(3);
         txtDiagnosis.setLineWrap(true);
         txtDiagnosis.setWrapStyleWord(true);
         txtDiagnosis.setMargin(new java.awt.Insets(4, 8, 4, 8));
-        txtDiagnosis.setRows(3);
-        scrDiagnosisText.setFont(new java.awt.Font("Segoe UI", 0, 16));
-        scrDiagnosisText.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        txtDiagnosis.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        scrDiagnosisText.setViewportView(txtDiagnosis);
 
+        pnlDiagnosisGroup.add(scrDiagnosisText, java.awt.BorderLayout.CENTER);
 
-        lblTreatmentNotes.setFont(new java.awt.Font("Segoe UI", 0, 13));
-        lblTreatmentNotes.setText("Treatment notes (optional)");
+        pnlAssessmentRow.add(pnlDiagnosisGroup);
+
+        pnlClinicalNotes.add(pnlAssessmentRow);
+        pnlClinicalNotes.add(filler3);
+
+        pnlTreatmentGroup.setBackground(new java.awt.Color(255, 255, 255));
+        pnlTreatmentGroup.setMinimumSize(new java.awt.Dimension(0, 115));
+        pnlTreatmentGroup.setPreferredSize(new java.awt.Dimension(233, 115));
+        pnlTreatmentGroup.setMaximumSize(new java.awt.Dimension(32767, 115));
+        pnlTreatmentGroup.setAlignmentX(0.0F);
+        pnlTreatmentGroup.setLayout(new java.awt.BorderLayout(0, 5));
+
         lblTreatmentNotes.setPreferredSize(new java.awt.Dimension(0, 21));
+        lblTreatmentNotes.setText("Treatment notes (optional)");
+        lblTreatmentNotes.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         lblTreatmentNotes.setForeground(new java.awt.Color(71, 85, 105));
+        pnlTreatmentGroup.add(lblTreatmentNotes, java.awt.BorderLayout.NORTH);
 
         scrTreatmentNotesText.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(226, 232, 240)));
-        scrTreatmentNotesText.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        scrTreatmentNotesText.setAlignmentX(0.0F);
-        scrTreatmentNotesText.setMaximumSize(new java.awt.Dimension(32767, 89));
+        scrTreatmentNotesText.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         scrTreatmentNotesText.setMinimumSize(new java.awt.Dimension(0, 89));
         scrTreatmentNotesText.setPreferredSize(new java.awt.Dimension(233, 89));
+        scrTreatmentNotesText.setMaximumSize(new java.awt.Dimension(32767, 89));
+        scrTreatmentNotesText.setAlignmentX(0.0F);
+        scrTreatmentNotesText.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         txtTreatmentNotes.setEditable(false);
-        txtTreatmentNotes.setColumns(0);
-        txtTreatmentNotes.setFont(new java.awt.Font("Segoe UI", 0, 16));
+        txtTreatmentNotes.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         txtTreatmentNotes.setLineWrap(true);
+        txtTreatmentNotes.setRows(3);
         txtTreatmentNotes.setWrapStyleWord(true);
         txtTreatmentNotes.setMargin(new java.awt.Insets(4, 8, 4, 8));
-        txtTreatmentNotes.setRows(3);
-        scrTreatmentNotesText.setFont(new java.awt.Font("Segoe UI", 0, 16));
-        scrTreatmentNotesText.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrTreatmentNotesText.setViewportView(txtTreatmentNotes);
 
+        pnlTreatmentGroup.add(scrTreatmentNotesText, java.awt.BorderLayout.CENTER);
 
-        lblClinicalNotesHint.setFont(new java.awt.Font("Segoe UI", 0, 13));
-        lblClinicalNotesHint.setForeground(new java.awt.Color(71, 85, 105));
-        lblClinicalNotesHint.setText("* Required when finalizing");
+        pnlClinicalNotes.add(pnlTreatmentGroup);
 
-        scrClinicalNotes.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        pnlClinicalNotesGlue.setBackground(new java.awt.Color(255, 255, 255));
+        pnlClinicalNotesGlue.setPreferredSize(new java.awt.Dimension(0, 0));
+        pnlClinicalNotesGlue.setMinimumSize(new java.awt.Dimension(0, 0));
+        pnlClinicalNotesGlue.setAlignmentX(0.0F);
+        pnlClinicalNotesGlue.setLayout(new javax.swing.BoxLayout(pnlClinicalNotesGlue, javax.swing.BoxLayout.Y_AXIS));
+        pnlClinicalNotes.add(pnlClinicalNotesGlue);
 
+        scrClinicalNotes.setViewportView(pnlClinicalNotes);
 
-        scrPrescription.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        pnlCurrentConsultation.add(scrClinicalNotes, java.awt.BorderLayout.CENTER);
+
+        tabConsultation.addTab("Clinical notes", pnlCurrentConsultation);
+
+        pnlConsultationPrescription.setBackground(new java.awt.Color(255, 255, 255));
+        pnlConsultationPrescription.setLayout(new java.awt.BorderLayout(0, 0));
+
+        splitConsultation.setResizeWeight(0.382);
+        splitConsultation.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+
+        pnlPrescriptionEditor.setBackground(new java.awt.Color(255, 255, 255));
+        pnlPrescriptionEditor.setBorder(javax.swing.BorderFactory.createEmptyBorder(13, 13, 13, 13));
+        pnlPrescriptionEditor.setMinimumSize(new java.awt.Dimension(360, 0));
+        pnlPrescriptionEditor.setLayout(new java.awt.BorderLayout(0, 8));
+
+        pnlPrescriptionHeader.setBackground(new java.awt.Color(255, 255, 255));
+        pnlPrescriptionHeader.setLayout(new java.awt.BorderLayout(13, 0));
+
+        lblPrescriptionTitle.setText("Prescription");
+        lblPrescriptionTitle.setFont(new java.awt.Font("Segoe UI", 1, 21)); // NOI18N
+        lblPrescriptionTitle.setForeground(new java.awt.Color(15, 23, 42));
+        pnlPrescriptionHeader.add(lblPrescriptionTitle, java.awt.BorderLayout.CENTER);
+
+        lblFulfilment.setText("External pharmacy");
+        lblFulfilment.setToolTipText("Supply: External pharmacy");
+        lblFulfilment.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        lblFulfilment.setForeground(new java.awt.Color(71, 85, 105));
+        pnlPrescriptionHeader.add(lblFulfilment, java.awt.BorderLayout.EAST);
+
+        pnlPrescriptionEditor.add(pnlPrescriptionHeader, java.awt.BorderLayout.NORTH);
+
         scrPrescription.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrPrescription.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         scrPrescription.setMinimumSize(new java.awt.Dimension(0, 0));
 
         pnlPrescription.setBackground(new java.awt.Color(255, 255, 255));
         pnlPrescription.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         pnlPrescription.setLayout(new javax.swing.BoxLayout(pnlPrescription, javax.swing.BoxLayout.Y_AXIS));
 
-        lblPrescriptionTitle.setFont(new java.awt.Font("Segoe UI", 1, 21));
-        lblPrescriptionTitle.setText("Prescription");
-        lblPrescriptionTitle.setForeground(new java.awt.Color(15, 23, 42));
-
-        lblFulfilment.setFont(new java.awt.Font("Segoe UI", 0, 13));
-        lblFulfilment.setText("External pharmacy");
-        lblFulfilment.setForeground(new java.awt.Color(71, 85, 105));
-        lblFulfilment.setToolTipText("Supply: External pharmacy");
-
-
         pnlPrescriptionMedicineRow.setBackground(new java.awt.Color(255, 255, 255));
-        pnlPrescriptionMedicineRow.setAlignmentX(0.0F);
-        pnlPrescriptionMedicineRow.setMaximumSize(new java.awt.Dimension(32767, 68));
         pnlPrescriptionMedicineRow.setMinimumSize(new java.awt.Dimension(0, 68));
         pnlPrescriptionMedicineRow.setPreferredSize(new java.awt.Dimension(233, 68));
+        pnlPrescriptionMedicineRow.setMaximumSize(new java.awt.Dimension(32767, 68));
+        pnlPrescriptionMedicineRow.setAlignmentX(0.0F);
         pnlPrescriptionMedicineRow.setLayout(new java.awt.BorderLayout(13, 0));
 
         pnlExternalMedicineGroup.setBackground(new java.awt.Color(255, 255, 255));
-        pnlExternalMedicineGroup.setLayout(new java.awt.BorderLayout(0, 5));
         pnlExternalMedicineGroup.setMinimumSize(new java.awt.Dimension(0, 68));
         pnlExternalMedicineGroup.setPreferredSize(new java.awt.Dimension(233, 68));
         pnlExternalMedicineGroup.setMaximumSize(new java.awt.Dimension(32767, 68));
         pnlExternalMedicineGroup.setAlignmentX(0.0F);
+        pnlExternalMedicineGroup.setLayout(new java.awt.BorderLayout(0, 5));
 
-        lblExtterrnalMedicine.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblExtterrnalMedicine.setText("Medicine *");
         lblExtterrnalMedicine.setPreferredSize(new java.awt.Dimension(0, 21));
+        lblExtterrnalMedicine.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         lblExtterrnalMedicine.setForeground(new java.awt.Color(71, 85, 105));
+        pnlExternalMedicineGroup.add(lblExtterrnalMedicine, java.awt.BorderLayout.NORTH);
 
-        txtExternalMedicine.setFont(new java.awt.Font("Segoe UI", 0, 16));
         txtExternalMedicine.setEnabled(false);
         txtExternalMedicine.setMinimumSize(new java.awt.Dimension(0, 42));
         txtExternalMedicine.setPreferredSize(new java.awt.Dimension(233, 42));
         txtExternalMedicine.setMaximumSize(new java.awt.Dimension(32767, 42));
         txtExternalMedicine.setAlignmentX(0.0F);
+        txtExternalMedicine.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        pnlExternalMedicineGroup.add(txtExternalMedicine, java.awt.BorderLayout.CENTER);
 
+        pnlPrescriptionMedicineRow.add(pnlExternalMedicineGroup, java.awt.BorderLayout.CENTER);
 
         pnlPrescriptionQuantityGroup.setBackground(new java.awt.Color(255, 255, 255));
-        pnlPrescriptionQuantityGroup.setPreferredSize(new java.awt.Dimension(89, 68));
-        pnlPrescriptionQuantityGroup.setLayout(new java.awt.BorderLayout(0, 5));
-        pnlPrescriptionQuantityGroup.setMinimumSize(new java.awt.Dimension(89, 68));
-        pnlPrescriptionQuantityGroup.setMaximumSize(new java.awt.Dimension(89, 68));
         pnlPrescriptionQuantityGroup.setAlignmentX(0.0F);
+        pnlPrescriptionQuantityGroup.setMinimumSize(new java.awt.Dimension(89, 68));
+        pnlPrescriptionQuantityGroup.setPreferredSize(new java.awt.Dimension(89, 68));
+        pnlPrescriptionQuantityGroup.setMaximumSize(new java.awt.Dimension(89, 68));
+        pnlPrescriptionQuantityGroup.setLayout(new java.awt.BorderLayout(0, 5));
 
-        lblPrescribedQuantity.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblPrescribedQuantity.setText("Quantity *");
         lblPrescribedQuantity.setPreferredSize(new java.awt.Dimension(0, 21));
+        lblPrescribedQuantity.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         lblPrescribedQuantity.setForeground(new java.awt.Color(71, 85, 105));
+        pnlPrescriptionQuantityGroup.add(lblPrescribedQuantity, java.awt.BorderLayout.NORTH);
 
-        spnPrescribedQuantity.setFont(new java.awt.Font("Segoe UI", 0, 16));
         spnPrescribedQuantity.setModel(new javax.swing.SpinnerNumberModel(1, 1, 9999, 1));
         spnPrescribedQuantity.setEnabled(false);
         spnPrescribedQuantity.setMinimumSize(new java.awt.Dimension(0, 42));
         spnPrescribedQuantity.setPreferredSize(new java.awt.Dimension(233, 42));
         spnPrescribedQuantity.setMaximumSize(new java.awt.Dimension(32767, 42));
         spnPrescribedQuantity.setAlignmentX(0.0F);
+        spnPrescribedQuantity.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        pnlPrescriptionQuantityGroup.add(spnPrescribedQuantity, java.awt.BorderLayout.CENTER);
 
+        pnlPrescriptionMedicineRow.add(pnlPrescriptionQuantityGroup, java.awt.BorderLayout.EAST);
 
+        pnlPrescription.add(pnlPrescriptionMedicineRow);
+        pnlPrescription.add(filler11);
 
         pnlPrescriptionDoseRow.setBackground(new java.awt.Color(255, 255, 255));
-        pnlPrescriptionDoseRow.setAlignmentX(0.0F);
-        pnlPrescriptionDoseRow.setMaximumSize(new java.awt.Dimension(32767, 68));
         pnlPrescriptionDoseRow.setMinimumSize(new java.awt.Dimension(0, 68));
         pnlPrescriptionDoseRow.setPreferredSize(new java.awt.Dimension(233, 68));
+        pnlPrescriptionDoseRow.setMaximumSize(new java.awt.Dimension(32767, 68));
+        pnlPrescriptionDoseRow.setAlignmentX(0.0F);
         pnlPrescriptionDoseRow.setLayout(new java.awt.GridLayout(1, 3, 8, 0));
 
         pnlPrescriptionDoseGroup.setBackground(new java.awt.Color(255, 255, 255));
-        pnlPrescriptionDoseGroup.setLayout(new java.awt.BorderLayout(0, 5));
         pnlPrescriptionDoseGroup.setMinimumSize(new java.awt.Dimension(0, 68));
         pnlPrescriptionDoseGroup.setPreferredSize(new java.awt.Dimension(233, 68));
         pnlPrescriptionDoseGroup.setMaximumSize(new java.awt.Dimension(32767, 68));
         pnlPrescriptionDoseGroup.setAlignmentX(0.0F);
+        pnlPrescriptionDoseGroup.setLayout(new java.awt.BorderLayout(0, 5));
 
-        lblDoseText.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblDoseText.setText("Dose *");
         lblDoseText.setToolTipText("Required when finalizing a prescription item.");
         lblDoseText.setPreferredSize(new java.awt.Dimension(0, 21));
+        lblDoseText.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         lblDoseText.setForeground(new java.awt.Color(71, 85, 105));
+        pnlPrescriptionDoseGroup.add(lblDoseText, java.awt.BorderLayout.NORTH);
 
-        txtDoseText.setFont(new java.awt.Font("Segoe UI", 0, 16));
         txtDoseText.setEnabled(false);
         txtDoseText.setMinimumSize(new java.awt.Dimension(0, 42));
         txtDoseText.setPreferredSize(new java.awt.Dimension(233, 42));
         txtDoseText.setMaximumSize(new java.awt.Dimension(32767, 42));
         txtDoseText.setAlignmentX(0.0F);
+        txtDoseText.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        pnlPrescriptionDoseGroup.add(txtDoseText, java.awt.BorderLayout.CENTER);
 
+        pnlPrescriptionDoseRow.add(pnlPrescriptionDoseGroup);
 
         pnlPrescriptionFrequencyGroup.setBackground(new java.awt.Color(255, 255, 255));
-        pnlPrescriptionFrequencyGroup.setLayout(new java.awt.BorderLayout(0, 5));
         pnlPrescriptionFrequencyGroup.setMinimumSize(new java.awt.Dimension(0, 68));
         pnlPrescriptionFrequencyGroup.setPreferredSize(new java.awt.Dimension(233, 68));
         pnlPrescriptionFrequencyGroup.setMaximumSize(new java.awt.Dimension(32767, 68));
         pnlPrescriptionFrequencyGroup.setAlignmentX(0.0F);
+        pnlPrescriptionFrequencyGroup.setLayout(new java.awt.BorderLayout(0, 5));
 
-        lblFrequency.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblFrequency.setText("Frequency *");
         lblFrequency.setToolTipText("Required when finalizing a prescription item.");
         lblFrequency.setPreferredSize(new java.awt.Dimension(0, 21));
+        lblFrequency.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         lblFrequency.setForeground(new java.awt.Color(71, 85, 105));
+        pnlPrescriptionFrequencyGroup.add(lblFrequency, java.awt.BorderLayout.NORTH);
 
-        txtFrequency.setFont(new java.awt.Font("Segoe UI", 0, 16));
         txtFrequency.setEnabled(false);
         txtFrequency.setMinimumSize(new java.awt.Dimension(0, 42));
         txtFrequency.setPreferredSize(new java.awt.Dimension(233, 42));
         txtFrequency.setMaximumSize(new java.awt.Dimension(32767, 42));
         txtFrequency.setAlignmentX(0.0F);
+        txtFrequency.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        pnlPrescriptionFrequencyGroup.add(txtFrequency, java.awt.BorderLayout.CENTER);
 
+        pnlPrescriptionDoseRow.add(pnlPrescriptionFrequencyGroup);
 
         pnlPrescriptionDurationGroup.setBackground(new java.awt.Color(255, 255, 255));
-        pnlPrescriptionDurationGroup.setLayout(new java.awt.BorderLayout(0, 5));
         pnlPrescriptionDurationGroup.setMinimumSize(new java.awt.Dimension(0, 68));
         pnlPrescriptionDurationGroup.setPreferredSize(new java.awt.Dimension(233, 68));
         pnlPrescriptionDurationGroup.setMaximumSize(new java.awt.Dimension(32767, 68));
         pnlPrescriptionDurationGroup.setAlignmentX(0.0F);
+        pnlPrescriptionDurationGroup.setLayout(new java.awt.BorderLayout(0, 5));
 
-        lblDuration.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblDuration.setText("Duration *");
         lblDuration.setToolTipText("Required when finalizing a prescription item.");
         lblDuration.setPreferredSize(new java.awt.Dimension(0, 21));
+        lblDuration.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         lblDuration.setForeground(new java.awt.Color(71, 85, 105));
+        pnlPrescriptionDurationGroup.add(lblDuration, java.awt.BorderLayout.NORTH);
 
-        txtDuration.setFont(new java.awt.Font("Segoe UI", 0, 16));
         txtDuration.setEnabled(false);
         txtDuration.setMinimumSize(new java.awt.Dimension(0, 42));
         txtDuration.setPreferredSize(new java.awt.Dimension(233, 42));
         txtDuration.setMaximumSize(new java.awt.Dimension(32767, 42));
         txtDuration.setAlignmentX(0.0F);
+        txtDuration.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        pnlPrescriptionDurationGroup.add(txtDuration, java.awt.BorderLayout.CENTER);
 
+        pnlPrescriptionDoseRow.add(pnlPrescriptionDurationGroup);
 
+        pnlPrescription.add(pnlPrescriptionDoseRow);
+        pnlPrescription.add(filler12);
 
-        lblPrescriptionInsructions.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        pnlPrescriptionInstructionsGroup.setBackground(new java.awt.Color(255, 255, 255));
+        pnlPrescriptionInstructionsGroup.setMinimumSize(new java.awt.Dimension(0, 94));
+        pnlPrescriptionInstructionsGroup.setPreferredSize(new java.awt.Dimension(233, 94));
+        pnlPrescriptionInstructionsGroup.setMaximumSize(new java.awt.Dimension(32767, 94));
+        pnlPrescriptionInstructionsGroup.setAlignmentX(0.0F);
+        pnlPrescriptionInstructionsGroup.setLayout(new java.awt.BorderLayout(0, 5));
+
         lblPrescriptionInsructions.setText("Instructions (optional)");
         lblPrescriptionInsructions.setPreferredSize(new java.awt.Dimension(0, 21));
+        lblPrescriptionInsructions.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         lblPrescriptionInsructions.setForeground(new java.awt.Color(71, 85, 105));
+        pnlPrescriptionInstructionsGroup.add(lblPrescriptionInsructions, java.awt.BorderLayout.NORTH);
 
         scrPrescriptionInstructions.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(226, 232, 240)));
-        scrPrescriptionInstructions.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        scrPrescriptionInstructions.setAlignmentX(0.0F);
-        scrPrescriptionInstructions.setMaximumSize(new java.awt.Dimension(32767, 68));
+        scrPrescriptionInstructions.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         scrPrescriptionInstructions.setMinimumSize(new java.awt.Dimension(0, 68));
         scrPrescriptionInstructions.setPreferredSize(new java.awt.Dimension(233, 68));
+        scrPrescriptionInstructions.setMaximumSize(new java.awt.Dimension(32767, 68));
+        scrPrescriptionInstructions.setAlignmentX(0.0F);
+        scrPrescriptionInstructions.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
-        txtPrescriptionInstructions.setColumns(0);
-        txtPrescriptionInstructions.setFont(new java.awt.Font("Segoe UI", 0, 16));
+        txtPrescriptionInstructions.setEnabled(false);
+        txtPrescriptionInstructions.setRows(2);
         txtPrescriptionInstructions.setLineWrap(true);
         txtPrescriptionInstructions.setWrapStyleWord(true);
-        txtPrescriptionInstructions.setEnabled(false);
         txtPrescriptionInstructions.setMargin(new java.awt.Insets(4, 8, 4, 8));
-        txtPrescriptionInstructions.setRows(2);
-        scrPrescriptionInstructions.setFont(new java.awt.Font("Segoe UI", 0, 16));
-        scrPrescriptionInstructions.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        txtPrescriptionInstructions.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        scrPrescriptionInstructions.setViewportView(txtPrescriptionInstructions);
 
+        pnlPrescriptionInstructionsGroup.add(scrPrescriptionInstructions, java.awt.BorderLayout.CENTER);
+
+        pnlPrescription.add(pnlPrescriptionInstructionsGroup);
+
+        pnlPrescriptionEntryGlue.setBackground(new java.awt.Color(255, 255, 255));
+        pnlPrescriptionEntryGlue.setPreferredSize(new java.awt.Dimension(0, 0));
+        pnlPrescriptionEntryGlue.setMinimumSize(new java.awt.Dimension(0, 0));
+        pnlPrescriptionEntryGlue.setAlignmentX(0.0F);
+        pnlPrescriptionEntryGlue.setLayout(new javax.swing.BoxLayout(pnlPrescriptionEntryGlue, javax.swing.BoxLayout.Y_AXIS));
+        pnlPrescription.add(pnlPrescriptionEntryGlue);
+
+        scrPrescription.setViewportView(pnlPrescription);
+
+        pnlPrescriptionEditor.add(scrPrescription, java.awt.BorderLayout.CENTER);
 
         pnlPrescriptionItemButtons.setBackground(new java.awt.Color(255, 255, 255));
-        pnlPrescriptionItemButtons.setAlignmentX(0.0F);
-        pnlPrescriptionItemButtons.setMaximumSize(new java.awt.Dimension(32767, 42));
         pnlPrescriptionItemButtons.setMinimumSize(new java.awt.Dimension(0, 42));
         pnlPrescriptionItemButtons.setPreferredSize(new java.awt.Dimension(233, 42));
+        pnlPrescriptionItemButtons.setMaximumSize(new java.awt.Dimension(32767, 42));
+        pnlPrescriptionItemButtons.setAlignmentX(0.0F);
         pnlPrescriptionItemButtons.setLayout(new java.awt.GridLayout(1, 2, 8, 0));
 
-        btnAddPrescriptionItem.setFont(new java.awt.Font("Segoe UI", 1, 14));
-        btnAddPrescriptionItem.setForeground(new java.awt.Color(255, 255, 255));
         btnAddPrescriptionItem.setText("Add item");
         btnAddPrescriptionItem.setEnabled(false);
-        btnAddPrescriptionItem.setPreferredSize(new java.awt.Dimension(0, 42));
+        btnAddPrescriptionItem.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnAddPrescriptionItem.setBackground(new java.awt.Color(15, 118, 110));
+        btnAddPrescriptionItem.setForeground(new java.awt.Color(255, 255, 255));
+        btnAddPrescriptionItem.setPreferredSize(new java.awt.Dimension(0, 42));
         btnAddPrescriptionItem.addActionListener(this::btnAddPrescriptionItemActionPerformed);
+        pnlPrescriptionItemButtons.add(btnAddPrescriptionItem);
 
-        btnRemovePrescriptionItem.setFont(new java.awt.Font("Segoe UI", 0, 14));
-        btnRemovePrescriptionItem.setForeground(new java.awt.Color(185, 28, 28));
-        btnRemovePrescriptionItem.setText("Remove");
-        btnRemovePrescriptionItem.setEnabled(false);
-        btnRemovePrescriptionItem.setPreferredSize(new java.awt.Dimension(89, 42));
-        btnRemovePrescriptionItem.setMinimumSize(new java.awt.Dimension(89, 42));
-        btnRemovePrescriptionItem.setMaximumSize(new java.awt.Dimension(89, 42));
-        btnRemovePrescriptionItem.setBackground(new java.awt.Color(255, 255, 255));
-        btnRemovePrescriptionItem.addActionListener(this::btnRemovePrescriptionItemActionPerformed);
-
-        btnClearPrescriptionItem.setFont(new java.awt.Font("Segoe UI", 0, 14));
-        btnClearPrescriptionItem.setForeground(new java.awt.Color(15, 118, 110));
         btnClearPrescriptionItem.setText("Clear fields");
         btnClearPrescriptionItem.setEnabled(false);
+        btnClearPrescriptionItem.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        btnClearPrescriptionItem.setForeground(new java.awt.Color(15, 118, 110));
         btnClearPrescriptionItem.setPreferredSize(new java.awt.Dimension(0, 42));
-        btnClearPrescriptionItem.setBackground(new java.awt.Color(255, 255, 255));
         btnClearPrescriptionItem.addActionListener(this::btnClearPrescriptionItemActionPerformed);
+        pnlPrescriptionItemButtons.add(btnClearPrescriptionItem);
 
+        pnlPrescriptionEditor.add(pnlPrescriptionItemButtons, java.awt.BorderLayout.SOUTH);
+
+        splitConsultation.setLeftComponent(pnlPrescriptionEditor);
+
+        pnlPrescriptionList.setBackground(new java.awt.Color(255, 255, 255));
+        pnlPrescriptionList.setBorder(javax.swing.BorderFactory.createEmptyBorder(13, 13, 13, 13));
+        pnlPrescriptionList.setMinimumSize(new java.awt.Dimension(400, 0));
+        pnlPrescriptionList.setLayout(new java.awt.BorderLayout(0, 8));
+
+        pnlPrescriptionListHeader.setBackground(new java.awt.Color(255, 255, 255));
+        pnlPrescriptionListHeader.setLayout(new java.awt.BorderLayout(0, 5));
+
+        lblPrescriptionListTitle.setText("Prescribed items");
+        lblPrescriptionListTitle.setFont(new java.awt.Font("Segoe UI", 1, 21)); // NOI18N
+        lblPrescriptionListTitle.setForeground(new java.awt.Color(15, 23, 42));
+        pnlPrescriptionListHeader.add(lblPrescriptionListTitle, java.awt.BorderLayout.NORTH);
+
+        lblPrescriptionCount.setText("0 prescription items");
+        lblPrescriptionCount.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        lblPrescriptionCount.setForeground(new java.awt.Color(71, 85, 105));
+        pnlPrescriptionListHeader.add(lblPrescriptionCount, java.awt.BorderLayout.CENTER);
+
+        pnlPrescriptionList.add(pnlPrescriptionListHeader, java.awt.BorderLayout.NORTH);
 
         scrPrescriptionItems.setAlignmentX(0.0F);
-        scrPrescriptionItems.setMaximumSize(new java.awt.Dimension(32767, 32767));
         scrPrescriptionItems.setMinimumSize(new java.awt.Dimension(0, 89));
         scrPrescriptionItems.setPreferredSize(new java.awt.Dimension(233, 144));
 
-        tblPrescriptionItems.setFont(new java.awt.Font("Segoe UI", 0, 16));
         tblPrescriptionItems.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -870,19 +1037,18 @@ public class PanelConsultation extends javax.swing.JPanel {
                 return canEdit [columnIndex];
             }
         });
-        tblPrescriptionItems.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
-        tblPrescriptionItems.setColumnSelectionAllowed(false);
-        tblPrescriptionItems.setRowSelectionAllowed(true);
         tblPrescriptionItems.setFillsViewportHeight(true);
-        tblPrescriptionItems.setGridColor(new java.awt.Color(226, 232, 240));
-        tblPrescriptionItems.setRowHeight(34);
         tblPrescriptionItems.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        tblPrescriptionItems.setShowHorizontalLines(true);
+        tblPrescriptionItems.getTableHeader().setReorderingAllowed(false);
+        tblPrescriptionItems.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
+        tblPrescriptionItems.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        tblPrescriptionItems.setRowHeight(34);
+        tblPrescriptionItems.setForeground(new java.awt.Color(15, 23, 42));
+        tblPrescriptionItems.setGridColor(new java.awt.Color(226, 232, 240));
         tblPrescriptionItems.setSelectionBackground(new java.awt.Color(204, 251, 241));
         tblPrescriptionItems.setSelectionForeground(new java.awt.Color(15, 23, 42));
-        tblPrescriptionItems.setBackground(new java.awt.Color(255, 255, 255));
-        tblPrescriptionItems.setForeground(new java.awt.Color(15, 23, 42));
-        tblPrescriptionItems.setShowVerticalLines(false);
+        tblPrescriptionItems.setShowHorizontalLines(true);
+        scrPrescriptionItems.setViewportView(tblPrescriptionItems);
         tblPrescriptionItems.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         if (tblPrescriptionItems.getColumnModel().getColumnCount() > 0) {
             tblPrescriptionItems.getColumnModel().getColumn(0).setPreferredWidth(144);
@@ -892,39 +1058,67 @@ public class PanelConsultation extends javax.swing.JPanel {
             tblPrescriptionItems.getColumnModel().getColumn(4).setPreferredWidth(89);
             tblPrescriptionItems.getColumnModel().getColumn(5).setPreferredWidth(144);
         }
+        tblPrescriptionItems.getTableHeader().setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 13));
+        tblPrescriptionItems.getTableHeader().setPreferredSize(new java.awt.Dimension(0, 34));
+        tblPrescriptionItems.getTableHeader().setReorderingAllowed(false);
+        scrPrescriptionItems.setColumnHeaderView(tblPrescriptionItems.getTableHeader());
+        scrPrescriptionItems.getViewport().setBackground(java.awt.Color.WHITE);
 
+        pnlPrescriptionList.add(scrPrescriptionItems, java.awt.BorderLayout.CENTER);
 
-        lblPrescriptionCount.setFont(new java.awt.Font("Segoe UI", 0, 13));
-        lblPrescriptionCount.setForeground(new java.awt.Color(71, 85, 105));
-        lblPrescriptionCount.setText("0 prescription items");
+        pnlPrescriptionListFooter.setBackground(new java.awt.Color(255, 255, 255));
+        pnlPrescriptionListFooter.setLayout(new java.awt.BorderLayout(13, 0));
 
-        scrPrescription.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        lblPrescriptionListHint.setText("<html>Select an item to remove it.<br>Hover a cell for its full text.</html>");
+        lblPrescriptionListHint.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        lblPrescriptionListHint.setForeground(new java.awt.Color(71, 85, 105));
+        pnlPrescriptionListFooter.add(lblPrescriptionListHint, java.awt.BorderLayout.CENTER);
 
+        btnRemovePrescriptionItem.setText("Remove");
+        btnRemovePrescriptionItem.setEnabled(false);
+        btnRemovePrescriptionItem.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        btnRemovePrescriptionItem.setForeground(new java.awt.Color(185, 28, 28));
+        btnRemovePrescriptionItem.setMinimumSize(new java.awt.Dimension(89, 42));
+        btnRemovePrescriptionItem.setPreferredSize(new java.awt.Dimension(89, 42));
+        btnRemovePrescriptionItem.setMaximumSize(new java.awt.Dimension(89, 42));
+        btnRemovePrescriptionItem.addActionListener(this::btnRemovePrescriptionItemActionPerformed);
+        pnlPrescriptionListFooter.add(btnRemovePrescriptionItem, java.awt.BorderLayout.EAST);
 
+        pnlPrescriptionList.add(pnlPrescriptionListFooter, java.awt.BorderLayout.SOUTH);
+
+        splitConsultation.setRightComponent(pnlPrescriptionList);
+
+        pnlConsultationPrescription.add(splitConsultation, java.awt.BorderLayout.CENTER);
+
+        tabConsultation.addTab("Prescription (0)", pnlConsultationPrescription);
+
+        add(tabConsultation, java.awt.BorderLayout.CENTER);
 
         pnlConsultationActions.setBackground(new java.awt.Color(245, 247, 250));
         pnlConsultationActions.setPreferredSize(new java.awt.Dimension(0, 42));
         pnlConsultationActions.setLayout(new java.awt.BorderLayout(13, 0));
 
-        lblConsultationError.setFont(new java.awt.Font("Segoe UI", 0, 13));
-        lblConsultationError.setForeground(new java.awt.Color(185, 28, 28));
         lblConsultationError.setText(" ");
+        lblConsultationError.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        lblConsultationError.setForeground(new java.awt.Color(185, 28, 28));
+        pnlConsultationActions.add(lblConsultationError, java.awt.BorderLayout.CENTER);
 
         pnlConsultationButtons.setBackground(new java.awt.Color(245, 247, 250));
         pnlConsultationButtons.setLayout(new javax.swing.BoxLayout(pnlConsultationButtons, javax.swing.BoxLayout.X_AXIS));
 
-        btnSaveDraft.setFont(new java.awt.Font("Segoe UI", 0, 14));
+        btnSaveDraft.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         btnSaveDraft.setForeground(new java.awt.Color(15, 118, 110));
         btnSaveDraft.setText("Save draft");
         btnSaveDraft.setEnabled(false);
         btnSaveDraft.setMaximumSize(new java.awt.Dimension(144, 42));
         btnSaveDraft.setMinimumSize(new java.awt.Dimension(144, 42));
         btnSaveDraft.setPreferredSize(new java.awt.Dimension(144, 42));
-        btnSaveDraft.setBackground(new java.awt.Color(255, 255, 255));
         btnSaveDraft.addActionListener(this::btnSaveDraftActionPerformed);
+        pnlConsultationButtons.add(btnSaveDraft);
+        pnlConsultationButtons.add(filler17);
 
         btnFinalizeConsultation.setBackground(new java.awt.Color(15, 118, 110));
-        btnFinalizeConsultation.setFont(new java.awt.Font("Segoe UI", 1, 14));
+        btnFinalizeConsultation.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         btnFinalizeConsultation.setForeground(new java.awt.Color(255, 255, 255));
         btnFinalizeConsultation.setText("Finalize consultation");
         btnFinalizeConsultation.setEnabled(false);
@@ -932,172 +1126,23 @@ public class PanelConsultation extends javax.swing.JPanel {
         btnFinalizeConsultation.setMinimumSize(new java.awt.Dimension(200, 42));
         btnFinalizeConsultation.setPreferredSize(new java.awt.Dimension(200, 42));
         btnFinalizeConsultation.addActionListener(this::btnFinalizeConsultationActionPerformed);
-
-
-
-
-        pnlClinicalNotesHeading.setBackground(new java.awt.Color(255, 255, 255));
-        pnlClinicalNotesHeading.setLayout(new java.awt.BorderLayout(13, 0));
-        pnlClinicalNotesHeading.setMinimumSize(new java.awt.Dimension(0, 26));
-        pnlClinicalNotesHeading.setPreferredSize(new java.awt.Dimension(233, 26));
-        pnlClinicalNotesHeading.setMaximumSize(new java.awt.Dimension(32767, 26));
-        pnlClinicalNotesHeading.setAlignmentX(0.0F);
-        pnlSymptomsGroup.setBackground(new java.awt.Color(255, 255, 255));
-        pnlSymptomsGroup.setLayout(new java.awt.BorderLayout(0, 5));
-        pnlSymptomsGroup.setMinimumSize(new java.awt.Dimension(0, 115));
-        pnlSymptomsGroup.setPreferredSize(new java.awt.Dimension(233, 115));
-        pnlSymptomsGroup.setMaximumSize(new java.awt.Dimension(32767, 115));
-        pnlSymptomsGroup.setAlignmentX(0.0F);
-        pnlDiagnosisGroup.setBackground(new java.awt.Color(255, 255, 255));
-        pnlDiagnosisGroup.setLayout(new java.awt.BorderLayout(0, 5));
-        pnlDiagnosisGroup.setMinimumSize(new java.awt.Dimension(0, 115));
-        pnlDiagnosisGroup.setPreferredSize(new java.awt.Dimension(233, 115));
-        pnlDiagnosisGroup.setMaximumSize(new java.awt.Dimension(32767, 115));
-        pnlDiagnosisGroup.setAlignmentX(0.0F);
-        pnlTreatmentGroup.setBackground(new java.awt.Color(255, 255, 255));
-        pnlTreatmentGroup.setLayout(new java.awt.BorderLayout(0, 5));
-        pnlTreatmentGroup.setMinimumSize(new java.awt.Dimension(0, 115));
-        pnlTreatmentGroup.setPreferredSize(new java.awt.Dimension(233, 115));
-        pnlTreatmentGroup.setMaximumSize(new java.awt.Dimension(32767, 115));
-        pnlTreatmentGroup.setAlignmentX(0.0F);
-        pnlAssessmentRow.setBackground(new java.awt.Color(255, 255, 255));
-        pnlAssessmentRow.setLayout(new java.awt.GridLayout(1, 2, 13, 0));
-        pnlAssessmentRow.setMinimumSize(new java.awt.Dimension(0, 115));
-        pnlAssessmentRow.setPreferredSize(new java.awt.Dimension(233, 115));
-        pnlAssessmentRow.setMaximumSize(new java.awt.Dimension(32767, 115));
-        pnlAssessmentRow.setAlignmentX(0.0F);
-        pnlClinicalNotesGlue.setBackground(new java.awt.Color(255, 255, 255));
-        pnlClinicalNotesGlue.setLayout(new javax.swing.BoxLayout(pnlClinicalNotesGlue, javax.swing.BoxLayout.Y_AXIS));
-        pnlClinicalNotesGlue.setPreferredSize(new java.awt.Dimension(0, 0));
-        pnlClinicalNotesGlue.setMinimumSize(new java.awt.Dimension(0, 0));
-        pnlClinicalNotesGlue.setAlignmentX(0.0F);
-        pnlConsultationPrescription.setBackground(new java.awt.Color(255, 255, 255));
-        pnlConsultationPrescription.setLayout(new java.awt.BorderLayout(0, 0));
-        pnlPrescriptionEditor.setBackground(new java.awt.Color(255, 255, 255));
-        pnlPrescriptionEditor.setLayout(new java.awt.BorderLayout(0, 8));
-        pnlPrescriptionEditor.setBorder(javax.swing.BorderFactory.createEmptyBorder(13, 13, 13, 13));
-        pnlPrescriptionEditor.setMinimumSize(new java.awt.Dimension(360, 0));
-        pnlPrescriptionHeader.setBackground(new java.awt.Color(255, 255, 255));
-        pnlPrescriptionHeader.setLayout(new java.awt.BorderLayout(13, 0));
-        pnlPrescriptionInstructionsGroup.setBackground(new java.awt.Color(255, 255, 255));
-        pnlPrescriptionInstructionsGroup.setLayout(new java.awt.BorderLayout(0, 5));
-        pnlPrescriptionInstructionsGroup.setMinimumSize(new java.awt.Dimension(0, 94));
-        pnlPrescriptionInstructionsGroup.setPreferredSize(new java.awt.Dimension(233, 94));
-        pnlPrescriptionInstructionsGroup.setMaximumSize(new java.awt.Dimension(32767, 94));
-        pnlPrescriptionInstructionsGroup.setAlignmentX(0.0F);
-        pnlPrescriptionEntryGlue.setBackground(new java.awt.Color(255, 255, 255));
-        pnlPrescriptionEntryGlue.setLayout(new javax.swing.BoxLayout(pnlPrescriptionEntryGlue, javax.swing.BoxLayout.Y_AXIS));
-        pnlPrescriptionEntryGlue.setPreferredSize(new java.awt.Dimension(0, 0));
-        pnlPrescriptionEntryGlue.setMinimumSize(new java.awt.Dimension(0, 0));
-        pnlPrescriptionEntryGlue.setAlignmentX(0.0F);
-        pnlPrescriptionList.setBackground(new java.awt.Color(255, 255, 255));
-        pnlPrescriptionList.setLayout(new java.awt.BorderLayout(0, 8));
-        pnlPrescriptionList.setBorder(javax.swing.BorderFactory.createEmptyBorder(13, 13, 13, 13));
-        pnlPrescriptionList.setMinimumSize(new java.awt.Dimension(400, 0));
-        pnlPrescriptionListHeader.setBackground(new java.awt.Color(255, 255, 255));
-        pnlPrescriptionListHeader.setLayout(new java.awt.BorderLayout(0, 5));
-        lblPrescriptionListTitle.setText("Prescribed items");
-        lblPrescriptionListTitle.setFont(new java.awt.Font("Segoe UI", 1, 21));
-        lblPrescriptionListTitle.setForeground(new java.awt.Color(15, 23, 42));
-        pnlPrescriptionListFooter.setBackground(new java.awt.Color(255, 255, 255));
-        pnlPrescriptionListFooter.setLayout(new java.awt.BorderLayout(13, 0));
-        lblPrescriptionListHint.setText("<html>Select an item to remove it.<br>Hover a cell for its full text.</html>");
-        lblPrescriptionListHint.setFont(new java.awt.Font("Segoe UI", 0, 13));
-        lblPrescriptionListHint.setForeground(new java.awt.Color(71, 85, 105));
-        splitConsultation.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-
-        pnlConsultationHeaderLables.add(lblSelectedConsultationAppointment, java.awt.BorderLayout.CENTER);
-        pnlConsultationHeaderLables.add(lblConsultationStatus, java.awt.BorderLayout.EAST);
-        pnlConsultationSeclector.add(cmbConsultationAppointment, java.awt.BorderLayout.CENTER);
-        pnlConsultationSeclector.add(btnLoadConsultation, java.awt.BorderLayout.EAST);
-        pnlConsultationPatientSummary.add(lblPatientPet);
-        pnlConsultationPatientSummary.add(lblPatientOwner);
-        pnlConsultationPatientSummary.add(lblPatientSpecies);
-        pnlConsultationPatientSummary.add(lblPatientAge);
-        pnlConsultationPatientSummary.add(lblConsultationVet);
-        pnlConsultationPatientSummary.add(lblConsultationVisit);
-        pnlConsultationHeader.add(pnlConsultationHeaderLables, java.awt.BorderLayout.NORTH);
-        pnlConsultationHeader.add(pnlConsultationSeclector, java.awt.BorderLayout.CENTER);
-        pnlConsultationHeader.add(pnlConsultationPatientSummary, java.awt.BorderLayout.SOUTH);
-        pnlClinicalNotesHeading.add(lblClinicalNotesTitle, java.awt.BorderLayout.CENTER);
-        pnlClinicalNotesHeading.add(lblClinicalNotesHint, java.awt.BorderLayout.EAST);
-        scrSymptomsText.setViewportView(txtSymptoms);
-        pnlSymptomsGroup.add(lblSymptoms, java.awt.BorderLayout.NORTH);
-        pnlSymptomsGroup.add(scrSymptomsText, java.awt.BorderLayout.CENTER);
-        scrDiagnosisText.setViewportView(txtDiagnosis);
-        pnlDiagnosisGroup.add(lblDiagnosis, java.awt.BorderLayout.NORTH);
-        pnlDiagnosisGroup.add(scrDiagnosisText, java.awt.BorderLayout.CENTER);
-        pnlAssessmentRow.add(pnlSymptomsGroup);
-        pnlAssessmentRow.add(pnlDiagnosisGroup);
-        scrTreatmentNotesText.setViewportView(txtTreatmentNotes);
-        pnlTreatmentGroup.add(lblTreatmentNotes, java.awt.BorderLayout.NORTH);
-        pnlTreatmentGroup.add(scrTreatmentNotesText, java.awt.BorderLayout.CENTER);
-        pnlClinicalNotes.add(pnlClinicalNotesHeading);
-        pnlClinicalNotes.add(filler1);
-        pnlClinicalNotes.add(pnlAssessmentRow);
-        pnlClinicalNotes.add(filler3);
-        pnlClinicalNotes.add(pnlTreatmentGroup);
-        pnlClinicalNotes.add(pnlClinicalNotesGlue);
-        scrClinicalNotes.setViewportView(pnlClinicalNotes);
-        pnlCurrentConsultation.add(scrClinicalNotes, java.awt.BorderLayout.CENTER);
-        pnlPrescriptionHeader.add(lblPrescriptionTitle, java.awt.BorderLayout.CENTER);
-        pnlPrescriptionHeader.add(lblFulfilment, java.awt.BorderLayout.EAST);
-        pnlExternalMedicineGroup.add(lblExtterrnalMedicine, java.awt.BorderLayout.NORTH);
-        pnlExternalMedicineGroup.add(txtExternalMedicine, java.awt.BorderLayout.CENTER);
-        pnlPrescriptionQuantityGroup.add(lblPrescribedQuantity, java.awt.BorderLayout.NORTH);
-        pnlPrescriptionQuantityGroup.add(spnPrescribedQuantity, java.awt.BorderLayout.CENTER);
-        pnlPrescriptionMedicineRow.add(pnlExternalMedicineGroup, java.awt.BorderLayout.CENTER);
-        pnlPrescriptionMedicineRow.add(pnlPrescriptionQuantityGroup, java.awt.BorderLayout.EAST);
-        pnlPrescriptionDoseGroup.add(lblDoseText, java.awt.BorderLayout.NORTH);
-        pnlPrescriptionDoseGroup.add(txtDoseText, java.awt.BorderLayout.CENTER);
-        pnlPrescriptionFrequencyGroup.add(lblFrequency, java.awt.BorderLayout.NORTH);
-        pnlPrescriptionFrequencyGroup.add(txtFrequency, java.awt.BorderLayout.CENTER);
-        pnlPrescriptionDurationGroup.add(lblDuration, java.awt.BorderLayout.NORTH);
-        pnlPrescriptionDurationGroup.add(txtDuration, java.awt.BorderLayout.CENTER);
-        pnlPrescriptionDoseRow.add(pnlPrescriptionDoseGroup);
-        pnlPrescriptionDoseRow.add(pnlPrescriptionFrequencyGroup);
-        pnlPrescriptionDoseRow.add(pnlPrescriptionDurationGroup);
-        scrPrescriptionInstructions.setViewportView(txtPrescriptionInstructions);
-        pnlPrescriptionInstructionsGroup.add(lblPrescriptionInsructions, java.awt.BorderLayout.NORTH);
-        pnlPrescriptionInstructionsGroup.add(scrPrescriptionInstructions, java.awt.BorderLayout.CENTER);
-        pnlPrescription.add(pnlPrescriptionMedicineRow);
-        pnlPrescription.add(filler11);
-        pnlPrescription.add(pnlPrescriptionDoseRow);
-        pnlPrescription.add(filler12);
-        pnlPrescription.add(pnlPrescriptionInstructionsGroup);
-        pnlPrescription.add(pnlPrescriptionEntryGlue);
-        scrPrescription.setViewportView(pnlPrescription);
-        pnlPrescriptionItemButtons.add(btnAddPrescriptionItem);
-        pnlPrescriptionItemButtons.add(btnClearPrescriptionItem);
-        pnlPrescriptionEditor.add(pnlPrescriptionHeader, java.awt.BorderLayout.NORTH);
-        pnlPrescriptionEditor.add(scrPrescription, java.awt.BorderLayout.CENTER);
-        pnlPrescriptionEditor.add(pnlPrescriptionItemButtons, java.awt.BorderLayout.SOUTH);
-        pnlPrescriptionListHeader.add(lblPrescriptionListTitle, java.awt.BorderLayout.NORTH);
-        pnlPrescriptionListHeader.add(lblPrescriptionCount, java.awt.BorderLayout.CENTER);
-        scrPrescriptionItems.setViewportView(tblPrescriptionItems);
-        pnlPrescriptionListFooter.add(lblPrescriptionListHint, java.awt.BorderLayout.CENTER);
-        pnlPrescriptionListFooter.add(btnRemovePrescriptionItem, java.awt.BorderLayout.EAST);
-        pnlPrescriptionList.add(pnlPrescriptionListHeader, java.awt.BorderLayout.NORTH);
-        pnlPrescriptionList.add(scrPrescriptionItems, java.awt.BorderLayout.CENTER);
-        pnlPrescriptionList.add(pnlPrescriptionListFooter, java.awt.BorderLayout.SOUTH);
-        splitConsultation.setLeftComponent(pnlPrescriptionEditor);
-        splitConsultation.setRightComponent(pnlPrescriptionList);
-        pnlConsultationPrescription.add(splitConsultation, java.awt.BorderLayout.CENTER);
-        tabConsultation.addTab("Clinical notes", pnlCurrentConsultation);
-        tabConsultation.addTab("Prescription (0)", pnlConsultationPrescription);
-        pnlConsultationButtons.add(btnSaveDraft);
-        pnlConsultationButtons.add(filler17);
         pnlConsultationButtons.add(btnFinalizeConsultation);
-        pnlConsultationActions.add(lblConsultationError, java.awt.BorderLayout.CENTER);
+        pnlConsultationButtons.add(filler18);
+
+        btnPrintPrescription.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        btnPrintPrescription.setForeground(new java.awt.Color(15, 118, 110));
+        btnPrintPrescription.setText("Print prescription");
+        btnPrintPrescription.setToolTipText("Print the finalized prescription");
+        btnPrintPrescription.setEnabled(false);
+        btnPrintPrescription.setMaximumSize(new java.awt.Dimension(144, 42));
+        btnPrintPrescription.setMinimumSize(new java.awt.Dimension(144, 42));
+        btnPrintPrescription.setPreferredSize(new java.awt.Dimension(144, 42));
+        btnPrintPrescription.addActionListener(this::btnPrintPrescriptionActionPerformed);
+        pnlConsultationButtons.add(btnPrintPrescription);
+
         pnlConsultationActions.add(pnlConsultationButtons, java.awt.BorderLayout.EAST);
-        add(pnlConsultationHeader, java.awt.BorderLayout.NORTH);
-        add(tabConsultation, java.awt.BorderLayout.CENTER);
+
         add(pnlConsultationActions, java.awt.BorderLayout.SOUTH);
-        tblPrescriptionItems.getTableHeader().setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 13));
-        tblPrescriptionItems.getTableHeader().setPreferredSize(new java.awt.Dimension(0, 34));
-        tblPrescriptionItems.getTableHeader().setReorderingAllowed(false);
-        scrPrescriptionItems.setColumnHeaderView(tblPrescriptionItems.getTableHeader());
-        scrPrescriptionItems.getViewport().setBackground(java.awt.Color.WHITE);
     }// </editor-fold>//GEN-END:initComponents
 
     private void formComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentShown
@@ -1147,27 +1192,18 @@ public class PanelConsultation extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_btnFinalizeConsultationActionPerformed
 
+    private void btnPrintPrescriptionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPrintPrescriptionActionPerformed
+        if (controller != null) {
+            controller.printPrescription();
+        }
+    }//GEN-LAST:event_btnPrintPrescriptionActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel lblPrescriptionListHint;
-    private javax.swing.JPanel pnlPrescriptionListFooter;
-    private javax.swing.JLabel lblPrescriptionListTitle;
-    private javax.swing.JPanel pnlPrescriptionListHeader;
-    private javax.swing.JPanel pnlPrescriptionList;
-    private javax.swing.JPanel pnlPrescriptionEntryGlue;
-    private javax.swing.JPanel pnlPrescriptionInstructionsGroup;
-    private javax.swing.JPanel pnlPrescriptionHeader;
-    private javax.swing.JPanel pnlPrescriptionEditor;
-    private javax.swing.JPanel pnlConsultationPrescription;
-    private javax.swing.JPanel pnlClinicalNotesGlue;
-    private javax.swing.JPanel pnlAssessmentRow;
-    private javax.swing.JPanel pnlTreatmentGroup;
-    private javax.swing.JPanel pnlDiagnosisGroup;
-    private javax.swing.JPanel pnlSymptomsGroup;
-    private javax.swing.JPanel pnlClinicalNotesHeading;
     private javax.swing.JButton btnAddPrescriptionItem;
     private javax.swing.JButton btnClearPrescriptionItem;
     private javax.swing.JButton btnFinalizeConsultation;
     private javax.swing.JButton btnLoadConsultation;
+    private javax.swing.JButton btnPrintPrescription;
     private javax.swing.JButton btnRemovePrescriptionItem;
     private javax.swing.JButton btnSaveDraft;
     private javax.swing.JComboBox<String> cmbConsultationAppointment;
@@ -1175,6 +1211,7 @@ public class PanelConsultation extends javax.swing.JPanel {
     private javax.swing.Box.Filler filler11;
     private javax.swing.Box.Filler filler12;
     private javax.swing.Box.Filler filler17;
+    private javax.swing.Box.Filler filler18;
     private javax.swing.Box.Filler filler3;
     private javax.swing.JLabel lblClinicalNotesHint;
     private javax.swing.JLabel lblClinicalNotesTitle;
@@ -1195,27 +1232,43 @@ public class PanelConsultation extends javax.swing.JPanel {
     private javax.swing.JLabel lblPrescribedQuantity;
     private javax.swing.JLabel lblPrescriptionCount;
     private javax.swing.JLabel lblPrescriptionInsructions;
+    private javax.swing.JLabel lblPrescriptionListHint;
+    private javax.swing.JLabel lblPrescriptionListTitle;
     private javax.swing.JLabel lblPrescriptionTitle;
     private javax.swing.JLabel lblSelectedConsultationAppointment;
     private javax.swing.JLabel lblSymptoms;
     private javax.swing.JLabel lblTreatmentNotes;
+    private javax.swing.JPanel pnlAssessmentRow;
     private javax.swing.JPanel pnlClinicalNotes;
+    private javax.swing.JPanel pnlClinicalNotesGlue;
+    private javax.swing.JPanel pnlClinicalNotesHeading;
     private javax.swing.JPanel pnlConsultationActions;
     private javax.swing.JPanel pnlConsultationButtons;
     private javax.swing.JPanel pnlConsultationHeader;
     private javax.swing.JPanel pnlConsultationHeaderLables;
     private javax.swing.JPanel pnlConsultationPatientSummary;
+    private javax.swing.JPanel pnlConsultationPrescription;
     private javax.swing.JPanel pnlConsultationSeclector;
     private javax.swing.JPanel pnlCurrentConsultation;
+    private javax.swing.JPanel pnlDiagnosisGroup;
     private javax.swing.JPanel pnlExternalMedicineGroup;
     private javax.swing.JPanel pnlPrescription;
     private javax.swing.JPanel pnlPrescriptionDoseGroup;
     private javax.swing.JPanel pnlPrescriptionDoseRow;
     private javax.swing.JPanel pnlPrescriptionDurationGroup;
+    private javax.swing.JPanel pnlPrescriptionEditor;
+    private javax.swing.JPanel pnlPrescriptionEntryGlue;
     private javax.swing.JPanel pnlPrescriptionFrequencyGroup;
+    private javax.swing.JPanel pnlPrescriptionHeader;
+    private javax.swing.JPanel pnlPrescriptionInstructionsGroup;
     private javax.swing.JPanel pnlPrescriptionItemButtons;
+    private javax.swing.JPanel pnlPrescriptionList;
+    private javax.swing.JPanel pnlPrescriptionListFooter;
+    private javax.swing.JPanel pnlPrescriptionListHeader;
     private javax.swing.JPanel pnlPrescriptionMedicineRow;
     private javax.swing.JPanel pnlPrescriptionQuantityGroup;
+    private javax.swing.JPanel pnlSymptomsGroup;
+    private javax.swing.JPanel pnlTreatmentGroup;
     private javax.swing.JScrollPane scrClinicalNotes;
     private javax.swing.JScrollPane scrDiagnosisText;
     private javax.swing.JScrollPane scrPrescription;

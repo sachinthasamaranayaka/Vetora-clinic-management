@@ -4,6 +4,8 @@
  */
 package vetora.controller;
 
+import vetora.util.AccessControl;
+
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import javax.swing.SwingWorker;
@@ -18,19 +20,28 @@ import vetora.view.DialogUser;
  * @author ASUS
  */
 public class UserController {
+    private final AccessControl accessControl;
     private final UserModel model;
     private final PanelUser view;
     private final long currentUserId;
     private int userLoadVersion;
     private boolean dialogOpen;
 
-    public UserController(UserModel model, PanelUser view, long currentUserId){
+    public UserController(UserModel model, PanelUser view, long currentUserId, AccessControl accessControl){
+        if (accessControl == null) {
+            throw new IllegalArgumentException("Access control is required.");
+        }
+        this.accessControl = accessControl;
         this.model = model;
         this.view = view;
         this.currentUserId = currentUserId;
     }
 
     public void loadUsers(){
+        if (!accessControl.canManageUsers()) {
+            view.showUserListMessage("You do not have permission to perform this action.");
+            return;
+        }
         if (dialogOpen) {
             return;
         }
@@ -71,10 +82,18 @@ public class UserController {
     }
 
     public void newUser(){
+        if (!accessControl.canManageUsers()) {
+            view.showUserListMessage("You do not have permission to perform this action.");
+            return;
+        }
         openDialog(null);
     }
 
     public void editUser(){
+        if (!accessControl.canManageUsers()) {
+            view.showUserListMessage("You do not have permission to perform this action.");
+            return;
+        }
         User selected = view.getSelectedUser();
         if (selected == null) {
             view.showUserListMessage("Select a user to edit.");
@@ -84,13 +103,17 @@ public class UserController {
     }
 
     private void openDialog(User selected){
+        if (!accessControl.canManageUsers()) {
+            view.showUserListMessage("You do not have permission to perform this action.");
+            return;
+        }
         if (dialogOpen || view.isUserListBusy()) {
             return;
         }
         dialogOpen = true;
         try {
             DialogUser dialog = view.createUserDialog(selected);
-            UserDialogController dialogController = new UserDialogController(model, dialog, currentUserId);
+            UserDialogController dialogController = new UserDialogController(model, dialog, currentUserId, accessControl);
             dialog.setController(dialogController);
             dialog.setVisible(true);
             if (dialog.getSavedUser() != null) {
