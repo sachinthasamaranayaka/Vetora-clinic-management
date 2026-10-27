@@ -15,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import vetora.controller.AppointmentController;
 import vetora.controller.ConsultationController;
@@ -32,6 +33,7 @@ import vetora.controller.PetController;
 import vetora.model.AppointmentModel;
 import vetora.model.ConsultationModel;
 import vetora.model.User;
+import vetora.util.AccessControl;
 
 /**
  *
@@ -43,16 +45,15 @@ public class FormMain extends javax.swing.JFrame {
     
     private static final Logger logger = Logger.getLogger(FormMain.class.getName());
 
-    /**
-     * Creates new form FormMain
-     * @param user
-     */
     public FormMain(User user) {
         
         if (user == null || !"Active".equals(user.getStatus())){
             throw new IllegalArgumentException("An active signed-in user is required.");
         }
         this.currentUser = user;
+        if (!new AccessControl(currentUser).canViewDashboard()){
+            throw new IllegalArgumentException("Unknownb user role.");
+        }
         
         initComponents();
         
@@ -60,6 +61,7 @@ public class FormMain extends javax.swing.JFrame {
         jLabelUserName.setToolTipText(currentUser.getFullName());
         jLabelUserRole.setText(currentUser.getRole());
         
+        applyNavigationPermissions();
         setupNavigation();
         
         //Set Date
@@ -76,6 +78,11 @@ public class FormMain extends javax.swing.JFrame {
     }
     
     private void showPage(String cardName, JButton selectedButton, String title, String subtitle){
+        if (!canOpenPage(cardName)){
+            JOptionPane.showMessageDialog(this, "You do not have permission to open this page.", "Access denied", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
         CardLayout layout = (CardLayout)jPanelView.getLayout();
         layout.show(jPanelView,cardName);
         jLabelPageTitle.setText(title);
@@ -93,6 +100,9 @@ public class FormMain extends javax.swing.JFrame {
     }
     
     private void registerPage(String cardName,JPanel panel,JButton button,String title,String subtitle){
+        if (!canOpenPage(cardName)){
+            return;
+        }
         jPanelView.add(panel,cardName);
         button.addActionListener(e -> showPage(cardName,button,title,subtitle));
     }
@@ -176,6 +186,53 @@ public class FormMain extends javax.swing.JFrame {
                 () -> btnBilling.doClick());
         
         btnDashboard.doClick();
+    }
+    
+    private boolean canOpenPage(String cardName){
+        AccessControl access = new AccessControl(currentUser);
+        
+        switch (cardName){
+            case "dashboard":
+                return access.canViewDashboard();
+                
+            case "owners":
+            case "pets":
+                return access.canViewOwnwrsAndPets();
+            
+            case "appointments":
+                return access.canViewAppointments();
+                
+            case "consultations":
+                return access.canEditConsultation();
+                
+            case "billing":
+                return access.canManageBilling();
+                
+            case "reports":
+                return access.canViewClinicalReports();
+                
+            case "users":
+                return access.canManageUsers();
+                
+            default:
+                return false;
+        }
+    }
+    
+    private void applyNavigationPermissions(){
+        String[] pages = {"dashboard", "owners", "pets", "appointments", "consultations", "billing", "reports", "users"};
+        
+        JButton[] buttons = {btnDashboard, btnOwners,btnPets,btnAppointments,btnConsultations,btnBilling,btnReports,btnUser};
+        
+        for (int i=0; i < pages.length; i++){
+            boolean allowed = canOpenPage(pages[i]);
+            
+            buttons[i].setVisible(allowed);
+            buttons[i].setEnabled(allowed);
+        }
+        
+        jPanelNavMenu.revalidate();
+        jPanelNavMenu.repaint();
     }
 
     /**
