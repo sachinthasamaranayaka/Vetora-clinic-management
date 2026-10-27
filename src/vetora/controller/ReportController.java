@@ -3,6 +3,7 @@ package vetora.controller;
 import vetora.util.AccessControl;
 
 import java.io.File;
+import java.time.LocalDate;
 import java.util.concurrent.ExecutionException;
 import javax.swing.SwingWorker;
 import net.sf.jasperreports.engine.JasperPrint;
@@ -17,6 +18,7 @@ public class ReportController {
     private final ReportService service;
     private JasperPrint generatedReport;
     private boolean busy;
+    private boolean generatedPaymentReport;
 
     public ReportController(PanelReports view, ReportService service, AccessControl accessControl) {
         if (accessControl == null) {
@@ -28,21 +30,60 @@ public class ReportController {
     }
 
     public void generate() {
-        if (!accessControl.canViewClinicalReports()) {
-            view.setReportStatus("You do not have permission to perform this action.");
+        if (busy) {
             return;
         }
-        if (busy){
-            return; 
+
+        String reportType = view.getSelectedReportType();
+        boolean paymentReport = "Payment Summary".equals(reportType);
+
+        if (!paymentReport && !"Consultation History".equals(reportType)) {
+            view.setReportStatus("Select a report type.");
+            return;
         }
+
+        boolean allowed = paymentReport ? accessControl.canViewPaymentReports() : accessControl.canViewClinicalReports();
+
+        if (!allowed) {
+            view.setReportStatus("You do not have permission to generate this report.");
+            return;
+        }
+
+        LocalDate fromDate = null;
+        LocalDate toDate = null;
+
+        if (paymentReport) {
+            try {
+                fromDate = view.getReportFromDate();
+                toDate = view.getReportToDate();
+            }
+            catch (java.text.ParseException ex) {
+                view.setReportStatus("Enter valid report dates.");
+                return;
+            }
+
+            if (fromDate.isAfter(toDate)) {
+                view.setReportStatus("From date cannot be after To date.");
+                return;
+            }
+        }
+
+        final LocalDate selectedFromDate = fromDate;
+        final LocalDate selectedToDate = toDate;
+
         generatedReport = null;
         busy = true;
         view.setReportBusy(true, false);
-        view.setReportStatus("Generating consultation history...");
+        view.clearReportPreview();
+        view.setReportStatus("Generating " + reportType + "...");
 
         new SwingWorker<JasperPrint, Void>() {
             @Override
             protected JasperPrint doInBackground() throws Exception {
+                if (paymentReport) {
+                    return service.paymentSummary(selectedFromDate, selectedToDate);
+                }
+
                 return service.consultationHistory();
             }
 
@@ -50,14 +91,18 @@ public class ReportController {
             protected void done() {
                 try {
                     generatedReport = get();
+                    generatedPaymentReport = paymentReport;
                     view.showReport(generatedReport);
-                    view.setReportStatus("Report generated successfully.");
-                } catch (InterruptedException ex) {
+                    view.setReportStatus(reportType + " generated successfully.");
+                }
+                catch (InterruptedException ex) {
                     Thread.currentThread().interrupt();
                     view.showReportError("Report generation was interrupted.", ex);
-                } catch (ExecutionException ex) {
+                }
+                catch (ExecutionException ex) {
                     view.showReportError("Could not generate the report.", ex.getCause());
-                } finally {
+                }
+                finally {
                     busy = false;
                     view.setReportBusy(false, generatedReport != null);
                 }
@@ -66,10 +111,14 @@ public class ReportController {
     }
 
     public void exportPdf() {
-        if (!accessControl.canViewClinicalReports()) {
-            view.setReportStatus("You do not have permission to perform this action.");
+        
+        boolean allowed = generatedPaymentReport ? accessControl.canViewPaymentReports() : accessControl.canViewClinicalReports();
+
+        if (!allowed) {
+            view.setReportStatus("You do not have permission to export this report.");
             return;
         }
+        
         if (busy || generatedReport == null) return;
         File output = view.choosePdfDestination();
         if (output == null) return;
@@ -100,5 +149,16 @@ public class ReportController {
                 }
             }
         }.execute();
+    }
+    
+    public void reportSelectionChanged() {
+        if (busy) {
+            return;
+        }
+        
+        generatedReport = null;
+        view.clearReportPreview();
+        view.setReportBusy(false, false);
+        view.setReportStatus("Click Genarate to view the selected report.");
     }
 }

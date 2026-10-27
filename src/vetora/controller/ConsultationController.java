@@ -10,7 +10,6 @@ import vetora.util.AccessControl;
 import java.text.ParseException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import javax.print.PrintException;
 import javax.swing.SwingWorker;
 import vetora.exception.ValidationException;
 import vetora.model.Consultation;
@@ -154,6 +153,11 @@ public class ConsultationController {
         if (loading || savingConsultation || printing || restoringSelection) {
             return;
         }
+        if (!view.isConsultationEditable()){
+            return;
+        }
+        view.removeSelectedPrescriptionItem();
+        view.showConsultationMessage(" ");
     }
 
     public void clearPrescriptionItem() {
@@ -164,6 +168,11 @@ public class ConsultationController {
         if (loading || savingConsultation || printing || restoringSelection) {
             return;
         }
+        if (!view.isConsultationEditable()) {
+            return;
+        }
+        view.clearPrescriptionEntry();
+        view.showConsultationMessage(" ");
     }
 
     public void saveDraft() {

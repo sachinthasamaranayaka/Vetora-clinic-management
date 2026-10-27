@@ -57,6 +57,10 @@ public class AccessControl {
         return hasRole("Admin") || hasRole("Veterinarian");
     }
     
+    public boolean canViewPaymentReports() {
+        return hasRole("Admin");
+    }
+    
     public boolean canManageUsers(){
         return hasRole("Admin");
     }

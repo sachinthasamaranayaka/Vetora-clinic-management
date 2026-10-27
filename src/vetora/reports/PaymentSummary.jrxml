@@ -1,0 +1,121 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<jasperReport name="Vetora_PaymentSummary" language="java" pageWidth="595" pageHeight="842" orientation="Portrait" whenNoDataType="AllSectionsNoDetail" columnWidth="545" leftMargin="25" rightMargin="25" topMargin="26" bottomMargin="26" uuid="727616ac-2d77-4af7-a4d5-22efbeaccd19">
+  <property name="com.jaspersoft.studio.data.defaultdataadapter" value="VetoraDB"/>
+  <parameter name="FROM_DATE" class="java.sql.Date">
+    <defaultValueExpression><![CDATA[java.sql.Date.valueOf("2026-10-01")]]></defaultValueExpression>
+  </parameter>
+  <parameter name="TO_DATE" class="java.sql.Date">
+    <defaultValueExpression><![CDATA[java.sql.Date.valueOf("2026-10-31")]]></defaultValueExpression>
+  </parameter>
+  <query language="SQL"><![CDATA[SELECT pay.payment_id, pay.paid_at, inv.invoice_id, inv.owner_name,
+ pay.payment_method, pay.amount
+FROM payments pay
+INNER JOIN invoices inv ON inv.invoice_id = pay.invoice_id
+WHERE pay.paid_at >= $P{FROM_DATE}
+ AND pay.paid_at < DATE_ADD($P{TO_DATE}, INTERVAL 1 DAY)
+ORDER BY pay.paid_at, pay.payment_id]]></query>
+  <field name="payment_id" class="java.lang.Long"/>
+  <field name="paid_at" class="java.sql.Timestamp"/>
+  <field name="invoice_id" class="java.lang.Long"/>
+  <field name="owner_name" class="java.lang.String"/>
+  <field name="payment_method" class="java.lang.String"/>
+  <field name="amount" class="java.math.BigDecimal"/>
+  <variable name="TotalPayments" calculation="Sum" resetType="Report" class="java.math.BigDecimal">
+    <expression><![CDATA[$F{amount}]]></expression>
+    <initialValueExpression><![CDATA[java.math.BigDecimal.ZERO]]></initialValueExpression>
+  </variable>
+  <title height="105">
+    <element kind="staticText" uuid="a4dcc382-361d-4f65-b7cd-05f9f525797a" x="0" y="0" width="545" height="45" fontName="SansSerif" fontSize="18.0" forecolor="#FFFFFF" mode="Opaque" backcolor="#172B36" bold="true" vTextAlign="Middle">
+      <text><![CDATA[VETORA  |  VETERINARY CLINIC]]></text>
+      <box leftPadding="6" rightPadding="5" topPadding="5" bottomPadding="4"/>
+    </element>
+    <element kind="staticText" uuid="a072241c-cf77-47a0-a1d1-27b5a31c0996" x="0" y="49" width="545" height="25" fontName="SansSerif" fontSize="13.0" forecolor="#0F766E" bold="true">
+      <text><![CDATA[PAYMENT SUMMARY]]></text>
+      <box leftPadding="6" rightPadding="5" topPadding="5" bottomPadding="4"/>
+    </element>
+    <element kind="textField" uuid="f1386f02-8d53-41f3-9f43-e59c562cf291" x="0" y="77" width="545" height="24" fontName="SansSerif" fontSize="9.0" forecolor="#334155">
+      <expression><![CDATA["Period: " + new java.text.SimpleDateFormat("dd MMM yyyy").format($P{FROM_DATE}) + " to " + new java.text.SimpleDateFormat("dd MMM yyyy").format($P{TO_DATE})]]></expression>
+      <box leftPadding="6" rightPadding="5" topPadding="5" bottomPadding="4"/>
+    </element>
+  </title>
+  <columnHeader height="31">
+    <element kind="staticText" uuid="fd4d3fe2-3c61-4d4f-a499-3f26f02400b9" x="0" y="0" width="100" height="31" fontName="SansSerif" fontSize="9.0" forecolor="#FFFFFF" mode="Opaque" backcolor="#0F766E" bold="true" vTextAlign="Middle">
+      <text><![CDATA[Payment date]]></text>
+      <box leftPadding="6" rightPadding="5" topPadding="5" bottomPadding="4"/>
+    </element>
+    <element kind="staticText" uuid="09e33f99-db1d-4f40-8ddf-867ca615f06b" x="100" y="0" width="70" height="31" fontName="SansSerif" fontSize="9.0" forecolor="#FFFFFF" mode="Opaque" backcolor="#0F766E" bold="true" vTextAlign="Middle">
+      <text><![CDATA[Invoice]]></text>
+      <box leftPadding="6" rightPadding="5" topPadding="5" bottomPadding="4"/>
+    </element>
+    <element kind="staticText" uuid="737c5437-530f-4b14-994a-5caed54b1b28" x="170" y="0" width="195" height="31" fontName="SansSerif" fontSize="9.0" forecolor="#FFFFFF" mode="Opaque" backcolor="#0F766E" bold="true" vTextAlign="Middle">
+      <text><![CDATA[Owner]]></text>
+      <box leftPadding="6" rightPadding="5" topPadding="5" bottomPadding="4"/>
+    </element>
+    <element kind="staticText" uuid="23812b20-c242-492b-b1ab-1820bbca0e52" x="365" y="0" width="75" height="31" fontName="SansSerif" fontSize="9.0" forecolor="#FFFFFF" mode="Opaque" backcolor="#0F766E" bold="true" vTextAlign="Middle">
+      <text><![CDATA[Method]]></text>
+      <box leftPadding="6" rightPadding="5" topPadding="5" bottomPadding="4"/>
+    </element>
+    <element kind="staticText" uuid="ef14c365-dce3-4af5-a0ec-36f42b12717a" x="440" y="0" width="105" height="31" fontName="SansSerif" fontSize="9.0" forecolor="#FFFFFF" mode="Opaque" backcolor="#0F766E" bold="true" vTextAlign="Middle">
+      <text><![CDATA[Amount (LKR)]]></text>
+      <box leftPadding="6" rightPadding="5" topPadding="5" bottomPadding="4"/>
+    </element>
+  </columnHeader>
+  <detail>
+    <band height="32" splitType="Stretch">
+      <element kind="textField" uuid="5629c593-0f37-423a-b15b-3812be579dd7" x="0" y="0" width="100" height="32" fontName="SansSerif" fontSize="10.0" forecolor="#334155" textAdjust="StretchHeight" stretchType="ContainerHeight" pattern="dd/MM/yyyy">
+        <expression><![CDATA[$F{paid_at}]]></expression>
+        <box leftPadding="6" rightPadding="5" topPadding="5" bottomPadding="4">
+          <bottomPen lineWidth="0.5" lineColor="#E2E8F0"/>
+        </box>
+      </element>
+      <element kind="textField" uuid="8c26de5d-588a-408b-8e7d-a8f86ec8dd5f" x="100" y="0" width="70" height="32" fontName="SansSerif" fontSize="10.0" forecolor="#334155" textAdjust="StretchHeight" stretchType="ContainerHeight">
+        <expression><![CDATA[$F{invoice_id}]]></expression>
+        <box leftPadding="6" rightPadding="5" topPadding="5" bottomPadding="4">
+          <bottomPen lineWidth="0.5" lineColor="#E2E8F0"/>
+        </box>
+      </element>
+      <element kind="textField" uuid="72ac4a7d-4d51-4af9-b8bb-ff853fb2e3e3" x="170" y="0" width="195" height="32" fontName="SansSerif" fontSize="10.0" forecolor="#334155" textAdjust="StretchHeight" stretchType="ContainerHeight">
+        <expression><![CDATA[$F{owner_name}]]></expression>
+        <box leftPadding="6" rightPadding="5" topPadding="5" bottomPadding="4">
+          <bottomPen lineWidth="0.5" lineColor="#E2E8F0"/>
+        </box>
+      </element>
+      <element kind="textField" uuid="f7650248-a65e-40c7-89fb-9b3d769a921e" x="365" y="0" width="75" height="32" fontName="SansSerif" fontSize="10.0" forecolor="#334155" textAdjust="StretchHeight" stretchType="ContainerHeight">
+        <expression><![CDATA[$F{payment_method}]]></expression>
+        <box leftPadding="6" rightPadding="5" topPadding="5" bottomPadding="4">
+          <bottomPen lineWidth="0.5" lineColor="#E2E8F0"/>
+        </box>
+      </element>
+      <element kind="textField" uuid="7abfcbdb-d8e0-46a9-9922-0a2e1d65734e" x="440" y="0" width="105" height="32" fontName="SansSerif" fontSize="10.0" forecolor="#334155" textAdjust="StretchHeight" stretchType="ContainerHeight" pattern="#,##0.00" hTextAlign="Right">
+        <expression><![CDATA[$F{amount}]]></expression>
+        <box leftPadding="6" rightPadding="5" topPadding="5" bottomPadding="4">
+          <bottomPen lineWidth="0.5" lineColor="#E2E8F0"/>
+        </box>
+      </element>
+    </band>
+  </detail>
+  <pageFooter height="30">
+    <element kind="staticText" uuid="76080d2f-e417-49cf-b992-4cb9f0bb4f0a" x="0" y="4" width="425" height="20" fontName="SansSerif" fontSize="8.0" forecolor="#64748B">
+      <text><![CDATA[Vetora • Confidential payment information]]></text>
+      <box leftPadding="6" rightPadding="5" topPadding="5" bottomPadding="4"/>
+    </element>
+    <element kind="textField" uuid="f02165a6-7e45-464d-9855-31a750436c44" x="425" y="4" width="120" height="20" fontName="SansSerif" fontSize="8.0" forecolor="#334155" hTextAlign="Right">
+      <expression><![CDATA["Page " + $V{PAGE_NUMBER}]]></expression>
+      <box leftPadding="6" rightPadding="5" topPadding="5" bottomPadding="4"/>
+    </element>
+  </pageFooter>
+  <summary height="60">
+    <element kind="staticText" uuid="3345e977-6df8-427e-8c7b-c0fb982a2274" x="0" y="8" width="400" height="30" fontName="SansSerif" fontSize="10.0" forecolor="#334155" bold="true" mode="Opaque" backcolor="#F1F5F9">
+      <text><![CDATA[Total received (LKR)]]></text>
+      <box leftPadding="6" rightPadding="5" topPadding="5" bottomPadding="4"/>
+    </element>
+    <element kind="textField" uuid="780ae604-1402-4e7e-86f0-a54f8f5f3520" x="400" y="8" width="145" height="30" fontName="SansSerif" fontSize="10.0" forecolor="#334155" bold="true" pattern="#,##0.00" hTextAlign="Right" mode="Opaque" backcolor="#F1F5F9">
+      <expression><![CDATA[$V{TotalPayments}]]></expression>
+      <box leftPadding="6" rightPadding="5" topPadding="5" bottomPadding="4"/>
+    </element>
+    <element kind="textField" uuid="56dbe5b5-a923-4d91-aa01-f0dcf841975e" x="0" y="40" width="545" height="20" fontName="SansSerif" fontSize="8.0" forecolor="#334155">
+      <expression><![CDATA[$V{REPORT_COUNT} == 0 ? "No payments found for the selected period." : "Payment records: " + $V{REPORT_COUNT}]]></expression>
+      <box leftPadding="6" rightPadding="5" topPadding="5" bottomPadding="4"/>
+    </element>
+  </summary>
+</jasperReport>

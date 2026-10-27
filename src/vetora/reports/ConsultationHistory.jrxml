@@ -1,0 +1,63 @@
+<!-- Created with Jaspersoft Studio version 7.0.3.final using JasperReports Library version 7.0.3-41034ca841d452f3305ba55b9042260aaa1ab5dd  -->
+<jasperReport name="Vetora_ConsultationHistory" language="java" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="535" leftMargin="30" rightMargin="30" topMargin="26" bottomMargin="26" uuid="d95e8f68-c00e-4525-9e4c-75be37f3abfa">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="VetoraDB"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<query language="SQL"><![CDATA[
+SELECT
+    CONCAT('APT-', LPAD(a.appointment_id, GREATEST(4, CHAR_LENGTH(CAST(a.appointment_id AS CHAR))), '0')) AS appointment_code,
+    DATE_FORMAT(a.appointment_date, '%d %b %Y') AS visit_date,
+    p.pet_name AS pet_name,
+    o.full_name AS owner_name,
+    v.full_name AS veterinarian_name,
+    COALESCE(c.diagnosis, '-') AS diagnosis,
+    COALESCE(c.treatment, '-') AS treatment
+FROM appointments a
+INNER JOIN pets p ON p.pet_id = a.pet_id
+INNER JOIN owners o ON o.owner_id = p.owner_id
+INNER JOIN veterinarians v ON v.veterinarian_id = a.veterinarian_id
+INNER JOIN consultations c ON c.appointment_id = a.appointment_id
+WHERE c.status = 'Finalized'
+ORDER BY a.appointment_date DESC, a.appointment_time DESC,
+         a.appointment_id DESC
+    ]]></query>
+	<field name="appointment_code" class="java.lang.String"/>
+	<field name="visit_date" class="java.lang.String"/>
+	<field name="pet_name" class="java.lang.String"/>
+	<field name="owner_name" class="java.lang.String"/>
+	<field name="veterinarian_name" class="java.lang.String"/>
+	<field name="diagnosis" class="java.lang.String"/>
+	<field name="treatment" class="java.lang.String"/>
+	<title height="85">
+		<element kind="staticText" uuid="bece9e2d-9968-47fc-b50b-1063b83496e9" mode="Opaque" x="0" y="0" width="535" height="45" forecolor="#FFFFFF" backcolor="#172B36" fontName="SansSerif" fontSize="18.0" bold="true" vTextAlign="Middle">
+			<text><![CDATA[VETORA  |  VETERINARY CLINIC]]></text>
+			<box leftPadding="6" rightPadding="5"/>
+		</element>
+		<element kind="staticText" uuid="3202ea00-fba6-4afe-8cf6-a8f8002eca68" x="0" y="49" width="535" height="25" forecolor="#0F766E" fontName="SansSerif" fontSize="13.0" bold="true" vTextAlign="Middle">
+			<text><![CDATA[FINALIZED CONSULTATION HISTORY]]></text>
+			<box leftPadding="6" rightPadding="5"/>
+		</element>
+		<element kind="staticText" uuid="6fada6c3-bcf2-4f60-ad1b-9f7882c833d5" x="0" y="73" width="535" height="12" forecolor="#64748B" fontName="SansSerif" fontSize="8.0" vTextAlign="Middle">
+			<text><![CDATA[Appointment • Pet • Owner • Veterinarian • Clinical details]]></text>
+			<box leftPadding="6" rightPadding="5"/>
+		</element>
+	</title>
+	<detail>
+		<band height="148" splitType="Stretch">
+			<element kind="textField" uuid="02607830-a53b-47e6-b47e-a569bd3aa20b" x="0" y="0" width="535" height="135" forecolor="#334155" fontName="SansSerif" fontSize="10.0" textAdjust="StretchHeight">
+				<expression><![CDATA["Visit: " + $F{appointment_code} + "    |    " + $F{visit_date} + "\nPet: " + $F{pet_name} + "\nOwner: " + $F{owner_name} + "\nVeterinarian: " + $F{veterinarian_name} + "\n\nDIAGNOSIS\n" + $F{diagnosis} + "\n\nTREATMENT\n" + $F{treatment}]]></expression>
+				<box topPadding="8" leftPadding="8" bottomPadding="10" rightPadding="8">
+					<topPen lineWidth="0.5" lineColor="#CBD5E1"/>
+				</box>
+			</element>
+		</band>
+	</detail>
+	<pageFooter height="30">
+		<element kind="staticText" uuid="a294a30b-69b9-48cc-bbfc-fac386f3087d" x="0" y="4" width="420" height="20" forecolor="#64748B" fontName="SansSerif" fontSize="8.0" vTextAlign="Middle">
+			<text><![CDATA[Vetora • Confidential clinical information]]></text>
+			<box leftPadding="6" rightPadding="5"/>
+		</element>
+		<element kind="textField" uuid="389fadb7-fbea-40d3-bbc2-67e0bb191528" x="428" y="5" width="107" height="20" forecolor="#64748B" fontSize="8.0" hTextAlign="Right" vTextAlign="Middle">
+			<expression><![CDATA["Page " + $V{PAGE_NUMBER}]]></expression>
+		</element>
+	</pageFooter>
+</jasperReport>
