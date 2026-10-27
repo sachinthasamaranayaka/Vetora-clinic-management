@@ -18,6 +18,10 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import vetora.controller.AppointmentController;
 import vetora.controller.ConsultationController;
+import vetora.controller.BillingController;
+import vetora.controller.DashboardController;
+import vetora.model.DashboardModel;
+import vetora.model.BillingModel;
 import vetora.model.UserModel;
 import vetora.controller.UserController;
 import vetora.model.OwnerModel;
@@ -26,7 +30,6 @@ import vetora.controller.LoginController;
 import vetora.model.PetModel;
 import vetora.controller.PetController;
 import vetora.model.AppointmentModel;
-import vetora.model.Consultation;
 import vetora.model.ConsultationModel;
 import vetora.model.User;
 
@@ -36,12 +39,13 @@ import vetora.model.User;
  */
 public class FormMain extends javax.swing.JFrame {
     
-    private final User currentUser;
+    private User currentUser;
     
     private static final Logger logger = Logger.getLogger(FormMain.class.getName());
 
     /**
      * Creates new form FormMain
+     * @param user
      */
     public FormMain(User user) {
         
@@ -53,13 +57,14 @@ public class FormMain extends javax.swing.JFrame {
         initComponents();
         
         jLabelUserName.setText(currentUser.getFullName());
+        jLabelUserName.setToolTipText(currentUser.getFullName());
         jLabelUserRole.setText(currentUser.getRole());
         
         setupNavigation();
         
         //Set Date
         LocalDate today = LocalDate.now(ZoneId.of("Asia/Colombo"));
-        jLabelDate.setText(today.format(DateTimeFormatter.ofPattern("dd MMM yyy",Locale.ENGLISH)));
+        jLabelDate.setText(today.format(DateTimeFormatter.ofPattern("dd MMM yyyy",Locale.ENGLISH)));
         
         jScrollPaneMenu.getViewport().setBackground(new Color(23,43,54));
         jScrollPaneMenu.getVerticalScrollBar().setUnitIncrement(16);
@@ -75,12 +80,14 @@ public class FormMain extends javax.swing.JFrame {
         layout.show(jPanelView,cardName);
         jLabelPageTitle.setText(title);
         jLabelPageSubtitle.setText(subtitle);
+        jLabelDate.setText(LocalDate.now(ZoneId.of("Asia/Colombo")).format(DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH)));
         
         JButton[] menuButtons = {btnDashboard,btnOwners,btnPets,btnAppointments,btnConsultations,btnBilling,btnReports,btnUser};
             for(JButton button : menuButtons){
                 boolean selected = button == selectedButton;
+                button.setContentAreaFilled(selected);
                 button.setBackground(selected ? new Color(15,118,110): new Color(23,43,54));
-                button.setForeground(selected ? Color.WHITE: new Color(203,213,255));
+                button.setForeground(selected ? Color.WHITE: new Color(203,213,225));
                 button.setFont(button.getFont().deriveFont(selected ? Font.BOLD : Font.PLAIN));
             }
     }
@@ -92,8 +99,11 @@ public class FormMain extends javax.swing.JFrame {
     
     private void setupNavigation(){
         PanelDashboard dashboard = new PanelDashboard();
-        
+        DashboardController dashboardController = new DashboardController(new DashboardModel(), dashboard);
+        dashboard.setController(dashboardController);
         registerPage("dashboard",dashboard,btnDashboard,"Dashboard","Clinic at a glance");
+        btnDashboard.addActionListener(e -> dashboardController.loadDashboard());
+        
         
         PanelOwner ownerView = new PanelOwner();
         OwnerModel ownerModel = new OwnerModel();
@@ -106,32 +116,64 @@ public class FormMain extends javax.swing.JFrame {
         PetModel petModel = new PetModel();
         PetController petController = new PetController(petModel, petView);
         petView.setController(petController);
-        registerPage("pets",petView,btnPets,"Pets","Manage pet records");
+        registerPage("pets",petView,btnPets,"Pets","Register pets, update their details and find existing records");
         btnPets.addActionListener(e ->{ petController.loadOwnerOptions(); petController.loadPets();});
         
         PanelAppointment appointmentView = new PanelAppointment();
         AppointmentModel appointmentModel = new AppointmentModel();
         AppointmentController appointmentController = new AppointmentController(appointmentModel, appointmentView);
         appointmentView.setController(appointmentController);
-        registerPage("appointments", appointmentView , btnAppointments,"Appointments","Manage clinic visits");
+        registerPage("appointments", appointmentView , btnAppointments,"Appointments","Book visits, check patients in and manage the daily schedule");
         btnAppointments.addActionListener(e -> {appointmentController.loadFormOptions(); appointmentController.loadAppointments();});
         
         PanelConsultation consultationView = new PanelConsultation();
         ConsultationModel consultationModel = new ConsultationModel();
         ConsultationController consultationController = new ConsultationController(consultationModel, consultationView);
         consultationView.setController(consultationController);
-        registerPage("consultations",consultationView , btnConsultations,"Consultations", "Record consultations");
+        registerPage("consultations",consultationView , btnConsultations,"Consultations", "Record clinical notes and prescriptions");
         btnConsultations.addActionListener(e -> consultationController.loadAppointments());
         
         
-        registerPage("billing", new PanelBilling(),btnBilling,"Billing","Manage invoices");
-        registerPage("reports", new PanelReports(),btnReports,"Reports","Review clinic activity");
+        PanelBilling billingView = new PanelBilling();
+        BillingModel billingModel = new BillingModel();
+        BillingController billingController = new BillingController(billingModel, billingView);
+        billingView.setController(billingController);
+        registerPage("billing", billingView, btnBilling, "Billing", "Manage invoices");
+        btnBilling.addActionListener(e -> billingController.loadConsultations());
+        
+        
+        registerPage("reports", new PanelReports(),btnReports,"Reports","View consultation history and export reports");
+        
         
         PanelUser userView = new PanelUser();
         UserModel userModel = new UserModel();
-        UserController userController = new UserController(userModel, userView);
-        registerPage("users",userView,btnUser,"Users","Manage staff accounts");
-        userController.loadUsers();
+        UserController userController = new UserController(userModel, userView, currentUser.getUserId());
+        registerPage("users",userView,btnUser,"Users","Create accounts, update details and manage account status");
+        userView.setController(userController);
+        userView.setSavedUserAction(saved -> {
+                if (saved.getUserId() == currentUser.getUserId()) {
+                    currentUser = saved;
+                    jLabelUserName.setText(saved.getFullName());
+                    jLabelUserName.setToolTipText(saved.getFullName());
+                    jLabelUserRole.setText(saved.getRole());
+                }
+            });
+        btnUser.addActionListener(e -> userController.loadUsers());
+
+        dashboard.setNavigation(
+                () -> {
+                    appointmentView.showBookedDateInFilters(LocalDate.now(ZoneId.of("Asia/Colombo")));
+                    btnAppointments.doClick();
+                },
+                () -> {
+                    appointmentController.newAppointment();
+                    btnAppointments.doClick();
+                },
+                () -> {
+                    ownnerController.newOwner();
+                    btnOwners.doClick();
+                },
+                () -> btnBilling.doClick());
         
         btnDashboard.doClick();
     }
@@ -150,18 +192,20 @@ public class FormMain extends javax.swing.JFrame {
         jPanelHeader = new javax.swing.JPanel();
         jPanelHeaderUser = new javax.swing.JPanel();
         jLabelAvatar = new javax.swing.JLabel();
-        jLabelUserRole = new javax.swing.JLabel();
-        jLabelUserName = new javax.swing.JLabel();
         jLabelDate = new javax.swing.JLabel();
+        pnlSignedInUser = new javax.swing.JPanel();
+        jLabelUserName = new javax.swing.JLabel();
+        jLabelUserRole = new javax.swing.JLabel();
         jPanelHeading = new javax.swing.JPanel();
         jLabelPageTitle = new javax.swing.JLabel();
         jLabelPageSubtitle = new javax.swing.JLabel();
         jPanelView = new javax.swing.JPanel();
         jPanelSidebar = new javax.swing.JPanel();
         jPanelTitle = new javax.swing.JPanel();
-        jLabelBrandSubtitle = new javax.swing.JLabel();
-        jLabelBrandName = new javax.swing.JLabel();
         jLabelLogo = new javax.swing.JLabel();
+        pnlBrandText = new javax.swing.JPanel();
+        jLabelBrandName = new javax.swing.JLabel();
+        jLabelBrandSubtitle = new javax.swing.JLabel();
         jScrollPaneMenu = new javax.swing.JScrollPane();
         jPanelNavMenu = new javax.swing.JPanel();
         btnDashboard = new javax.swing.JButton();
@@ -186,6 +230,7 @@ public class FormMain extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Vetora - Veterinary Clinic Management");
         setBackground(new java.awt.Color(245, 247, 250));
+        setMinimumSize(new java.awt.Dimension(1100, 680));
         setSize(new java.awt.Dimension(1440, 900));
 
         jPanelbody.setBackground(new java.awt.Color(245, 247, 250));
@@ -195,94 +240,60 @@ public class FormMain extends javax.swing.JFrame {
         jPanelContent.setBackground(new java.awt.Color(245, 247, 250));
         jPanelContent.setBorder(javax.swing.BorderFactory.createEmptyBorder(21, 21, 21, 21));
         jPanelContent.setPreferredSize(new java.awt.Dimension(1173, 700));
-        jPanelContent.setLayout(new java.awt.BorderLayout(0, 21));
+        jPanelContent.setLayout(new java.awt.BorderLayout(0, 13));
 
         jPanelHeader.setBackground(new java.awt.Color(245, 247, 250));
-        jPanelHeader.setPreferredSize(new java.awt.Dimension(0, 89));
+        jPanelHeader.setPreferredSize(new java.awt.Dimension(0, 68));
         jPanelHeader.setLayout(new java.awt.BorderLayout(21, 0));
 
         jPanelHeaderUser.setBackground(new java.awt.Color(245, 247, 250));
-        jPanelHeaderUser.setPreferredSize(new java.awt.Dimension(300, 89));
+        jPanelHeaderUser.setPreferredSize(new java.awt.Dimension(260, 68));
+        jPanelHeaderUser.setLayout(new java.awt.BorderLayout(13, 5));
 
-        jLabelAvatar.setFont(new java.awt.Font("Segoe UI Emoji", 0, 36)); // NOI18N
-        jLabelAvatar.setForeground(new java.awt.Color(15, 23, 42));
+        jLabelAvatar.setBackground(new java.awt.Color(204, 251, 241));
+        jLabelAvatar.setFont(new java.awt.Font("Segoe UI Emoji", 1, 21)); // NOI18N
+        jLabelAvatar.setForeground(new java.awt.Color(15, 118, 110));
+        jLabelAvatar.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabelAvatar.setText("👨‍💻");
-        jLabelAvatar.setPreferredSize(new java.awt.Dimension(34, 34));
+        jLabelAvatar.setOpaque(true);
+        jLabelAvatar.setPreferredSize(new java.awt.Dimension(42, 42));
+        jPanelHeaderUser.add(jLabelAvatar, java.awt.BorderLayout.WEST);
 
-        jLabelUserRole.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
-        jLabelUserRole.setForeground(new java.awt.Color(71, 85, 105));
-        jLabelUserRole.setText("Clinic Staff");
-
-        jLabelUserName.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        jLabelUserName.setForeground(new java.awt.Color(15, 23, 42));
-        jLabelUserName.setText("Administrator");
-
-        jLabelDate.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         jLabelDate.setForeground(new java.awt.Color(71, 85, 105));
         jLabelDate.setText("13 oct 2026");
+        jLabelDate.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabelDate.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        jPanelHeaderUser.add(jLabelDate, java.awt.BorderLayout.NORTH);
 
-        javax.swing.GroupLayout jPanelHeaderUserLayout = new javax.swing.GroupLayout(jPanelHeaderUser);
-        jPanelHeaderUser.setLayout(jPanelHeaderUserLayout);
-        jPanelHeaderUserLayout.setHorizontalGroup(
-            jPanelHeaderUserLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelHeaderUserLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabelDate)
-                .addGap(32, 32, 32)
-                .addComponent(jLabelAvatar, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addGroup(jPanelHeaderUserLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabelUserRole, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabelUserName, javax.swing.GroupLayout.PREFERRED_SIZE, 113, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(53, 53, 53))
-        );
-        jPanelHeaderUserLayout.setVerticalGroup(
-            jPanelHeaderUserLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelHeaderUserLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanelHeaderUserLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addGroup(jPanelHeaderUserLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabelAvatar, javax.swing.GroupLayout.PREFERRED_SIZE, 69, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jLabelUserRole))
-                    .addGroup(jPanelHeaderUserLayout.createSequentialGroup()
-                        .addComponent(jLabelDate)
-                        .addGap(24, 24, 24))
-                    .addComponent(jLabelUserName, javax.swing.GroupLayout.Alignment.LEADING))
-                .addGap(84, 84, 84))
-        );
+        pnlSignedInUser.setBackground(new java.awt.Color(245, 247, 250));
+        pnlSignedInUser.setLayout(new java.awt.BorderLayout(13, 8));
+
+        jLabelUserName.setForeground(new java.awt.Color(15, 23, 42));
+        jLabelUserName.setText("Administrator");
+        jLabelUserName.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        pnlSignedInUser.add(jLabelUserName, java.awt.BorderLayout.NORTH);
+
+        jLabelUserRole.setForeground(new java.awt.Color(71, 85, 105));
+        jLabelUserRole.setText("Clinic Staff");
+        jLabelUserRole.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        pnlSignedInUser.add(jLabelUserRole, java.awt.BorderLayout.CENTER);
+
+        jPanelHeaderUser.add(pnlSignedInUser, java.awt.BorderLayout.CENTER);
 
         jPanelHeader.add(jPanelHeaderUser, java.awt.BorderLayout.EAST);
 
         jPanelHeading.setBackground(new java.awt.Color(245, 247, 250));
+        jPanelHeading.setLayout(new java.awt.BorderLayout(0, 5));
 
-        jLabelPageTitle.setFont(new java.awt.Font("Segoe UI", 1, 34)); // NOI18N
         jLabelPageTitle.setForeground(new java.awt.Color(15, 23, 42));
         jLabelPageTitle.setText("Dashboard");
+        jLabelPageTitle.setFont(new java.awt.Font("Segoe UI", 1, 34)); // NOI18N
+        jPanelHeading.add(jLabelPageTitle, java.awt.BorderLayout.NORTH);
 
-        jLabelPageSubtitle.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         jLabelPageSubtitle.setForeground(new java.awt.Color(71, 85, 105));
         jLabelPageSubtitle.setText("Your clinic at a glance");
-
-        javax.swing.GroupLayout jPanelHeadingLayout = new javax.swing.GroupLayout(jPanelHeading);
-        jPanelHeading.setLayout(jPanelHeadingLayout);
-        jPanelHeadingLayout.setHorizontalGroup(
-            jPanelHeadingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanelHeadingLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(jPanelHeadingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabelPageSubtitle, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabelPageTitle))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        jPanelHeadingLayout.setVerticalGroup(
-            jPanelHeadingLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanelHeadingLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabelPageTitle)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabelPageSubtitle)
-                .addContainerGap(9, Short.MAX_VALUE))
-        );
+        jLabelPageSubtitle.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        jPanelHeading.add(jLabelPageSubtitle, java.awt.BorderLayout.CENTER);
 
         jPanelHeader.add(jPanelHeading, java.awt.BorderLayout.CENTER);
 
@@ -299,44 +310,33 @@ public class FormMain extends javax.swing.JFrame {
         jPanelSidebar.setLayout(new java.awt.BorderLayout());
 
         jPanelTitle.setBackground(new java.awt.Color(23, 43, 54));
-        jPanelTitle.setPreferredSize(new java.awt.Dimension(233, 110));
+        jPanelTitle.setPreferredSize(new java.awt.Dimension(233, 89));
+        jPanelTitle.setBorder(javax.swing.BorderFactory.createEmptyBorder(13, 13, 13, 13));
+        jPanelTitle.setLayout(new java.awt.BorderLayout(8, 8));
 
-        jLabelBrandSubtitle.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
-        jLabelBrandSubtitle.setForeground(new java.awt.Color(203, 213, 225));
-        jLabelBrandSubtitle.setText("Veterinary Clinic Management");
+        jLabelLogo.setFont(new java.awt.Font("Segoe UI Symbol", 1, 41)); // NOI18N
+        jLabelLogo.setForeground(new java.awt.Color(0, 204, 102));
+        jLabelLogo.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabelLogo.setText("🐾");
+        jLabelLogo.setToolTipText("");
+        jLabelLogo.setPreferredSize(new java.awt.Dimension(42, 42));
+        jPanelTitle.add(jLabelLogo, java.awt.BorderLayout.WEST);
 
-        jLabelBrandName.setFont(new java.awt.Font("Segoe UI", 1, 34)); // NOI18N
+        pnlBrandText.setBackground(new java.awt.Color(23, 43, 54));
+        pnlBrandText.setLayout(new java.awt.BorderLayout(8, 8));
+
         jLabelBrandName.setForeground(new java.awt.Color(255, 255, 255));
         jLabelBrandName.setText("Vetora");
+        jLabelBrandName.setFont(new java.awt.Font("Segoe UI", 1, 26)); // NOI18N
+        pnlBrandText.add(jLabelBrandName, java.awt.BorderLayout.NORTH);
 
-        jLabelLogo.setFont(new java.awt.Font("Segoe UI Emoji", 0, 34)); // NOI18N
-        jLabelLogo.setForeground(new java.awt.Color(0, 204, 102));
-        jLabelLogo.setText("🐾");
+        jLabelBrandSubtitle.setForeground(new java.awt.Color(203, 213, 225));
+        jLabelBrandSubtitle.setText("Clinic management");
+        jLabelBrandSubtitle.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+        jLabelBrandSubtitle.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        pnlBrandText.add(jLabelBrandSubtitle, java.awt.BorderLayout.CENTER);
 
-        javax.swing.GroupLayout jPanelTitleLayout = new javax.swing.GroupLayout(jPanelTitle);
-        jPanelTitle.setLayout(jPanelTitleLayout);
-        jPanelTitleLayout.setHorizontalGroup(
-            jPanelTitleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanelTitleLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabelLogo)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanelTitleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabelBrandSubtitle)
-                    .addComponent(jLabelBrandName, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(7, Short.MAX_VALUE))
-        );
-        jPanelTitleLayout.setVerticalGroup(
-            jPanelTitleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanelTitleLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanelTitleLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabelLogo)
-                    .addComponent(jLabelBrandName))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabelBrandSubtitle, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(59, 59, 59))
-        );
+        jPanelTitle.add(pnlBrandText, java.awt.BorderLayout.CENTER);
 
         jPanelSidebar.add(jPanelTitle, java.awt.BorderLayout.NORTH);
 
@@ -349,122 +349,130 @@ public class FormMain extends javax.swing.JFrame {
         jPanelNavMenu.setLayout(new javax.swing.BoxLayout(jPanelNavMenu, javax.swing.BoxLayout.Y_AXIS));
 
         btnDashboard.setBackground(new java.awt.Color(15, 118, 110));
-        btnDashboard.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
+        btnDashboard.setFont(new java.awt.Font("Segoe UI Symbol", 1, 16)); // NOI18N
         btnDashboard.setForeground(new java.awt.Color(255, 255, 255));
-        btnDashboard.setText("Dashboard");
+        btnDashboard.setText("🏠  Dashboard");
         btnDashboard.setBorderPainted(false);
+        btnDashboard.setContentAreaFilled(false);
         btnDashboard.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         btnDashboard.setIconTextGap(13);
         btnDashboard.setMargin(new java.awt.Insets(0, 13, 0, 13));
-        btnDashboard.setMaximumSize(new java.awt.Dimension(32767, 55));
-        btnDashboard.setMinimumSize(new java.awt.Dimension(0, 55));
+        btnDashboard.setMaximumSize(new java.awt.Dimension(207, 42));
+        btnDashboard.setMinimumSize(new java.awt.Dimension(207, 42));
         btnDashboard.setOpaque(true);
-        btnDashboard.setPreferredSize(new java.awt.Dimension(207, 55));
+        btnDashboard.setPreferredSize(new java.awt.Dimension(207, 42));
         jPanelNavMenu.add(btnDashboard);
         jPanelNavMenu.add(filler1);
 
         btnOwners.setBackground(new java.awt.Color(23, 43, 54));
-        btnOwners.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        btnOwners.setFont(new java.awt.Font("Segoe UI Symbol", 0, 16)); // NOI18N
         btnOwners.setForeground(new java.awt.Color(203, 213, 255));
-        btnOwners.setText("Owners");
+        btnOwners.setText("👨  Owners");
         btnOwners.setBorderPainted(false);
+        btnOwners.setContentAreaFilled(false);
         btnOwners.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         btnOwners.setIconTextGap(13);
         btnOwners.setMargin(new java.awt.Insets(0, 13, 0, 13));
-        btnOwners.setMaximumSize(new java.awt.Dimension(32767, 55));
-        btnOwners.setMinimumSize(new java.awt.Dimension(0, 55));
+        btnOwners.setMaximumSize(new java.awt.Dimension(207, 42));
+        btnOwners.setMinimumSize(new java.awt.Dimension(207, 42));
         btnOwners.setOpaque(true);
-        btnOwners.setPreferredSize(new java.awt.Dimension(207, 55));
+        btnOwners.setPreferredSize(new java.awt.Dimension(207, 42));
         jPanelNavMenu.add(btnOwners);
         jPanelNavMenu.add(filler2);
 
         btnPets.setBackground(new java.awt.Color(23, 43, 54));
-        btnPets.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        btnPets.setFont(new java.awt.Font("Segoe UI Symbol", 0, 16)); // NOI18N
         btnPets.setForeground(new java.awt.Color(203, 213, 255));
-        btnPets.setText("Pets");
+        btnPets.setText("🐶  Pets");
         btnPets.setBorderPainted(false);
+        btnPets.setContentAreaFilled(false);
         btnPets.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         btnPets.setIconTextGap(13);
         btnPets.setMargin(new java.awt.Insets(0, 13, 0, 13));
-        btnPets.setMaximumSize(new java.awt.Dimension(32767, 55));
-        btnPets.setMinimumSize(new java.awt.Dimension(0, 55));
+        btnPets.setMaximumSize(new java.awt.Dimension(207, 42));
+        btnPets.setMinimumSize(new java.awt.Dimension(207, 42));
         btnPets.setOpaque(true);
-        btnPets.setPreferredSize(new java.awt.Dimension(207, 55));
+        btnPets.setPreferredSize(new java.awt.Dimension(207, 42));
         jPanelNavMenu.add(btnPets);
         jPanelNavMenu.add(filler3);
 
         btnAppointments.setBackground(new java.awt.Color(23, 43, 54));
-        btnAppointments.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        btnAppointments.setFont(new java.awt.Font("Segoe UI Symbol", 0, 16)); // NOI18N
         btnAppointments.setForeground(new java.awt.Color(203, 213, 255));
-        btnAppointments.setText("Appointments");
+        btnAppointments.setText("🗓️  Appointments");
         btnAppointments.setBorderPainted(false);
+        btnAppointments.setContentAreaFilled(false);
         btnAppointments.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         btnAppointments.setIconTextGap(13);
         btnAppointments.setMargin(new java.awt.Insets(0, 13, 0, 13));
-        btnAppointments.setMaximumSize(new java.awt.Dimension(32767, 55));
-        btnAppointments.setMinimumSize(new java.awt.Dimension(0, 55));
+        btnAppointments.setMaximumSize(new java.awt.Dimension(207, 42));
+        btnAppointments.setMinimumSize(new java.awt.Dimension(207, 42));
         btnAppointments.setOpaque(true);
-        btnAppointments.setPreferredSize(new java.awt.Dimension(207, 55));
+        btnAppointments.setPreferredSize(new java.awt.Dimension(207, 42));
         jPanelNavMenu.add(btnAppointments);
         jPanelNavMenu.add(filler5);
 
         btnConsultations.setBackground(new java.awt.Color(23, 43, 54));
-        btnConsultations.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        btnConsultations.setFont(new java.awt.Font("Segoe UI Symbol", 0, 16)); // NOI18N
         btnConsultations.setForeground(new java.awt.Color(203, 213, 255));
-        btnConsultations.setText("Consultations");
+        btnConsultations.setText("💊  Consultations");
         btnConsultations.setBorderPainted(false);
+        btnConsultations.setContentAreaFilled(false);
         btnConsultations.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         btnConsultations.setIconTextGap(13);
         btnConsultations.setMargin(new java.awt.Insets(0, 13, 0, 13));
-        btnConsultations.setMaximumSize(new java.awt.Dimension(32767, 55));
-        btnConsultations.setMinimumSize(new java.awt.Dimension(0, 55));
+        btnConsultations.setMaximumSize(new java.awt.Dimension(207, 42));
+        btnConsultations.setMinimumSize(new java.awt.Dimension(207, 42));
         btnConsultations.setOpaque(true);
-        btnConsultations.setPreferredSize(new java.awt.Dimension(207, 55));
+        btnConsultations.setPreferredSize(new java.awt.Dimension(207, 42));
         jPanelNavMenu.add(btnConsultations);
         jPanelNavMenu.add(filler6);
 
         btnBilling.setBackground(new java.awt.Color(23, 43, 54));
-        btnBilling.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        btnBilling.setFont(new java.awt.Font("Segoe UI Symbol", 0, 16)); // NOI18N
         btnBilling.setForeground(new java.awt.Color(203, 213, 255));
-        btnBilling.setText("Billing");
+        btnBilling.setText("💵  Billing");
         btnBilling.setBorderPainted(false);
+        btnBilling.setContentAreaFilled(false);
         btnBilling.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         btnBilling.setIconTextGap(13);
         btnBilling.setMargin(new java.awt.Insets(0, 13, 0, 13));
-        btnBilling.setMaximumSize(new java.awt.Dimension(32767, 55));
-        btnBilling.setMinimumSize(new java.awt.Dimension(0, 55));
+        btnBilling.setMaximumSize(new java.awt.Dimension(207, 42));
+        btnBilling.setMinimumSize(new java.awt.Dimension(207, 42));
         btnBilling.setOpaque(true);
-        btnBilling.setPreferredSize(new java.awt.Dimension(207, 55));
+        btnBilling.setPreferredSize(new java.awt.Dimension(207, 42));
         jPanelNavMenu.add(btnBilling);
         jPanelNavMenu.add(filler7);
 
         btnReports.setBackground(new java.awt.Color(23, 43, 54));
-        btnReports.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        btnReports.setFont(new java.awt.Font("Segoe UI Symbol", 0, 16)); // NOI18N
         btnReports.setForeground(new java.awt.Color(203, 213, 255));
-        btnReports.setText("Reports");
+        btnReports.setText("📋  Reports");
         btnReports.setBorderPainted(false);
+        btnReports.setContentAreaFilled(false);
         btnReports.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         btnReports.setIconTextGap(13);
         btnReports.setMargin(new java.awt.Insets(0, 13, 0, 13));
-        btnReports.setMaximumSize(new java.awt.Dimension(32767, 55));
-        btnReports.setMinimumSize(new java.awt.Dimension(0, 55));
+        btnReports.setMaximumSize(new java.awt.Dimension(207, 42));
+        btnReports.setMinimumSize(new java.awt.Dimension(207, 42));
         btnReports.setOpaque(true);
-        btnReports.setPreferredSize(new java.awt.Dimension(207, 55));
+        btnReports.setPreferredSize(new java.awt.Dimension(207, 42));
         jPanelNavMenu.add(btnReports);
         jPanelNavMenu.add(filler8);
 
         btnUser.setBackground(new java.awt.Color(23, 43, 54));
-        btnUser.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        btnUser.setFont(new java.awt.Font("Segoe UI Symbol", 0, 16)); // NOI18N
         btnUser.setForeground(new java.awt.Color(203, 213, 255));
-        btnUser.setText("Users");
+        btnUser.setText("👤  Users");
         btnUser.setBorderPainted(false);
+        btnUser.setContentAreaFilled(false);
         btnUser.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         btnUser.setIconTextGap(13);
         btnUser.setMargin(new java.awt.Insets(0, 13, 0, 13));
-        btnUser.setMaximumSize(new java.awt.Dimension(32767, 55));
-        btnUser.setMinimumSize(new java.awt.Dimension(0, 55));
+        btnUser.setMaximumSize(new java.awt.Dimension(207, 42));
+        btnUser.setMinimumSize(new java.awt.Dimension(207, 42));
         btnUser.setOpaque(true);
-        btnUser.setPreferredSize(new java.awt.Dimension(207, 55));
+        btnUser.setPreferredSize(new java.awt.Dimension(207, 42));
         jPanelNavMenu.add(btnUser);
 
         jScrollPaneMenu.setViewportView(jPanelNavMenu);
@@ -472,23 +480,24 @@ public class FormMain extends javax.swing.JFrame {
         jPanelSidebar.add(jScrollPaneMenu, java.awt.BorderLayout.CENTER);
 
         jPanelFooter.setBackground(new java.awt.Color(23, 43, 54));
-        jPanelFooter.setBorder(javax.swing.BorderFactory.createEmptyBorder(13, 13, 13, 13));
-        jPanelFooter.setPreferredSize(new java.awt.Dimension(233, 89));
-        jPanelFooter.setLayout(new java.awt.BorderLayout());
+        jPanelFooter.setPreferredSize(new java.awt.Dimension(233, 68));
+        jPanelFooter.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 13, 8, 13));
+        jPanelFooter.setLayout(new java.awt.BorderLayout(0, 8));
         jPanelFooter.add(jSeparatorFooter, java.awt.BorderLayout.NORTH);
 
         btnLogout.setBackground(new java.awt.Color(23, 43, 54));
-        btnLogout.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         btnLogout.setForeground(new java.awt.Color(203, 213, 255));
         btnLogout.setText("Logout");
-        btnLogout.setBorderPainted(false);
         btnLogout.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         btnLogout.setIconTextGap(13);
         btnLogout.setMargin(new java.awt.Insets(0, 13, 0, 13));
-        btnLogout.setMaximumSize(new java.awt.Dimension(32767, 55));
-        btnLogout.setMinimumSize(new java.awt.Dimension(0, 55));
+        btnLogout.setBorderPainted(false);
+        btnLogout.setContentAreaFilled(false);
         btnLogout.setOpaque(true);
-        btnLogout.setPreferredSize(new java.awt.Dimension(207, 55));
+        btnLogout.setMinimumSize(new java.awt.Dimension(207, 42));
+        btnLogout.setPreferredSize(new java.awt.Dimension(207, 42));
+        btnLogout.setMaximumSize(new java.awt.Dimension(207, 42));
+        btnLogout.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         btnLogout.addActionListener(this::btnLogoutActionPerformed);
         jPanelFooter.add(btnLogout, java.awt.BorderLayout.CENTER);
 
@@ -550,5 +559,7 @@ public class FormMain extends javax.swing.JFrame {
     private javax.swing.JPanel jPanelbody;
     private javax.swing.JScrollPane jScrollPaneMenu;
     private javax.swing.JSeparator jSeparatorFooter;
+    private javax.swing.JPanel pnlBrandText;
+    private javax.swing.JPanel pnlSignedInUser;
     // End of variables declaration//GEN-END:variables
 }

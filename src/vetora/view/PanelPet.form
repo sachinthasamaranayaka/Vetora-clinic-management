@@ -3,442 +3,500 @@
 <Form version="1.6" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
   <Properties>
     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-      <Color blue="fa" green="f7" red="f5" type="rgb"/>
+      <Color blue="fa" green="f7" red="f5" type="rgb" />
     </Property>
   </Properties>
   <AuxValues>
-    <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
-    <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
-    <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
-    <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
-    <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
-    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="1"/>
-    <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="3"/>
-    <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
-    <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
-    <AuxValue name="designerSize" type="java.awt.Dimension" value="-84,-19,0,5,115,114,0,18,106,97,118,97,46,97,119,116,46,68,105,109,101,110,115,105,111,110,65,-114,-39,-41,-84,95,68,20,2,0,2,73,0,6,104,101,105,103,104,116,73,0,5,119,105,100,116,104,120,112,0,0,3,-94,0,0,3,105"/>
+    <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0" />
+    <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false" />
+    <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true" />
+    <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false" />
+    <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false" />
+    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="1" />
+    <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="3" />
+    <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false" />
+    <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2" />
+    <AuxValue name="designerSize" type="java.awt.Dimension" value="-84,-19,0,5,115,114,0,18,106,97,118,97,46,97,119,116,46,68,105,109,101,110,115,105,111,110,65,-114,-39,-41,-84,95,68,20,2,0,2,73,0,6,104,101,105,103,104,116,73,0,5,119,105,100,116,104,120,112,0,0,3,-94,0,0,3,105" />
   </AuxValues>
-
   <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout">
-    <Property name="verticalGap" type="int" value="21"/>
+    <Property name="horizontalGap" type="int" value="0" />
+    <Property name="verticalGap" type="int" value="13" />
   </Layout>
   <SubComponents>
     <Container class="javax.swing.JPanel" name="pnlPetToolbar">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-          <Color blue="fa" green="f7" red="f5" type="rgb"/>
+          <Color blue="ff" green="ff" red="ff" type="rgb" />
+        </Property>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="8" left="13" right="13" top="8" />
+          </Border>
         </Property>
         <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-          <Dimension value="[0, 89]"/>
+          <Dimension value="[0, 84]" />
         </Property>
       </Properties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
-          <BorderConstraints direction="North"/>
+          <BorderConstraints direction="North" />
         </Constraint>
       </Constraints>
-
       <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout">
-        <Property name="axis" type="int" value="0"/>
+        <Property name="axis" type="int" value="0" />
       </Layout>
       <SubComponents>
         <Container class="javax.swing.JPanel" name="pnlPetSearchGroup">
           <Properties>
+            <Property name="alignmentY" type="float" value="1.0" />
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="fa" green="f7" red="f5" type="rgb"/>
-            </Property>
-            <Property name="alignmentY" type="float" value="1.0"/>
-            <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[233, 84]"/>
+              <Color blue="ff" green="ff" red="ff" type="rgb" />
             </Property>
             <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[233, 84]"/>
+              <Dimension value="[0, 68]" />
             </Property>
             <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[233, 84]"/>
+              <Dimension value="[233, 68]" />
             </Property>
+            <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[32767, 68]" />
+            </Property>
+            <Property name="alignmentX" type="float" value="0.0" />
           </Properties>
-
           <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout">
-            <Property name="axis" type="int" value="1"/>
+            <Property name="axis" type="int" value="1" />
           </Layout>
           <SubComponents>
             <Component class="javax.swing.JLabel" name="lblPetSearch">
               <Properties>
-                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                  <Font name="Segoe UI" size="13" style="0"/>
-                </Property>
-                <Property name="text" type="java.lang.String" value="Search by pet or owner name"/>
                 <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                  <Dimension value="[32767, 21]"/>
+                  <Dimension value="[32767, 21]" />
                 </Property>
                 <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                  <Dimension value="[0, 21]"/>
+                  <Dimension value="[0, 21]" />
                 </Property>
                 <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                  <Dimension value="[233, 21]"/>
+                  <Dimension value="[233, 21]" />
+                </Property>
+                <Property name="text" type="java.lang.String" value="Search by ID, pet or owner" />
+                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                  <Font name="Segoe UI" size="13" style="0" />
+                </Property>
+                <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                  <Color blue="69" green="55" red="47" type="rgb" />
                 </Property>
               </Properties>
             </Component>
             <Component class="javax.swing.Box$Filler" name="filler1">
               <Properties>
-                <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                  <Dimension value="[0, 8]"/>
-                </Property>
                 <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                  <Dimension value="[0, 8]"/>
+                  <Dimension value="[0, 5]" />
                 </Property>
                 <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                  <Dimension value="[0, 8]"/>
+                  <Dimension value="[0, 5]" />
+                </Property>
+                <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                  <Dimension value="[0, 5]" />
                 </Property>
               </Properties>
               <AuxValues>
-                <AuxValue name="classDetails" type="java.lang.String" value="Box.Filler.RigidArea"/>
+                <AuxValue name="classDetails" type="java.lang.String" value="Box.Filler.RigidArea" />
               </AuxValues>
             </Component>
             <Component class="javax.swing.JTextField" name="txtPetSearch">
               <Properties>
-                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                  <Font name="Segoe UI" size="16" style="0"/>
-                </Property>
-                <Property name="alignmentX" type="float" value="0.0"/>
-                <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                  <Dimension value="[32767, 55]"/>
-                </Property>
+                <Property name="toolTipText" type="java.lang.String" value="Search by pet ID, pet name or owner name" />
                 <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                  <Dimension value="[0, 55]"/>
+                  <Dimension value="[0, 42]" />
                 </Property>
                 <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                  <Dimension value="[233, 55]"/>
+                  <Dimension value="[233, 42]" />
+                </Property>
+                <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                  <Dimension value="[32767, 42]" />
+                </Property>
+                <Property name="alignmentX" type="float" value="0.0" />
+                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                  <Font name="Segoe UI" size="16" style="0" />
                 </Property>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="txtPetSearchActionPerformed" />
+              </Events>
             </Component>
           </SubComponents>
         </Container>
         <Component class="javax.swing.Box$Filler" name="filler3">
           <Properties>
             <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[13, 0]"/>
+              <Dimension value="[13, 0]" />
             </Property>
             <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[13, 0]"/>
+              <Dimension value="[13, 0]" />
             </Property>
             <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[13, 0]"/>
+              <Dimension value="[13, 0]" />
             </Property>
           </Properties>
           <AuxValues>
-            <AuxValue name="classDetails" type="java.lang.String" value="Box.Filler.RigidArea"/>
+            <AuxValue name="classDetails" type="java.lang.String" value="Box.Filler.RigidArea" />
           </AuxValues>
         </Component>
         <Container class="javax.swing.JPanel" name="pnlPetFilterGroup">
           <Properties>
+            <Property name="alignmentY" type="float" value="1.0" />
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="fa" green="f7" red="f5" type="rgb"/>
-            </Property>
-            <Property name="alignmentY" type="float" value="1.0"/>
-            <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[144, 84]"/>
+              <Color blue="ff" green="ff" red="ff" type="rgb" />
             </Property>
             <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[144, 84]"/>
+              <Dimension value="[160, 68]" />
             </Property>
             <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[144, 84]"/>
+              <Dimension value="[160, 68]" />
+            </Property>
+            <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[160, 68]" />
             </Property>
           </Properties>
-
           <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout">
-            <Property name="axis" type="int" value="1"/>
+            <Property name="axis" type="int" value="1" />
           </Layout>
           <SubComponents>
             <Component class="javax.swing.JLabel" name="lblSpeciesFilter">
               <Properties>
-                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                  <Font name="Segoe UI" size="13" style="0"/>
-                </Property>
-                <Property name="text" type="java.lang.String" value="Species"/>
+                <Property name="text" type="java.lang.String" value="Species" />
                 <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                  <Dimension value="[32767, 21]"/>
+                  <Dimension value="[32767, 21]" />
                 </Property>
                 <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                  <Dimension value="[0, 21]"/>
+                  <Dimension value="[0, 21]" />
                 </Property>
                 <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                  <Dimension value="[144, 21]"/>
+                  <Dimension value="[144, 21]" />
+                </Property>
+                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                  <Font name="Segoe UI" size="13" style="0" />
+                </Property>
+                <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                  <Color blue="69" green="55" red="47" type="rgb" />
                 </Property>
               </Properties>
             </Component>
             <Component class="javax.swing.Box$Filler" name="filler2">
               <Properties>
-                <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                  <Dimension value="[0, 8]"/>
-                </Property>
                 <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                  <Dimension value="[0, 8]"/>
+                  <Dimension value="[0, 5]" />
                 </Property>
                 <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                  <Dimension value="[0, 8]"/>
+                  <Dimension value="[0, 5]" />
+                </Property>
+                <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                  <Dimension value="[0, 5]" />
                 </Property>
               </Properties>
               <AuxValues>
-                <AuxValue name="classDetails" type="java.lang.String" value="Box.Filler.RigidArea"/>
+                <AuxValue name="classDetails" type="java.lang.String" value="Box.Filler.RigidArea" />
               </AuxValues>
             </Component>
             <Component class="javax.swing.JComboBox" name="cmbSpeciesFilter">
               <Properties>
-                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                  <Font name="Segoe UI" size="16" style="0"/>
-                </Property>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
                   <StringArray count="5">
-                    <StringItem index="0" value="All species"/>
-                    <StringItem index="1" value="Dog"/>
-                    <StringItem index="2" value="Cat"/>
-                    <StringItem index="3" value="Bird"/>
-                    <StringItem index="4" value="Other"/>
+                    <StringItem index="0" value="All species" />
+                    <StringItem index="1" value="Dog" />
+                    <StringItem index="2" value="Cat" />
+                    <StringItem index="3" value="Bird" />
+                    <StringItem index="4" value="Other" />
                   </StringArray>
                 </Property>
-                <Property name="alignmentX" type="float" value="0.0"/>
-                <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                  <Dimension value="[32767, 55]"/>
-                </Property>
                 <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                  <Dimension value="[0, 55]"/>
+                  <Dimension value="[0, 42]" />
                 </Property>
                 <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                  <Dimension value="[144, 55]"/>
+                  <Dimension value="[160, 42]" />
+                </Property>
+                <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                  <Dimension value="[32767, 42]" />
+                </Property>
+                <Property name="alignmentX" type="float" value="0.0" />
+                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                  <Font name="Segoe UI" size="16" style="0" />
                 </Property>
               </Properties>
               <AuxValues>
-                <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+                <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;" />
               </AuxValues>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cmbSpeciesFilterActionPerformed" />
+              </Events>
             </Component>
           </SubComponents>
         </Container>
         <Component class="javax.swing.Box$Filler" name="filler4">
           <Properties>
             <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[13, 0]"/>
+              <Dimension value="[13, 0]" />
             </Property>
             <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[13, 0]"/>
+              <Dimension value="[13, 0]" />
             </Property>
             <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[13, 0]"/>
+              <Dimension value="[13, 0]" />
             </Property>
           </Properties>
           <AuxValues>
-            <AuxValue name="classDetails" type="java.lang.String" value="Box.Filler.RigidArea"/>
+            <AuxValue name="classDetails" type="java.lang.String" value="Box.Filler.RigidArea" />
           </AuxValues>
         </Component>
         <Component class="javax.swing.JButton" name="btnSearchPet">
           <Properties>
+            <Property name="text" type="java.lang.String" value="Search" />
+            <Property name="alignmentY" type="float" value="1.0" />
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-              <Font name="Segoe UI" size="16" style="0"/>
+              <Font name="Segoe UI" size="14" style="0" />
             </Property>
-            <Property name="text" type="java.lang.String" value="Search"/>
-            <Property name="alignmentY" type="float" value="1.0"/>
-            <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[89, 55]"/>
+            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="ff" green="ff" red="ff" type="rgb" />
+            </Property>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="6e" green="76" red="f" type="rgb" />
             </Property>
             <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[89, 55]"/>
+              <Dimension value="[89, 42]" />
             </Property>
             <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[89, 55]"/>
+              <Dimension value="[89, 42]" />
+            </Property>
+            <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[89, 42]" />
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnSearchPetActionPerformed" />
+          </Events>
         </Component>
         <Component class="javax.swing.Box$Filler" name="filler5">
           <Properties>
-            <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[21, 0]"/>
-            </Property>
             <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[21, 0]"/>
+              <Dimension value="[13, 0]" />
             </Property>
             <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[21, 0]"/>
+              <Dimension value="[13, 0]" />
+            </Property>
+            <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[13, 0]" />
             </Property>
           </Properties>
           <AuxValues>
-            <AuxValue name="classDetails" type="java.lang.String" value="Box.Filler.RigidArea"/>
+            <AuxValue name="classDetails" type="java.lang.String" value="Box.Filler.RigidArea" />
           </AuxValues>
         </Component>
         <Component class="javax.swing.Box$Filler" name="filler6">
           <Properties>
             <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[32767, 0]"/>
+              <Dimension value="[32767, 0]" />
             </Property>
           </Properties>
           <AuxValues>
-            <AuxValue name="classDetails" type="java.lang.String" value="Box.Filler.HorizontalGlue"/>
+            <AuxValue name="classDetails" type="java.lang.String" value="Box.Filler.HorizontalGlue" />
           </AuxValues>
         </Component>
         <Component class="javax.swing.JButton" name="btnNewPet">
           <Properties>
+            <Property name="text" type="java.lang.String" value="New pet" />
+            <Property name="alignmentY" type="float" value="1.0" />
             <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-              <Font name="Segoe UI" size="16" style="0"/>
+              <Font name="Segoe UI" size="14" style="1" />
             </Property>
-            <Property name="text" type="java.lang.String" value="New pet"/>
-            <Property name="alignmentY" type="float" value="1.0"/>
-            <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[144, 55]"/>
+            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="6e" green="76" red="f" type="rgb" />
+            </Property>
+            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+              <Color blue="ff" green="ff" red="ff" type="rgb" />
             </Property>
             <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[144, 55]"/>
+              <Dimension value="[144, 42]" />
             </Property>
             <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[144, 55]"/>
+              <Dimension value="[144, 42]" />
+            </Property>
+            <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[144, 42]" />
             </Property>
           </Properties>
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnNewPetActionPerformed"/>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnNewPetActionPerformed" />
           </Events>
         </Component>
       </SubComponents>
     </Container>
     <Container class="javax.swing.JSplitPane" name="splitPets">
       <Properties>
-        <Property name="dividerSize" type="int" value="7"/>
-        <Property name="resizeWeight" type="double" value="0.618"/>
+        <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
+          <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
+            <EmptyBorder bottom="0" left="0" right="0" top="0" />
+          </Border>
+        </Property>
+        <Property name="dividerSize" type="int" value="5" />
+        <Property name="resizeWeight" type="double" value="0.618" />
       </Properties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
-          <BorderConstraints direction="Center"/>
+          <BorderConstraints direction="Center" />
         </Constraint>
       </Constraints>
-
-      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout"/>
+      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout" />
       <SubComponents>
         <Container class="javax.swing.JPanel" name="pnlPetList">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="ff" green="ff" red="ff" type="rgb"/>
+              <Color blue="ff" green="ff" red="ff" type="rgb" />
             </Property>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-                <EmptyBorder bottom="21" left="21" right="21" top="21"/>
+                <EmptyBorder bottom="13" left="13" right="13" top="13" />
               </Border>
             </Property>
             <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[300, 0]"/>
+              <Dimension value="[300, 100]" />
             </Property>
           </Properties>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout$JSplitPaneConstraintsDescription">
-              <JSplitPaneConstraints position="left"/>
+              <JSplitPaneConstraints position="left" />
             </Constraint>
           </Constraints>
-
           <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout">
-            <Property name="verticalGap" type="int" value="13"/>
+            <Property name="verticalGap" type="int" value="13" />
           </Layout>
           <SubComponents>
             <Component class="javax.swing.JLabel" name="lblPetListTitle">
               <Properties>
+                <Property name="text" type="java.lang.String" value="Registered pets" />
+                <Property name="autoscrolls" type="boolean" value="true" />
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                  <Font name="Segoe UI" size="21" style="1"/>
+                  <Font name="Segoe UI" size="21" style="1" />
                 </Property>
-                <Property name="text" type="java.lang.String" value="Registered pets"/>
-                <Property name="autoscrolls" type="boolean" value="true"/>
+                <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                  <Color blue="2a" green="17" red="f" type="rgb" />
+                </Property>
               </Properties>
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
-                  <BorderConstraints direction="North"/>
+                  <BorderConstraints direction="North" />
                 </Constraint>
               </Constraints>
             </Component>
             <Container class="javax.swing.JScrollPane" name="scrPetTable">
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
-                  <BorderConstraints direction="Center"/>
+                  <BorderConstraints direction="Center" />
                 </Constraint>
               </Constraints>
-
-              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout" />
               <SubComponents>
                 <Component class="javax.swing.JTable" name="tblPets">
                   <Properties>
-                    <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                      <Font name="Segoe UI" size="14" style="0"/>
-                    </Property>
                     <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
                       <Table columnCount="5" rowCount="0">
-                        <Column editable="false" title="Pet ID" type="java.lang.Long"/>
-                        <Column editable="false" title="Pet Name" type="java.lang.String"/>
-                        <Column editable="false" title="Owner" type="java.lang.String"/>
-                        <Column editable="false" title="Species" type="java.lang.String"/>
-                        <Column editable="false" title="Age" type="java.lang.String"/>
+                        <Column editable="false" title="Pet ID" type="java.lang.Long" />
+                        <Column editable="false" title="Pet Name" type="java.lang.String" />
+                        <Column editable="false" title="Owner" type="java.lang.String" />
+                        <Column editable="false" title="Species" type="java.lang.String" />
+                        <Column editable="false" title="Age" type="java.lang.String" />
                       </Table>
                     </Property>
-                    <Property name="autoResizeMode" type="int" value="4"/>
+                    <Property name="autoResizeMode" type="int" value="4" />
                     <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
                       <TableColumnModel selectionModel="0">
                         <Column maxWidth="-1" minWidth="-1" prefWidth="55" resizable="true">
-                          <Title/>
-                          <Editor/>
-                          <Renderer/>
+                          <Title />
+                          <Editor />
+                          <Renderer />
                         </Column>
                         <Column maxWidth="-1" minWidth="-1" prefWidth="144" resizable="true">
-                          <Title/>
-                          <Editor/>
-                          <Renderer/>
+                          <Title />
+                          <Editor />
+                          <Renderer />
                         </Column>
                         <Column maxWidth="-1" minWidth="-1" prefWidth="233" resizable="true">
-                          <Title/>
-                          <Editor/>
-                          <Renderer/>
+                          <Title />
+                          <Editor />
+                          <Renderer />
                         </Column>
                         <Column maxWidth="-1" minWidth="-1" prefWidth="89" resizable="true">
-                          <Title/>
-                          <Editor/>
-                          <Renderer/>
+                          <Title />
+                          <Editor />
+                          <Renderer />
                         </Column>
                         <Column maxWidth="-1" minWidth="-1" prefWidth="89" resizable="true">
-                          <Title/>
-                          <Editor/>
-                          <Renderer/>
+                          <Title />
+                          <Editor />
+                          <Renderer />
                         </Column>
                       </TableColumnModel>
                     </Property>
-                    <Property name="fillsViewportHeight" type="boolean" value="true"/>
-                    <Property name="gridColor" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                      <Color blue="f0" green="e8" red="e2" type="rgb"/>
-                    </Property>
                     <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                      <Dimension value="[32767, 42]"/>
+                      <Dimension value="[32767, 42]" />
                     </Property>
                     <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                      <Dimension value="[0, 42]"/>
+                      <Dimension value="[0, 42]" />
                     </Property>
                     <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                      <Dimension value="[233, 42]"/>
+                      <Dimension value="[233, 42]" />
                     </Property>
-                    <Property name="rowHeight" type="int" value="38"/>
-                    <Property name="selectionMode" type="int" value="0"/>
+                    <Property name="selectionMode" type="int" value="0" />
                     <Property name="selectionModel" type="javax.swing.ListSelectionModel" editor="org.netbeans.modules.form.editors2.JTableSelectionModelEditor">
-                      <JTableSelectionModel selectionMode="0"/>
+                      <JTableSelectionModel selectionMode="0" />
                     </Property>
-                    <Property name="showHorizontalLines" type="boolean" value="true"/>
                     <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">
-                      <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
+                      <TableHeader reorderingAllowed="false" resizingAllowed="true" />
                     </Property>
+                    <Property name="fillsViewportHeight" type="boolean" value="true" />
+                    <Property name="columnSelectionAllowed" type="boolean" value="false" />
+                    <Property name="rowSelectionAllowed" type="boolean" value="true" />
+                    <Property name="autoCreateRowSorter" type="boolean" value="true" />
+                    <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                      <Font name="Segoe UI" size="16" style="0" />
+                    </Property>
+                    <Property name="rowHeight" type="int" value="34" />
+                    <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                      <Color blue="ff" green="ff" red="ff" type="rgb" />
+                    </Property>
+                    <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                      <Color blue="2a" green="17" red="f" type="rgb" />
+                    </Property>
+                    <Property name="gridColor" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                      <Color blue="f0" green="e8" red="e2" type="rgb" />
+                    </Property>
+                    <Property name="selectionBackground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                      <Color blue="f1" green="fb" red="cc" type="rgb" />
+                    </Property>
+                    <Property name="selectionForeground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                      <Color blue="2a" green="17" red="f" type="rgb" />
+                    </Property>
+                    <Property name="showVerticalLines" type="boolean" value="false" />
+                    <Property name="showHorizontalLines" type="boolean" value="true" />
                   </Properties>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_AddingCodePost" type="java.lang.String" value="tblPets.getTableHeader().setFont(new java.awt.Font(&quot;Segoe UI&quot;, java.awt.Font.BOLD, 13));&#10;tblPets.getTableHeader().setPreferredSize(new java.awt.Dimension(0, 34));&#10;tblPets.getTableHeader().setReorderingAllowed(false);&#10;scrPetTable.setColumnHeaderView(tblPets.getTableHeader());&#10;scrPetTable.getViewport().setBackground(java.awt.Color.WHITE);" />
+                  </AuxValues>
                 </Component>
               </SubComponents>
             </Container>
             <Component class="javax.swing.JLabel" name="lblPetCount">
               <Properties>
+                <Property name="text" type="java.lang.String" value="Pets not loaded." />
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                  <Font name="Segoe UI" size="13" style="0"/>
+                  <Font name="Segoe UI" size="13" style="0" />
                 </Property>
-                <Property name="text" type="java.lang.String" value="Pets not loaded."/>
+                <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                  <Color blue="69" green="55" red="47" type="rgb" />
+                </Property>
               </Properties>
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
-                  <BorderConstraints direction="South"/>
+                  <BorderConstraints direction="South" />
                 </Constraint>
               </Constraints>
             </Component>
@@ -447,312 +505,463 @@
         <Container class="javax.swing.JPanel" name="pnlPetEditor">
           <Properties>
             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-              <Color blue="ff" green="ff" red="ff" type="rgb"/>
+              <Color blue="ff" green="ff" red="ff" type="rgb" />
             </Property>
             <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
               <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-                <EmptyBorder bottom="21" left="21" right="21" top="21"/>
+                <EmptyBorder bottom="13" left="13" right="13" top="13" />
               </Border>
             </Property>
             <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[300, 0]"/>
+              <Dimension value="[360, 0]" />
             </Property>
           </Properties>
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout$JSplitPaneConstraintsDescription">
-              <JSplitPaneConstraints position="right"/>
+              <JSplitPaneConstraints position="right" />
             </Constraint>
           </Constraints>
-
           <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout">
-            <Property name="verticalGap" type="int" value="13"/>
+            <Property name="horizontalGap" type="int" value="0" />
+            <Property name="verticalGap" type="int" value="8" />
           </Layout>
           <SubComponents>
+            <Container class="javax.swing.JPanel" name="pnlPetFormHeader">
+              <Properties>
+                <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                  <Color blue="ff" green="ff" red="ff" type="rgb" />
+                </Property>
+              </Properties>
+              <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout">
+                <Property name="horizontalGap" type="int" value="0" />
+                <Property name="verticalGap" type="int" value="5" />
+              </Layout>
+              <SubComponents>
+                <Component class="javax.swing.JLabel" name="lblPetFormTitle">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Add pet" />
+                    <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                      <Font name="Segoe UI" size="21" style="1" />
+                    </Property>
+                    <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                      <Color blue="2a" green="17" red="f" type="rgb" />
+                    </Property>
+                  </Properties>
+                  <Constraints>
+                    <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                      <BorderConstraints direction="North" />
+                    </Constraint>
+                  </Constraints>
+                </Component>
+                <Component class="javax.swing.JLabel" name="lblPetId">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Pet ID: Auto-generated" />
+                    <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                      <Dimension value="[0, 21]" />
+                    </Property>
+                    <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                      <Dimension value="[233, 21]" />
+                    </Property>
+                    <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                      <Dimension value="[32767, 21]" />
+                    </Property>
+                    <Property name="alignmentX" type="float" value="0.0" />
+                    <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                      <Font name="Segoe UI" size="13" style="0" />
+                    </Property>
+                    <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                      <Color blue="69" green="55" red="47" type="rgb" />
+                    </Property>
+                  </Properties>
+                  <Constraints>
+                    <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                      <BorderConstraints direction="Center" />
+                    </Constraint>
+                  </Constraints>
+                </Component>
+              </SubComponents>
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                  <BorderConstraints direction="North" />
+                </Constraint>
+              </Constraints>
+            </Container>
             <Container class="javax.swing.JScrollPane" name="scrPetForm">
               <Properties>
                 <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-                  <Border info="null"/>
+                  <Border info="null" />
                 </Property>
-                <Property name="horizontalScrollBarPolicy" type="int" value="31"/>
+                <Property name="horizontalScrollBarPolicy" type="int" value="31" />
+                <Property name="verticalScrollBarPolicy" type="int" value="20" />
               </Properties>
-              <Constraints>
-                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
-                  <BorderConstraints direction="Center"/>
-                </Constraint>
-              </Constraints>
-
-              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout" />
               <SubComponents>
                 <Container class="javax.swing.JPanel" name="pnlPetForm">
                   <Properties>
                     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                      <Color blue="ff" green="ff" red="ff" type="rgb"/>
+                      <Color blue="ff" green="ff" red="ff" type="rgb" />
                     </Property>
                     <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
                       <Border info="org.netbeans.modules.form.compat2.border.EmptyBorderInfo">
-                        <EmptyBorder bottom="0" left="0" right="0" top="0"/>
+                        <EmptyBorder bottom="0" left="0" right="0" top="0" />
                       </Border>
                     </Property>
                   </Properties>
-
                   <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout">
-                    <Property name="axis" type="int" value="1"/>
+                    <Property name="axis" type="int" value="1" />
                   </Layout>
                   <SubComponents>
-                    <Component class="javax.swing.JLabel" name="lblPetFormTitle">
+                    <Container class="javax.swing.JPanel" name="pnlPetOwnerGroup">
                       <Properties>
-                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                          <Font name="Segoe UI" size="21" style="1"/>
-                        </Property>
-                        <Property name="text" type="java.lang.String" value="Add pet"/>
-                      </Properties>
-                    </Component>
-                    <Component class="javax.swing.Box$Filler" name="filler7">
-                      <Properties>
-                        <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 13]"/>
+                        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                          <Color blue="ff" green="ff" red="ff" type="rgb" />
                         </Property>
                         <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 13]"/>
+                          <Dimension value="[0, 68]" />
                         </Property>
                         <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 13]"/>
+                          <Dimension value="[233, 68]" />
                         </Property>
-                      </Properties>
-                      <AuxValues>
-                        <AuxValue name="classDetails" type="java.lang.String" value="Box.Filler.RigidArea"/>
-                      </AuxValues>
-                    </Component>
-                    <Component class="javax.swing.JLabel" name="lblPetId">
-                      <Properties>
-                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                          <Font name="Segoe UI" size="13" style="0"/>
-                        </Property>
-                        <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                          <Color blue="69" green="55" red="47" type="rgb"/>
-                        </Property>
-                        <Property name="text" type="java.lang.String" value="Pet ID: Auto-generated"/>
-                      </Properties>
-                    </Component>
-                    <Component class="javax.swing.Box$Filler" name="filler8">
-                      <Properties>
                         <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 13]"/>
+                          <Dimension value="[32767, 68]" />
                         </Property>
-                        <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 13]"/>
-                        </Property>
-                        <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 13]"/>
-                        </Property>
+                        <Property name="alignmentX" type="float" value="0.0" />
                       </Properties>
-                      <AuxValues>
-                        <AuxValue name="classDetails" type="java.lang.String" value="Box.Filler.RigidArea"/>
-                      </AuxValues>
-                    </Component>
-                    <Component class="javax.swing.JLabel" name="lblPetOwner">
-                      <Properties>
-                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                          <Font name="Segoe UI" size="16" style="0"/>
-                        </Property>
-                        <Property name="text" type="java.lang.String" value="Owner *"/>
-                      </Properties>
-                    </Component>
-                    <Component class="javax.swing.Box$Filler" name="filler9">
-                      <Properties>
-                        <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 8]"/>
-                        </Property>
-                        <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 8]"/>
-                        </Property>
-                        <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 8]"/>
-                        </Property>
-                      </Properties>
-                      <AuxValues>
-                        <AuxValue name="classDetails" type="java.lang.String" value="Box.Filler.RigidArea"/>
-                      </AuxValues>
-                    </Component>
-                    <Component class="javax.swing.JComboBox" name="cmbPetOwner">
-                      <Properties>
-                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                          <Font name="Segoe UI" size="16" style="0"/>
-                        </Property>
-                        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-                          <StringArray count="1">
-                            <StringItem index="0" value="Select owner"/>
-                          </StringArray>
-                        </Property>
-                        <Property name="alignmentX" type="float" value="0.0"/>
-                        <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[32767, 42]"/>
-                        </Property>
-                        <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 42]"/>
-                        </Property>
-                        <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[233, 42]"/>
-                        </Property>
-                      </Properties>
-                      <AuxValues>
-                        <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
-                      </AuxValues>
-                    </Component>
+                      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout">
+                        <Property name="horizontalGap" type="int" value="0" />
+                        <Property name="verticalGap" type="int" value="5" />
+                      </Layout>
+                      <SubComponents>
+                        <Component class="javax.swing.JLabel" name="lblPetOwner">
+                          <Properties>
+                            <Property name="text" type="java.lang.String" value="Owner *" />
+                            <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                              <Dimension value="[0, 21]" />
+                            </Property>
+                            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                              <Font name="Segoe UI" size="13" style="0" />
+                            </Property>
+                            <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                              <Color blue="69" green="55" red="47" type="rgb" />
+                            </Property>
+                          </Properties>
+                          <Constraints>
+                            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                              <BorderConstraints direction="North" />
+                            </Constraint>
+                          </Constraints>
+                        </Component>
+                        <Component class="javax.swing.JComboBox" name="cmbPetOwner">
+                          <Properties>
+                            <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+                              <StringArray count="1">
+                                <StringItem index="0" value="Select owner" />
+                              </StringArray>
+                            </Property>
+                            <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                              <Dimension value="[0, 42]" />
+                            </Property>
+                            <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                              <Dimension value="[233, 42]" />
+                            </Property>
+                            <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                              <Dimension value="[32767, 42]" />
+                            </Property>
+                            <Property name="alignmentX" type="float" value="0.0" />
+                            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                              <Font name="Segoe UI" size="16" style="0" />
+                            </Property>
+                          </Properties>
+                          <AuxValues>
+                            <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;" />
+                          </AuxValues>
+                          <Constraints>
+                            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                              <BorderConstraints direction="Center" />
+                            </Constraint>
+                          </Constraints>
+                        </Component>
+                      </SubComponents>
+                    </Container>
                     <Component class="javax.swing.Box$Filler" name="filler10">
                       <Properties>
-                        <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 13]"/>
-                        </Property>
                         <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 13]"/>
+                          <Dimension value="[0, 8]" />
                         </Property>
                         <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 13]"/>
+                          <Dimension value="[0, 8]" />
+                        </Property>
+                        <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                          <Dimension value="[0, 8]" />
                         </Property>
                       </Properties>
                       <AuxValues>
-                        <AuxValue name="classDetails" type="java.lang.String" value="Box.Filler.RigidArea"/>
+                        <AuxValue name="classDetails" type="java.lang.String" value="Box.Filler.RigidArea" />
                       </AuxValues>
                     </Component>
-                    <Component class="javax.swing.JLabel" name="lblPetName">
+                    <Container class="javax.swing.JPanel" name="pnlPetIdentityRow">
                       <Properties>
-                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                          <Font name="Segoe UI" size="16" style="0"/>
-                        </Property>
-                        <Property name="text" type="java.lang.String" value="Pet name *"/>
-                      </Properties>
-                    </Component>
-                    <Component class="javax.swing.Box$Filler" name="filler11">
-                      <Properties>
-                        <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 8]"/>
+                        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                          <Color blue="ff" green="ff" red="ff" type="rgb" />
                         </Property>
                         <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 8]"/>
+                          <Dimension value="[0, 68]" />
                         </Property>
                         <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 8]"/>
+                          <Dimension value="[233, 68]" />
                         </Property>
-                      </Properties>
-                      <AuxValues>
-                        <AuxValue name="classDetails" type="java.lang.String" value="Box.Filler.RigidArea"/>
-                      </AuxValues>
-                    </Component>
-                    <Component class="javax.swing.JTextField" name="txtPetName">
-                      <Properties>
-                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                          <Font name="Segoe UI" size="16" style="0"/>
-                        </Property>
-                        <Property name="alignmentX" type="float" value="0.0"/>
                         <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[32767, 42]"/>
+                          <Dimension value="[32767, 68]" />
                         </Property>
-                        <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 42]"/>
-                        </Property>
-                        <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[233, 42]"/>
-                        </Property>
+                        <Property name="alignmentX" type="float" value="0.0" />
                       </Properties>
-                    </Component>
+                      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridLayout">
+                        <Property name="horizontalGap" type="int" value="13" />
+                        <Property name="verticalGap" type="int" value="0" />
+                        <Property name="rows" type="int" value="1" />
+                        <Property name="columns" type="int" value="2" />
+                      </Layout>
+                      <SubComponents>
+                        <Container class="javax.swing.JPanel" name="pnlPetNameGroup">
+                          <Properties>
+                            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                              <Color blue="ff" green="ff" red="ff" type="rgb" />
+                            </Property>
+                            <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                              <Dimension value="[0, 68]" />
+                            </Property>
+                            <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                              <Dimension value="[233, 68]" />
+                            </Property>
+                            <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                              <Dimension value="[32767, 68]" />
+                            </Property>
+                            <Property name="alignmentX" type="float" value="0.0" />
+                          </Properties>
+                          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout">
+                            <Property name="horizontalGap" type="int" value="0" />
+                            <Property name="verticalGap" type="int" value="5" />
+                          </Layout>
+                          <SubComponents>
+                            <Component class="javax.swing.JLabel" name="lblPetName">
+                              <Properties>
+                                <Property name="text" type="java.lang.String" value="Pet name *" />
+                                <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[0, 21]" />
+                                </Property>
+                                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                                  <Font name="Segoe UI" size="13" style="0" />
+                                </Property>
+                                <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                                  <Color blue="69" green="55" red="47" type="rgb" />
+                                </Property>
+                              </Properties>
+                              <Constraints>
+                                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                                  <BorderConstraints direction="North" />
+                                </Constraint>
+                              </Constraints>
+                            </Component>
+                            <Component class="javax.swing.JTextField" name="txtPetName">
+                              <Properties>
+                                <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[0, 42]" />
+                                </Property>
+                                <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[233, 42]" />
+                                </Property>
+                                <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[32767, 42]" />
+                                </Property>
+                                <Property name="alignmentX" type="float" value="0.0" />
+                                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                                  <Font name="Segoe UI" size="16" style="0" />
+                                </Property>
+                              </Properties>
+                              <Constraints>
+                                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                                  <BorderConstraints direction="Center" />
+                                </Constraint>
+                              </Constraints>
+                            </Component>
+                          </SubComponents>
+                        </Container>
+                        <Container class="javax.swing.JPanel" name="pnlPetBreedGroup">
+                          <Properties>
+                            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                              <Color blue="ff" green="ff" red="ff" type="rgb" />
+                            </Property>
+                            <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                              <Dimension value="[0, 68]" />
+                            </Property>
+                            <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                              <Dimension value="[233, 68]" />
+                            </Property>
+                            <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                              <Dimension value="[32767, 68]" />
+                            </Property>
+                            <Property name="alignmentX" type="float" value="0.0" />
+                          </Properties>
+                          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout">
+                            <Property name="horizontalGap" type="int" value="0" />
+                            <Property name="verticalGap" type="int" value="5" />
+                          </Layout>
+                          <SubComponents>
+                            <Component class="javax.swing.JLabel" name="lblBreed">
+                              <Properties>
+                                <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[0, 21]" />
+                                </Property>
+                                <Property name="text" type="java.lang.String" value="Breed (optional)" />
+                                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                                  <Font name="Segoe UI" size="13" style="0" />
+                                </Property>
+                                <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                                  <Color blue="69" green="55" red="47" type="rgb" />
+                                </Property>
+                              </Properties>
+                              <Constraints>
+                                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                                  <BorderConstraints direction="North" />
+                                </Constraint>
+                              </Constraints>
+                            </Component>
+                            <Component class="javax.swing.JTextField" name="txtBreed">
+                              <Properties>
+                                <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[0, 42]" />
+                                </Property>
+                                <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[233, 42]" />
+                                </Property>
+                                <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[32767, 42]" />
+                                </Property>
+                                <Property name="alignmentX" type="float" value="0.0" />
+                                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                                  <Font name="Segoe UI" size="16" style="0" />
+                                </Property>
+                              </Properties>
+                              <Constraints>
+                                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                                  <BorderConstraints direction="Center" />
+                                </Constraint>
+                              </Constraints>
+                            </Component>
+                          </SubComponents>
+                        </Container>
+                      </SubComponents>
+                    </Container>
                     <Component class="javax.swing.Box$Filler" name="filler12">
                       <Properties>
-                        <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 13]"/>
-                        </Property>
                         <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 13]"/>
+                          <Dimension value="[0, 8]" />
                         </Property>
                         <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 13]"/>
+                          <Dimension value="[0, 8]" />
+                        </Property>
+                        <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                          <Dimension value="[0, 8]" />
                         </Property>
                       </Properties>
                       <AuxValues>
-                        <AuxValue name="classDetails" type="java.lang.String" value="Box.Filler.RigidArea"/>
+                        <AuxValue name="classDetails" type="java.lang.String" value="Box.Filler.RigidArea" />
                       </AuxValues>
                     </Component>
                     <Container class="javax.swing.JPanel" name="pnlPetSpeciesGender">
                       <Properties>
                         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-                        </Property>
-                        <Property name="alignmentX" type="float" value="0.0"/>
-                        <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[32767, 84]"/>
+                          <Color blue="ff" green="ff" red="ff" type="rgb" />
                         </Property>
                         <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 84]"/>
+                          <Dimension value="[0, 68]" />
                         </Property>
                         <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[233, 84]"/>
+                          <Dimension value="[233, 68]" />
                         </Property>
+                        <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                          <Dimension value="[32767, 68]" />
+                        </Property>
+                        <Property name="alignmentX" type="float" value="0.0" />
                       </Properties>
-
                       <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridLayout">
-                        <Property name="columns" type="int" value="2"/>
-                        <Property name="horizontalGap" type="int" value="13"/>
-                        <Property name="rows" type="int" value="1"/>
+                        <Property name="horizontalGap" type="int" value="13" />
+                        <Property name="verticalGap" type="int" value="0" />
+                        <Property name="rows" type="int" value="1" />
+                        <Property name="columns" type="int" value="2" />
                       </Layout>
                       <SubComponents>
                         <Container class="javax.swing.JPanel" name="pnlPetSpeciesGroup">
                           <Properties>
                             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                              <Color blue="ff" green="ff" red="ff" type="rgb"/>
+                              <Color blue="ff" green="ff" red="ff" type="rgb" />
                             </Property>
+                            <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                              <Dimension value="[0, 68]" />
+                            </Property>
+                            <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                              <Dimension value="[233, 68]" />
+                            </Property>
+                            <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                              <Dimension value="[32767, 68]" />
+                            </Property>
+                            <Property name="alignmentX" type="float" value="0.0" />
                           </Properties>
-
                           <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout">
-                            <Property name="verticalGap" type="int" value="8"/>
+                            <Property name="horizontalGap" type="int" value="0" />
+                            <Property name="verticalGap" type="int" value="5" />
                           </Layout>
                           <SubComponents>
                             <Component class="javax.swing.JLabel" name="lblSpecies">
                               <Properties>
-                                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                                  <Font name="Segoe UI" size="16" style="0"/>
-                                </Property>
-                                <Property name="text" type="java.lang.String" value="Species *"/>
+                                <Property name="text" type="java.lang.String" value="Species *" />
                                 <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                                  <Dimension value="[63, 21]"/>
+                                  <Dimension value="[0, 21]" />
+                                </Property>
+                                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                                  <Font name="Segoe UI" size="13" style="0" />
+                                </Property>
+                                <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                                  <Color blue="69" green="55" red="47" type="rgb" />
                                 </Property>
                               </Properties>
                               <Constraints>
                                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
-                                  <BorderConstraints direction="North"/>
+                                  <BorderConstraints direction="North" />
                                 </Constraint>
                               </Constraints>
                             </Component>
                             <Component class="javax.swing.JComboBox" name="cmbSpecies">
                               <Properties>
-                                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                                  <Font name="Segoe UI" size="16" style="0"/>
-                                </Property>
                                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
                                   <StringArray count="5">
-                                    <StringItem index="0" value="Select"/>
-                                    <StringItem index="1" value="Dog"/>
-                                    <StringItem index="2" value="Cat"/>
-                                    <StringItem index="3" value="Bird"/>
-                                    <StringItem index="4" value="Other"/>
+                                    <StringItem index="0" value="Select" />
+                                    <StringItem index="1" value="Dog" />
+                                    <StringItem index="2" value="Cat" />
+                                    <StringItem index="3" value="Bird" />
+                                    <StringItem index="4" value="Other" />
                                   </StringArray>
                                 </Property>
-                                <Property name="alignmentX" type="float" value="0.0"/>
-                                <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                                  <Dimension value="[32767, 42]"/>
-                                </Property>
                                 <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                                  <Dimension value="[0, 42]"/>
+                                  <Dimension value="[0, 42]" />
                                 </Property>
                                 <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                                  <Dimension value="[81, 42]"/>
+                                  <Dimension value="[233, 42]" />
+                                </Property>
+                                <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[32767, 42]" />
+                                </Property>
+                                <Property name="alignmentX" type="float" value="0.0" />
+                                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                                  <Font name="Segoe UI" size="16" style="0" />
                                 </Property>
                               </Properties>
                               <AuxValues>
-                                <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+                                <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;" />
                               </AuxValues>
                               <Constraints>
                                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
-                                  <BorderConstraints direction="Center"/>
+                                  <BorderConstraints direction="Center" />
                                 </Constraint>
                               </Constraints>
                             </Component>
@@ -761,60 +970,73 @@
                         <Container class="javax.swing.JPanel" name="pnlPetGenderGroup">
                           <Properties>
                             <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                              <Color blue="ff" green="ff" red="ff" type="rgb"/>
+                              <Color blue="ff" green="ff" red="ff" type="rgb" />
                             </Property>
+                            <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                              <Dimension value="[0, 68]" />
+                            </Property>
+                            <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                              <Dimension value="[233, 68]" />
+                            </Property>
+                            <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                              <Dimension value="[32767, 68]" />
+                            </Property>
+                            <Property name="alignmentX" type="float" value="0.0" />
                           </Properties>
-
                           <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout">
-                            <Property name="verticalGap" type="int" value="8"/>
+                            <Property name="horizontalGap" type="int" value="0" />
+                            <Property name="verticalGap" type="int" value="5" />
                           </Layout>
                           <SubComponents>
                             <Component class="javax.swing.JLabel" name="lblGender">
                               <Properties>
-                                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                                  <Font name="Segoe UI" size="16" style="0"/>
-                                </Property>
-                                <Property name="text" type="java.lang.String" value="Gender *"/>
+                                <Property name="text" type="java.lang.String" value="Gender *" />
                                 <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                                  <Dimension value="[63, 21]"/>
+                                  <Dimension value="[0, 21]" />
+                                </Property>
+                                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                                  <Font name="Segoe UI" size="13" style="0" />
+                                </Property>
+                                <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                                  <Color blue="69" green="55" red="47" type="rgb" />
                                 </Property>
                               </Properties>
                               <Constraints>
                                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
-                                  <BorderConstraints direction="North"/>
+                                  <BorderConstraints direction="North" />
                                 </Constraint>
                               </Constraints>
                             </Component>
                             <Component class="javax.swing.JComboBox" name="cmbGender">
                               <Properties>
-                                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                                  <Font name="Segoe UI" size="16" style="0"/>
-                                </Property>
                                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
                                   <StringArray count="4">
-                                    <StringItem index="0" value="Select"/>
-                                    <StringItem index="1" value="Male"/>
-                                    <StringItem index="2" value="Female"/>
-                                    <StringItem index="3" value="Unknown"/>
+                                    <StringItem index="0" value="Select" />
+                                    <StringItem index="1" value="Male" />
+                                    <StringItem index="2" value="Female" />
+                                    <StringItem index="3" value="Unknown" />
                                   </StringArray>
                                 </Property>
-                                <Property name="alignmentX" type="float" value="0.0"/>
-                                <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                                  <Dimension value="[32767, 42]"/>
-                                </Property>
                                 <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                                  <Dimension value="[0, 42]"/>
+                                  <Dimension value="[0, 42]" />
                                 </Property>
                                 <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                                  <Dimension value="[81, 42]"/>
+                                  <Dimension value="[233, 42]" />
+                                </Property>
+                                <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[32767, 42]" />
+                                </Property>
+                                <Property name="alignmentX" type="float" value="0.0" />
+                                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                                  <Font name="Segoe UI" size="16" style="0" />
                                 </Property>
                               </Properties>
                               <AuxValues>
-                                <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+                                <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;" />
                               </AuxValues>
                               <Constraints>
                                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
-                                  <BorderConstraints direction="Center"/>
+                                  <BorderConstraints direction="Center" />
                                 </Constraint>
                               </Constraints>
                             </Component>
@@ -824,290 +1046,345 @@
                     </Container>
                     <Component class="javax.swing.Box$Filler" name="filler13">
                       <Properties>
-                        <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 13]"/>
-                        </Property>
                         <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 13]"/>
+                          <Dimension value="[0, 8]" />
                         </Property>
                         <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 13]"/>
+                          <Dimension value="[0, 8]" />
+                        </Property>
+                        <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                          <Dimension value="[0, 8]" />
                         </Property>
                       </Properties>
                       <AuxValues>
-                        <AuxValue name="classDetails" type="java.lang.String" value="Box.Filler.RigidArea"/>
+                        <AuxValue name="classDetails" type="java.lang.String" value="Box.Filler.RigidArea" />
                       </AuxValues>
                     </Component>
-                    <Component class="javax.swing.JLabel" name="lblBreed">
+                    <Container class="javax.swing.JPanel" name="pnlPetBirthRow">
                       <Properties>
-                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                          <Font name="Segoe UI" size="16" style="0"/>
-                        </Property>
-                        <Property name="text" type="java.lang.String" value="Breed (Optional)"/>
-                      </Properties>
-                    </Component>
-                    <Component class="javax.swing.Box$Filler" name="filler14">
-                      <Properties>
-                        <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 8]"/>
+                        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                          <Color blue="ff" green="ff" red="ff" type="rgb" />
                         </Property>
                         <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 8]"/>
+                          <Dimension value="[0, 68]" />
                         </Property>
                         <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 8]"/>
+                          <Dimension value="[233, 68]" />
                         </Property>
-                      </Properties>
-                      <AuxValues>
-                        <AuxValue name="classDetails" type="java.lang.String" value="Box.Filler.RigidArea"/>
-                      </AuxValues>
-                    </Component>
-                    <Component class="javax.swing.JTextField" name="txtBreed">
-                      <Properties>
-                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                          <Font name="Segoe UI" size="16" style="0"/>
-                        </Property>
-                        <Property name="alignmentX" type="float" value="0.0"/>
                         <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[32767, 42]"/>
+                          <Dimension value="[32767, 68]" />
+                        </Property>
+                        <Property name="alignmentX" type="float" value="0.0" />
+                      </Properties>
+                      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridLayout">
+                        <Property name="horizontalGap" type="int" value="13" />
+                        <Property name="verticalGap" type="int" value="0" />
+                        <Property name="rows" type="int" value="1" />
+                        <Property name="columns" type="int" value="2" />
+                      </Layout>
+                      <SubComponents>
+                        <Container class="javax.swing.JPanel" name="pnlPetDobGroup">
+                          <Properties>
+                            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                              <Color blue="ff" green="ff" red="ff" type="rgb" />
+                            </Property>
+                            <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                              <Dimension value="[0, 68]" />
+                            </Property>
+                            <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                              <Dimension value="[233, 68]" />
+                            </Property>
+                            <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                              <Dimension value="[32767, 68]" />
+                            </Property>
+                            <Property name="alignmentX" type="float" value="0.0" />
+                          </Properties>
+                          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout">
+                            <Property name="horizontalGap" type="int" value="0" />
+                            <Property name="verticalGap" type="int" value="5" />
+                          </Layout>
+                          <SubComponents>
+                            <Component class="javax.swing.JLabel" name="lblPetDob">
+                              <Properties>
+                                <Property name="text" type="java.lang.String" value="Date of Birth" />
+                                <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[0, 21]" />
+                                </Property>
+                                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                                  <Font name="Segoe UI" size="13" style="0" />
+                                </Property>
+                                <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                                  <Color blue="69" green="55" red="47" type="rgb" />
+                                </Property>
+                              </Properties>
+                              <Constraints>
+                                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                                  <BorderConstraints direction="North" />
+                                </Constraint>
+                              </Constraints>
+                            </Component>
+                            <Component class="javax.swing.JSpinner" name="spnPetDob">
+                              <Properties>
+                                <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
+                                  <SpinnerModel initial="now" stepSize="5" type="date" />
+                                </Property>
+                                <Property name="enabled" type="boolean" value="false" />
+                                <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[0, 42]" />
+                                </Property>
+                                <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[233, 42]" />
+                                </Property>
+                                <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[32767, 42]" />
+                                </Property>
+                                <Property name="alignmentX" type="float" value="0.0" />
+                                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                                  <Font name="Segoe UI" size="16" style="0" />
+                                </Property>
+                              </Properties>
+                              <Constraints>
+                                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                                  <BorderConstraints direction="Center" />
+                                </Constraint>
+                              </Constraints>
+                            </Component>
+                          </SubComponents>
+                        </Container>
+                        <Container class="javax.swing.JPanel" name="pnlPetAgeGroup">
+                          <Properties>
+                            <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                              <Color blue="ff" green="ff" red="ff" type="rgb" />
+                            </Property>
+                            <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                              <Dimension value="[0, 68]" />
+                            </Property>
+                            <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                              <Dimension value="[233, 68]" />
+                            </Property>
+                            <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                              <Dimension value="[32767, 68]" />
+                            </Property>
+                            <Property name="alignmentX" type="float" value="0.0" />
+                          </Properties>
+                          <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout">
+                            <Property name="horizontalGap" type="int" value="0" />
+                            <Property name="verticalGap" type="int" value="5" />
+                          </Layout>
+                          <SubComponents>
+                            <Component class="javax.swing.JCheckBox" name="chkDobUnknown">
+                              <Properties>
+                                <Property name="selected" type="boolean" value="true" />
+                                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                                  <Font name="Segoe UI" size="13" style="0" />
+                                </Property>
+                                <Property name="text" type="java.lang.String" value="Date unknown" />
+                              </Properties>
+                              <Events>
+                                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="chkDobUnknownActionPerformed" />
+                              </Events>
+                              <Constraints>
+                                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                                  <BorderConstraints direction="North" />
+                                </Constraint>
+                              </Constraints>
+                            </Component>
+                            <Component class="javax.swing.JLabel" name="lblPetAge">
+                              <Properties>
+                                <Property name="text" type="java.lang.String" value="Age: Unknown" />
+                                <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[0, 21]" />
+                                </Property>
+                                <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[233, 21]" />
+                                </Property>
+                                <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                                  <Dimension value="[32767, 21]" />
+                                </Property>
+                                <Property name="alignmentX" type="float" value="0.0" />
+                                <Property name="verticalAlignment" type="int" value="1" />
+                                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+                                  <Font name="Segoe UI" size="13" style="0" />
+                                </Property>
+                                <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                                  <Color blue="69" green="55" red="47" type="rgb" />
+                                </Property>
+                              </Properties>
+                              <Constraints>
+                                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                                  <BorderConstraints direction="Center" />
+                                </Constraint>
+                              </Constraints>
+                            </Component>
+                          </SubComponents>
+                        </Container>
+                      </SubComponents>
+                    </Container>
+                    <Container class="javax.swing.JPanel" name="pnlPetFormGlue">
+                      <Properties>
+                        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                          <Color blue="ff" green="ff" red="ff" type="rgb" />
                         </Property>
                         <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 42]"/>
+                          <Dimension value="[0, 0]" />
                         </Property>
                         <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[233, 42]"/>
+                          <Dimension value="[0, 0]" />
                         </Property>
-                      </Properties>
-                    </Component>
-                    <Component class="javax.swing.Box$Filler" name="filler15">
-                      <Properties>
                         <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 13]"/>
+                          <Dimension value="[32767, 32767]" />
                         </Property>
-                        <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 13]"/>
-                        </Property>
-                        <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 13]"/>
-                        </Property>
+                        <Property name="alignmentX" type="float" value="0.0" />
                       </Properties>
-                      <AuxValues>
-                        <AuxValue name="classDetails" type="java.lang.String" value="Box.Filler.RigidArea"/>
-                      </AuxValues>
-                    </Component>
-                    <Component class="javax.swing.JLabel" name="lblPetDob">
-                      <Properties>
-                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                          <Font name="Segoe UI" size="16" style="0"/>
-                        </Property>
-                        <Property name="text" type="java.lang.String" value="Date of Birth"/>
-                      </Properties>
-                    </Component>
-                    <Component class="javax.swing.Box$Filler" name="filler16">
-                      <Properties>
-                        <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 8]"/>
-                        </Property>
-                        <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 8]"/>
-                        </Property>
-                        <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 8]"/>
-                        </Property>
-                      </Properties>
-                      <AuxValues>
-                        <AuxValue name="classDetails" type="java.lang.String" value="Box.Filler.RigidArea"/>
-                      </AuxValues>
-                    </Component>
-                    <Component class="javax.swing.JSpinner" name="spnPetDob">
-                      <Properties>
-                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                          <Font name="Segoe UI" size="16" style="0"/>
-                        </Property>
-                        <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
-                          <SpinnerModel initial="now" stepSize="5" type="date"/>
-                        </Property>
-                        <Property name="alignmentX" type="float" value="0.0"/>
-                        <Property name="enabled" type="boolean" value="false"/>
-                        <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[32767, 42]"/>
-                        </Property>
-                        <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 42]"/>
-                        </Property>
-                        <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[233, 42]"/>
-                        </Property>
-                      </Properties>
-                    </Component>
-                    <Component class="javax.swing.Box$Filler" name="filler17">
-                      <Properties>
-                        <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 13]"/>
-                        </Property>
-                        <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 13]"/>
-                        </Property>
-                        <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 13]"/>
-                        </Property>
-                      </Properties>
-                      <AuxValues>
-                        <AuxValue name="classDetails" type="java.lang.String" value="Box.Filler.RigidArea"/>
-                      </AuxValues>
-                    </Component>
-                    <Component class="javax.swing.JCheckBox" name="chkDobUnknown">
-                      <Properties>
-                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                          <Font name="Segoe UI" size="16" style="0"/>
-                        </Property>
-                        <Property name="selected" type="boolean" value="true"/>
-                        <Property name="text" type="java.lang.String" value="Date of birth unknown"/>
-                      </Properties>
-                      <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="chkDobUnknownActionPerformed"/>
-                      </Events>
-                    </Component>
-                    <Component class="javax.swing.Box$Filler" name="filler18">
-                      <Properties>
-                        <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 13]"/>
-                        </Property>
-                        <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 13]"/>
-                        </Property>
-                        <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                          <Dimension value="[0, 13]"/>
-                        </Property>
-                      </Properties>
-                      <AuxValues>
-                        <AuxValue name="classDetails" type="java.lang.String" value="Box.Filler.RigidArea"/>
-                      </AuxValues>
-                    </Component>
-                    <Component class="javax.swing.JLabel" name="lblPetAge">
-                      <Properties>
-                        <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                          <Font name="Segoe UI" size="16" style="0"/>
-                        </Property>
-                        <Property name="text" type="java.lang.String" value="Age: Unknown"/>
-                      </Properties>
-                    </Component>
+                      <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBoxLayout">
+                        <Property name="axis" type="int" value="1" />
+                      </Layout>
+                      <SubComponents />
+                    </Container>
                   </SubComponents>
                 </Container>
               </SubComponents>
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                  <BorderConstraints direction="Center" />
+                </Constraint>
+              </Constraints>
             </Container>
             <Container class="javax.swing.JPanel" name="pnlPetActions">
               <Properties>
                 <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                  <Color blue="ff" green="ff" red="ff" type="rgb"/>
+                  <Color blue="ff" green="ff" red="ff" type="rgb" />
                 </Property>
-                <Property name="alignmentX" type="float" value="0.0"/>
+                <Property name="alignmentX" type="float" value="0.0" />
               </Properties>
-              <Constraints>
-                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
-                  <BorderConstraints direction="South"/>
-                </Constraint>
-              </Constraints>
-
               <Layout class="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout">
-                <Property name="verticalGap" type="int" value="8"/>
+                <Property name="horizontalGap" type="int" value="0" />
+                <Property name="verticalGap" type="int" value="5" />
               </Layout>
               <SubComponents>
                 <Component class="javax.swing.JLabel" name="lblPetError">
                   <Properties>
+                    <Property name="text" type="java.lang.String" value=" " />
+                    <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                      <Dimension value="[0, 34]" />
+                    </Property>
+                    <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                      <Dimension value="[0, 34]" />
+                    </Property>
+                    <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                      <Dimension value="[32767, 34]" />
+                    </Property>
+                    <Property name="alignmentX" type="float" value="0.0" />
                     <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                      <Font name="Segoe UI" size="13" style="0"/>
+                      <Font name="Segoe UI" size="13" style="0" />
                     </Property>
                     <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                      <Color blue="1c" green="1c" red="b9" type="rgb"/>
-                    </Property>
-                    <Property name="text" type="java.lang.String" value=" "/>
-                    <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                      <Dimension value="[0, 34]"/>
+                      <Color blue="1c" green="1c" red="b9" type="rgb" />
                     </Property>
                   </Properties>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
-                      <BorderConstraints direction="North"/>
+                      <BorderConstraints direction="North" />
                     </Constraint>
                   </Constraints>
                 </Component>
                 <Container class="javax.swing.JPanel" name="pnlPetButtons">
                   <Properties>
                     <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                      <Color blue="ff" green="ff" red="ff" type="rgb"/>
+                      <Color blue="ff" green="ff" red="ff" type="rgb" />
+                    </Property>
+                    <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                      <Dimension value="[0, 42]" />
                     </Property>
                     <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                      <Dimension value="[0, 55]"/>
+                      <Dimension value="[0, 42]" />
                     </Property>
+                    <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+                      <Dimension value="[32767, 42]" />
+                    </Property>
+                    <Property name="alignmentX" type="float" value="0.0" />
                   </Properties>
                   <Constraints>
                     <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
-                      <BorderConstraints direction="Center"/>
+                      <BorderConstraints direction="Center" />
                     </Constraint>
                   </Constraints>
-
                   <Layout class="org.netbeans.modules.form.compat2.layouts.DesignGridLayout">
-                    <Property name="columns" type="int" value="3"/>
-                    <Property name="horizontalGap" type="int" value="8"/>
-                    <Property name="rows" type="int" value="1"/>
+                    <Property name="horizontalGap" type="int" value="8" />
+                    <Property name="verticalGap" type="int" value="0" />
+                    <Property name="rows" type="int" value="1" />
+                    <Property name="columns" type="int" value="3" />
                   </Layout>
                   <SubComponents>
                     <Component class="javax.swing.JButton" name="btnSavePet">
                       <Properties>
-                        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                          <Color blue="6e" green="76" red="f" type="rgb"/>
+                        <Property name="text" type="java.lang.String" value="Save" />
+                        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                          <Insets value="[8, 5, 8, 5]" />
                         </Property>
                         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                          <Font name="Segoe UI" size="13" style="1"/>
+                          <Font name="Segoe UI" size="14" style="1" />
+                        </Property>
+                        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                          <Color blue="6e" green="76" red="f" type="rgb" />
                         </Property>
                         <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                          <Color blue="ff" green="ff" red="ff" type="rgb"/>
-                        </Property>
-                        <Property name="text" type="java.lang.String" value="Save"/>
-                        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-                          <Insets value="[8, 5, 8, 5]"/>
+                          <Color blue="ff" green="ff" red="ff" type="rgb" />
                         </Property>
                       </Properties>
                       <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnSavePetActionPerformed"/>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnSavePetActionPerformed" />
                       </Events>
                     </Component>
                     <Component class="javax.swing.JButton" name="btnCancelPet">
                       <Properties>
+                        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                          <Insets value="[8, 5, 8, 5]" />
+                        </Property>
                         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                          <Font name="Segoe UI" size="13" style="1"/>
+                          <Font name="Segoe UI" size="14" style="0" />
+                        </Property>
+                        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                          <Color blue="ff" green="ff" red="ff" type="rgb" />
                         </Property>
                         <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                          <Color blue="69" green="55" red="47" type="rgb"/>
+                          <Color blue="6e" green="76" red="f" type="rgb" />
                         </Property>
-                        <Property name="text" type="java.lang.String" value="Cancel"/>
-                        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-                          <Insets value="[8, 5, 8, 5]"/>
-                        </Property>
+                        <Property name="text" type="java.lang.String" value="Clear form" />
                       </Properties>
                       <Events>
-                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnCancelPetActionPerformed"/>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnCancelPetActionPerformed" />
                       </Events>
                     </Component>
                     <Component class="javax.swing.JButton" name="btnDeletePet">
                       <Properties>
+                        <Property name="text" type="java.lang.String" value="Delete" />
+                        <Property name="enabled" type="boolean" value="false" />
+                        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
+                          <Insets value="[8, 5, 8, 5]" />
+                        </Property>
                         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                          <Font name="Segoe UI" size="13" style="1"/>
+                          <Font name="Segoe UI" size="14" style="0" />
+                        </Property>
+                        <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
+                          <Color blue="ff" green="ff" red="ff" type="rgb" />
                         </Property>
                         <Property name="foreground" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                          <Color blue="1c" green="1c" red="b9" type="rgb"/>
-                        </Property>
-                        <Property name="text" type="java.lang.String" value="Delete"/>
-                        <Property name="enabled" type="boolean" value="false"/>
-                        <Property name="margin" type="java.awt.Insets" editor="org.netbeans.beaninfo.editors.InsetsEditor">
-                          <Insets value="[8, 5, 8, 5]"/>
+                          <Color blue="1c" green="1c" red="b9" type="rgb" />
                         </Property>
                       </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnDeletePetActionPerformed" />
+                      </Events>
                     </Component>
                   </SubComponents>
                 </Container>
               </SubComponents>
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout" value="org.netbeans.modules.form.compat2.layouts.DesignBorderLayout$BorderConstraintsDescription">
+                  <BorderConstraints direction="South" />
+                </Constraint>
+              </Constraints>
             </Container>
           </SubComponents>
         </Container>

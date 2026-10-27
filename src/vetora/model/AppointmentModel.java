@@ -39,33 +39,13 @@ public class AppointmentModel {
         return vet;
     }
     
-    public long bookAppointment(Long petId,LocalDate date,LocalTime time,String reason) throws SQLException, ValidationException {
-
+    public long bookAppointment(Long petId, LocalDate date, LocalTime time, String reason) throws SQLException, ValidationException {
         if (petId == null || petId <= 0) {
             throw new ValidationException("Select a pet.");
         }
-
-        if (date == null || time == null) {
-        throw new ValidationException("Select an appointment date and time.");
-        }
-
-        if (time.isBefore(LocalTime.of(9, 0))|| time.isAfter(LocalTime.of(16, 30))|| time.getMinute() % 30 != 0|| time.getSecond() != 0|| time.getNano() != 0) {
-            throw new ValidationException("Choose a 30-minute slot between 09:00 and 16:30.");
-        }
-
-        if (!date.atTime(time).isAfter( LocalDateTime.now (ZoneId.of("Asia/Colombo")))) {
-            throw new ValidationException("Choose a future appointment date and time.");
-        }
-
-        reason = reason == null ? "" : reason.trim();
-
-        if (reason.length() > 255) {
-            throw new ValidationException("Reason for visit: maximum 255 characters.");
-        }
-
+        String savedReason = validateSchedule(date, time, reason);
         Veterinarian vet = getClinicVeterinarian();
-
-        return appointmentDao.createAppointment(  petId, vet.getVeterinarianId(), date, time, reason.isEmpty() ? null : reason);
+        return appointmentDao.createAppointment(petId, vet.getVeterinarianId(), date, time, savedReason);
     }
     
     public List<Appointment> getAppointments(LocalDate date,String status) throws SQLException, ValidationException {
@@ -87,10 +67,37 @@ public class AppointmentModel {
             throw new ValidationException("Select an appointment.");
         }
 
-        if (!"Checked-In".equals(newStatus) && !"Cancelled".equals(newStatus)) {
+        if (!"Checked-In".equals(newStatus) && !"Cancelled".equals(newStatus) && !"No-Show".equals(newStatus)) {
             throw new ValidationException("Invalid appointment action.");
         }
 
         appointmentDao.updateStatus(appointmentId, newStatus);
+    }
+
+    public void rescheduleAppointment(Appointment original, LocalDate date, LocalTime time, String reason)
+            throws SQLException, ValidationException {
+        if (original == null || original.getAppointmentId() <= 0 || !"Scheduled".equals(original.getStatus())) {
+            throw new ValidationException("Select a scheduled appointment to reschedule.");
+        }
+        String savedReason = validateSchedule(date, time, reason);
+        appointmentDao.rescheduleAppointment(original, date, time, savedReason);
+    }
+
+    private String validateSchedule(LocalDate date, LocalTime time, String reason) throws ValidationException {
+        if (date == null || time == null) {
+            throw new ValidationException("Select an appointment date and time.");
+        }
+        if (time.isBefore(LocalTime.of(9, 0)) || time.isAfter(LocalTime.of(16, 30))
+                || time.getMinute() % 30 != 0 || time.getSecond() != 0 || time.getNano() != 0) {
+            throw new ValidationException("Choose a 30-minute slot between 09:00 and 16:30.");
+        }
+        if (!date.atTime(time).isAfter(LocalDateTime.now(ZoneId.of("Asia/Colombo")))) {
+            throw new ValidationException("Choose a future appointment date and time.");
+        }
+        reason = reason == null ? "" : reason.trim();
+        if (reason.length() > 255) {
+            throw new ValidationException("Reason for visit: maximum 255 characters.");
+        }
+        return reason.isEmpty() ? null : reason;
     }
 }

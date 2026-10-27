@@ -25,7 +25,7 @@ public class VeterinarianDAO {
 
     private Veterinarian readProfile(Connection con)throws SQLException {
 
-        String sql = "SELECT veterinarian_id, full_name, registration_number, specialization, phone, email, availability, status FROM veterinarians ORDER BY veterinarian_id LIMIT 2";
+        String sql = "SELECT veterinarian_id, full_name, registration_number, specialization, phone, email, availability, status FROM veterinarians WHERE status = 'Active' ORDER BY veterinarian_id LIMIT 2";
 
         try (PreparedStatement statement = con.prepareStatement(sql); ResultSet result = statement.executeQuery()) {
 

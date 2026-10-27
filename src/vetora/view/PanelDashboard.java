@@ -6,13 +6,26 @@ package vetora.view;
 
 import java.awt.Font;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
+import java.text.NumberFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+import vetora.model.Dashboard;
+import vetora.model.Appointment;
+import vetora.controller.DashboardController;
 
 /**
  *
  * @author ASUS
  */
 public class PanelDashboard extends javax.swing.JPanel {
+    private DashboardController controller;
+    private Runnable appointmentsAction;
+    private Runnable newAppointmentAction;
+    private Runnable newOwnerAction;
+    private Runnable billingAction;
+
 
     /**
      * Creates new form PanelDashboard
@@ -24,6 +37,13 @@ public class PanelDashboard extends javax.swing.JPanel {
     
     
     private void setupDashboardUI() {
+        tblDashboardAppointments.getTableHeader().setReorderingAllowed(false);
+        tblDashboardAppointments.getTableHeader().setPreferredSize(new java.awt.Dimension(0, 34));
+        tblDashboardAppointments.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        scrDashboardAppointments.getViewport().setBackground(java.awt.Color.WHITE);
+        scrDashboardAppointments.setColumnHeaderView(tblDashboardAppointments.getTableHeader());
+        scrDashboardAppointments.getVerticalScrollBar().setUnitIncrement(21);
+
         
         lblAppointmentsCount.setText("—");
         lblWaitingCount.setText("—");
@@ -34,6 +54,61 @@ public class PanelDashboard extends javax.swing.JPanel {
         tblDashboardAppointments.getTableHeader().setReorderingAllowed(false);
     }
 
+    public void setController(DashboardController controller){
+        this.controller = controller;
+    }
+
+    public void setNavigation(Runnable appointmentsAction, Runnable newAppointmentAction,
+            Runnable newOwnerAction, Runnable billingAction){
+        this.appointmentsAction = appointmentsAction;
+        this.newAppointmentAction = newAppointmentAction;
+        this.newOwnerAction = newOwnerAction;
+        this.billingAction = billingAction;
+    }
+
+    public void setDashboardBusy(boolean busy){
+        btnRefreshDashboard.setEnabled(!busy);
+        btnRefreshDashboard.setText(busy ? "Loading..." : "Refresh dashboard");
+    }
+
+    public void showDashboardMessage(String message){
+        lblDashboardStatus.setText(message);
+        lblDashboardStatus.setToolTipText(message);
+    }
+
+    public void clearDashboard(){
+        lblAppointmentsCount.setText("—");
+        lblWaitingCount.setText("—");
+        lblCompletedCount.setText("—");
+        lblIncomeAmount.setText("—");
+        ((DefaultTableModel)tblDashboardAppointments.getModel()).setRowCount(0);
+    }
+
+    public void displayDashboard(Dashboard dashboard){
+        lblAppointmentsCount.setText(String.valueOf(dashboard.getAppointmentCount()));
+        lblWaitingCount.setText(String.valueOf(dashboard.getWaitingCount()));
+        lblCompletedCount.setText(String.valueOf(dashboard.getCompletedCount()));
+        NumberFormat amountFormat = NumberFormat.getNumberInstance(Locale.ENGLISH);
+        amountFormat.setMinimumFractionDigits(2);
+        amountFormat.setMaximumFractionDigits(2);
+        String amount = amountFormat.format(dashboard.getIncome());
+        lblIncomeAmount.setText(amount);
+        lblIncomeAmount.setFont(lblIncomeAmount.getFont().deriveFont(amount.length() > 12 ? 16f : amount.length() > 9 ? 21f : 24f));
+        lblIncomeAmount.setToolTipText("LKR " + amount + " received today");
+        DefaultTableModel tableModel = (DefaultTableModel)tblDashboardAppointments.getModel();
+        tableModel.setRowCount(0);
+        for (Appointment appointment : dashboard.getAppointments()) {
+            tableModel.addRow(new Object[]{
+                appointment.getAppointmentTime().format(DateTimeFormatter.ofPattern("HH:mm")),
+                appointment.getPetName(), appointment.getOwnerName(),
+                appointment.getReason() == null ? "—" : appointment.getReason(), appointment.getStatus()
+            });
+        }
+        String updated = LocalDateTime.now(ZoneId.of("Asia/Colombo")).format(DateTimeFormatter.ofPattern("HH:mm"));
+        showDashboardMessage((dashboard.getAppointmentCount() == 0 ? "No appointments today." : dashboard.getAppointmentCount() + " bookings today.")
+                + "  |  " + dashboard.getDate() + "  |  Updated " + updated);
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -42,6 +117,7 @@ public class PanelDashboard extends javax.swing.JPanel {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        pnlDashboardQuickButtons = new javax.swing.JPanel();
 
         pnlSummaryCards = new javax.swing.JPanel();
         pnlCardAppointments = new javax.swing.JPanel();
@@ -74,166 +150,155 @@ public class PanelDashboard extends javax.swing.JPanel {
         lblDashboardStatus = new javax.swing.JLabel();
         pnlQuickActions = new javax.swing.JPanel();
         lblQuickActionsTitle = new javax.swing.JLabel();
-        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 21), new java.awt.Dimension(0, 21), new java.awt.Dimension(0, 21));
         btnDashboardNewAppointment = new javax.swing.JButton();
-        filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13));
         btnDashboardRegisterOwner = new javax.swing.JButton();
-        filler3 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13));
         btnDashboardOpenBilling = new javax.swing.JButton();
+        btnRefreshDashboard = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(245, 247, 250));
-        setLayout(new java.awt.BorderLayout(0, 21));
+        setLayout(new java.awt.BorderLayout(0, 13));
 
         pnlSummaryCards.setBackground(new java.awt.Color(245, 247, 250));
-        pnlSummaryCards.setPreferredSize(new java.awt.Dimension(0, 130));
+        pnlSummaryCards.setPreferredSize(new java.awt.Dimension(0, 112));
         pnlSummaryCards.setLayout(new java.awt.GridLayout(1, 4, 13, 0));
 
         pnlCardAppointments.setBackground(new java.awt.Color(255, 255, 255));
-        pnlCardAppointments.setBorder(javax.swing.BorderFactory.createCompoundBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(226, 232, 240)), javax.swing.BorderFactory.createEmptyBorder(13, 13, 13, 13)));
-        pnlCardAppointments.setLayout(new java.awt.BorderLayout(0, 13));
+        pnlCardAppointments.setBorder(javax.swing.BorderFactory.createEmptyBorder(13, 13, 13, 13));
+        pnlCardAppointments.setLayout(new java.awt.BorderLayout(0, 8));
 
-        lblAppointmentsCount.setFont(new java.awt.Font("Segoe UI", 1, 34)); // NOI18N
+        lblAppointmentsCount.setFont(new java.awt.Font("Segoe UI", 1, 34));
         lblAppointmentsCount.setForeground(new java.awt.Color(15, 118, 110));
         lblAppointmentsCount.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         lblAppointmentsCount.setText("12");
         lblAppointmentsCount.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
-        pnlCardAppointments.add(lblAppointmentsCount, java.awt.BorderLayout.CENTER);
+        lblAppointmentsCount.setToolTipText("All appointments today, including cancelled and no-show bookings.");
 
         pnlAppoinmentsCardHeader.setBackground(new java.awt.Color(255, 255, 255));
-        pnlAppoinmentsCardHeader.setPreferredSize(new java.awt.Dimension(100, 34));
+        pnlAppoinmentsCardHeader.setPreferredSize(new java.awt.Dimension(100, 21));
         pnlAppoinmentsCardHeader.setLayout(new java.awt.BorderLayout(13, 0));
 
-        lblAppoinmentIcon.setFont(new java.awt.Font("Segoe UI Emoji", 0, 21)); // NOI18N
-        lblAppoinmentIcon.setText("🗓️");
-        lblAppoinmentIcon.setPreferredSize(new java.awt.Dimension(34, 34));
-        pnlAppoinmentsCardHeader.add(lblAppoinmentIcon, java.awt.BorderLayout.WEST);
+        lblAppoinmentIcon.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblAppoinmentIcon.setText("");
+        lblAppoinmentIcon.setPreferredSize(new java.awt.Dimension(0, 21));
+        lblAppoinmentIcon.setForeground(new java.awt.Color(71, 85, 105));
 
-        lblAppointmentsTitle.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        lblAppointmentsTitle.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblAppointmentsTitle.setForeground(new java.awt.Color(71, 85, 105));
-        lblAppointmentsTitle.setText("Today's Appointments");
-        pnlAppoinmentsCardHeader.add(lblAppointmentsTitle, java.awt.BorderLayout.CENTER);
+        lblAppointmentsTitle.setText("All bookings today");
 
-        pnlCardAppointments.add(pnlAppoinmentsCardHeader, java.awt.BorderLayout.NORTH);
 
-        pnlSummaryCards.add(pnlCardAppointments);
 
         pnlCardWaiting.setBackground(new java.awt.Color(255, 255, 255));
-        pnlCardWaiting.setBorder(javax.swing.BorderFactory.createCompoundBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(226, 232, 240)), javax.swing.BorderFactory.createEmptyBorder(13, 13, 13, 13)));
-        pnlCardWaiting.setLayout(new java.awt.BorderLayout(0, 13));
+        pnlCardWaiting.setBorder(javax.swing.BorderFactory.createEmptyBorder(13, 13, 13, 13));
+        pnlCardWaiting.setLayout(new java.awt.BorderLayout(0, 8));
 
-        lblWaitingCount.setFont(new java.awt.Font("Segoe UI", 1, 34)); // NOI18N
+        lblWaitingCount.setFont(new java.awt.Font("Segoe UI", 1, 34));
         lblWaitingCount.setForeground(new java.awt.Color(217, 119, 6));
         lblWaitingCount.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         lblWaitingCount.setText("3");
         lblWaitingCount.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
-        pnlCardWaiting.add(lblWaitingCount, java.awt.BorderLayout.CENTER);
+        lblWaitingCount.setToolTipText("Today's checked-in appointments waiting for consultation.");
 
         pnlWaitingCardHeader.setBackground(new java.awt.Color(255, 255, 255));
-        pnlWaitingCardHeader.setPreferredSize(new java.awt.Dimension(100, 34));
+        pnlWaitingCardHeader.setPreferredSize(new java.awt.Dimension(100, 21));
         pnlWaitingCardHeader.setLayout(new java.awt.BorderLayout(13, 0));
 
-        lblWaitingIcon.setFont(new java.awt.Font("Segoe UI Emoji", 0, 21)); // NOI18N
-        lblWaitingIcon.setText("⌛");
-        lblWaitingIcon.setPreferredSize(new java.awt.Dimension(34, 34));
-        pnlWaitingCardHeader.add(lblWaitingIcon, java.awt.BorderLayout.WEST);
+        lblWaitingIcon.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblWaitingIcon.setText("");
+        lblWaitingIcon.setPreferredSize(new java.awt.Dimension(0, 21));
+        lblWaitingIcon.setForeground(new java.awt.Color(71, 85, 105));
 
-        lblWaitingTitle.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        lblWaitingTitle.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblWaitingTitle.setForeground(new java.awt.Color(71, 85, 105));
         lblWaitingTitle.setText("Waiting");
-        pnlWaitingCardHeader.add(lblWaitingTitle, java.awt.BorderLayout.CENTER);
 
-        pnlCardWaiting.add(pnlWaitingCardHeader, java.awt.BorderLayout.NORTH);
 
-        pnlSummaryCards.add(pnlCardWaiting);
 
         pnlCardCompleted.setBackground(new java.awt.Color(255, 255, 255));
-        pnlCardCompleted.setBorder(javax.swing.BorderFactory.createCompoundBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(226, 232, 240)), javax.swing.BorderFactory.createEmptyBorder(13, 13, 13, 13)));
-        pnlCardCompleted.setLayout(new java.awt.BorderLayout(0, 13));
+        pnlCardCompleted.setBorder(javax.swing.BorderFactory.createEmptyBorder(13, 13, 13, 13));
+        pnlCardCompleted.setLayout(new java.awt.BorderLayout(0, 8));
 
-        lblCompletedCount.setFont(new java.awt.Font("Segoe UI", 1, 34)); // NOI18N
+        lblCompletedCount.setFont(new java.awt.Font("Segoe UI", 1, 34));
         lblCompletedCount.setForeground(new java.awt.Color(21, 128, 61));
         lblCompletedCount.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         lblCompletedCount.setText("7");
         lblCompletedCount.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
-        pnlCardCompleted.add(lblCompletedCount, java.awt.BorderLayout.CENTER);
+        lblCompletedCount.setToolTipText("Today's appointments with a finalized consultation.");
 
         pnlCompletedCardHeader.setBackground(new java.awt.Color(255, 255, 255));
-        pnlCompletedCardHeader.setPreferredSize(new java.awt.Dimension(100, 34));
+        pnlCompletedCardHeader.setPreferredSize(new java.awt.Dimension(100, 21));
         pnlCompletedCardHeader.setLayout(new java.awt.BorderLayout(13, 0));
 
-        lblCompletedIcon.setFont(new java.awt.Font("Segoe UI Emoji", 0, 21)); // NOI18N
-        lblCompletedIcon.setText("✔️");
-        lblCompletedIcon.setPreferredSize(new java.awt.Dimension(34, 34));
-        pnlCompletedCardHeader.add(lblCompletedIcon, java.awt.BorderLayout.WEST);
+        lblCompletedIcon.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblCompletedIcon.setText("");
+        lblCompletedIcon.setPreferredSize(new java.awt.Dimension(0, 21));
+        lblCompletedIcon.setForeground(new java.awt.Color(71, 85, 105));
 
-        lblCompletedTitle.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        lblCompletedTitle.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblCompletedTitle.setForeground(new java.awt.Color(71, 85, 105));
         lblCompletedTitle.setText("Completed");
-        pnlCompletedCardHeader.add(lblCompletedTitle, java.awt.BorderLayout.CENTER);
 
-        pnlCardCompleted.add(pnlCompletedCardHeader, java.awt.BorderLayout.NORTH);
 
-        pnlSummaryCards.add(pnlCardCompleted);
 
         pnlCardIncome.setBackground(new java.awt.Color(255, 255, 255));
-        pnlCardIncome.setBorder(javax.swing.BorderFactory.createCompoundBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(226, 232, 240)), javax.swing.BorderFactory.createEmptyBorder(13, 13, 13, 13)));
-        pnlCardIncome.setLayout(new java.awt.BorderLayout(0, 13));
+        pnlCardIncome.setBorder(javax.swing.BorderFactory.createEmptyBorder(13, 13, 13, 13));
+        pnlCardIncome.setLayout(new java.awt.BorderLayout(0, 8));
 
-        lblIncomeAmount.setFont(new java.awt.Font("Segoe UI", 1, 21)); // NOI18N
+        lblIncomeAmount.setFont(new java.awt.Font("Segoe UI", 1, 24));
         lblIncomeAmount.setForeground(new java.awt.Color(15, 118, 110));
         lblIncomeAmount.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
         lblIncomeAmount.setText("_");
         lblIncomeAmount.setHorizontalTextPosition(javax.swing.SwingConstants.LEADING);
-        pnlCardIncome.add(lblIncomeAmount, java.awt.BorderLayout.CENTER);
 
         pnlIncomeCardHeader.setBackground(new java.awt.Color(255, 255, 255));
-        pnlIncomeCardHeader.setPreferredSize(new java.awt.Dimension(100, 34));
+        pnlIncomeCardHeader.setPreferredSize(new java.awt.Dimension(100, 21));
         pnlIncomeCardHeader.setLayout(new java.awt.BorderLayout(13, 0));
 
-        lblIncomeIcon.setFont(new java.awt.Font("Segoe UI", 1, 13)); // NOI18N
+        lblIncomeIcon.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblIncomeIcon.setText("LKR");
-        lblIncomeIcon.setPreferredSize(new java.awt.Dimension(34, 34));
-        pnlIncomeCardHeader.add(lblIncomeIcon, java.awt.BorderLayout.WEST);
+        lblIncomeIcon.setPreferredSize(new java.awt.Dimension(34, 21));
+        lblIncomeIcon.setForeground(new java.awt.Color(71, 85, 105));
 
-        lblIncomeTitle.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        lblIncomeTitle.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblIncomeTitle.setForeground(new java.awt.Color(71, 85, 105));
-        lblIncomeTitle.setText("Today's income");
-        pnlIncomeCardHeader.add(lblIncomeTitle, java.awt.BorderLayout.CENTER);
+        lblIncomeTitle.setText("Payments today");
 
-        pnlCardIncome.add(pnlIncomeCardHeader, java.awt.BorderLayout.NORTH);
 
-        pnlSummaryCards.add(pnlCardIncome);
 
-        add(pnlSummaryCards, java.awt.BorderLayout.NORTH);
 
         pnlDashboardBody.setBackground(new java.awt.Color(245, 247, 250));
-        pnlDashboardBody.setLayout(new java.awt.BorderLayout(21, 0));
+        pnlDashboardBody.setLayout(new java.awt.BorderLayout(0, 13));
 
         pnlTodayAppoinments.setBackground(new java.awt.Color(255, 255, 255));
-        pnlTodayAppoinments.setBorder(javax.swing.BorderFactory.createEmptyBorder(21, 21, 21, 21));
+        pnlTodayAppoinments.setBorder(javax.swing.BorderFactory.createEmptyBorder(13, 13, 13, 13));
         pnlTodayAppoinments.setLayout(new java.awt.BorderLayout(0, 13));
 
         pnlTodayAppointmentsHeader.setBackground(new java.awt.Color(255, 255, 255));
         pnlTodayAppointmentsHeader.setLayout(new java.awt.BorderLayout(13, 0));
 
         lblTodayAppointmentsTitle.setBackground(new java.awt.Color(255, 255, 255));
-        lblTodayAppointmentsTitle.setFont(new java.awt.Font("Segoe UI", 1, 21)); // NOI18N
+        lblTodayAppointmentsTitle.setFont(new java.awt.Font("Segoe UI", 1, 21));
         lblTodayAppointmentsTitle.setText("Today's appointments");
-        pnlTodayAppointmentsHeader.add(lblTodayAppointmentsTitle, java.awt.BorderLayout.CENTER);
+        lblTodayAppointmentsTitle.setForeground(new java.awt.Color(15, 23, 42));
 
         btnViewAllAppointments.setText("View all");
-        btnViewAllAppointments.setPreferredSize(new java.awt.Dimension(89, 34));
-        pnlTodayAppointmentsHeader.add(btnViewAllAppointments, java.awt.BorderLayout.EAST);
+        btnViewAllAppointments.addActionListener(this::btnViewAllAppointmentsActionPerformed);
+        btnViewAllAppointments.setPreferredSize(new java.awt.Dimension(89, 42));
+        btnViewAllAppointments.setEnabled(true);
+        btnViewAllAppointments.setFont(new java.awt.Font("Segoe UI", 0, 14));
+        btnViewAllAppointments.setBackground(new java.awt.Color(255, 255, 255));
+        btnViewAllAppointments.setForeground(new java.awt.Color(15, 118, 110));
+        btnViewAllAppointments.setMinimumSize(new java.awt.Dimension(89, 42));
+        btnViewAllAppointments.setMaximumSize(new java.awt.Dimension(89, 42));
 
-        pnlTodayAppoinments.add(pnlTodayAppointmentsHeader, java.awt.BorderLayout.NORTH);
 
-        tblDashboardAppointments.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        tblDashboardAppointments.setFont(new java.awt.Font("Segoe UI", 0, 16));
         tblDashboardAppointments.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "Time", "Pet", "Owner", "Veterinarian", "Status"
+                "Time", "Pet", "Owner", "Reason", "Status"
             }
         ) {
             Class[] types = new Class [] {
@@ -252,10 +317,18 @@ public class PanelDashboard extends javax.swing.JPanel {
             }
         });
         tblDashboardAppointments.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS);
-        tblDashboardAppointments.setColumnSelectionAllowed(true);
+        tblDashboardAppointments.setColumnSelectionAllowed(false);
         tblDashboardAppointments.setFillsViewportHeight(true);
-        tblDashboardAppointments.setRowHeight(38);
-        scrDashboardAppointments.setViewportView(tblDashboardAppointments);
+        tblDashboardAppointments.setRowHeight(34);
+        tblDashboardAppointments.setShowHorizontalLines(true);
+        tblDashboardAppointments.setShowVerticalLines(false);
+        tblDashboardAppointments.setRowSelectionAllowed(true);
+        tblDashboardAppointments.setAutoCreateRowSorter(true);
+        tblDashboardAppointments.setBackground(new java.awt.Color(255, 255, 255));
+        tblDashboardAppointments.setForeground(new java.awt.Color(15, 23, 42));
+        tblDashboardAppointments.setSelectionBackground(new java.awt.Color(204, 251, 241));
+        tblDashboardAppointments.setSelectionForeground(new java.awt.Color(15, 23, 42));
+        tblDashboardAppointments.setGridColor(new java.awt.Color(226, 232, 240));
         tblDashboardAppointments.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         if (tblDashboardAppointments.getColumnModel().getColumnCount() > 0) {
             tblDashboardAppointments.getColumnModel().getColumn(0).setPreferredWidth(89);
@@ -263,67 +336,155 @@ public class PanelDashboard extends javax.swing.JPanel {
             tblDashboardAppointments.getColumnModel().getColumn(2).setPreferredWidth(144);
             tblDashboardAppointments.getColumnModel().getColumn(3).setPreferredWidth(144);
             tblDashboardAppointments.getColumnModel().getColumn(4).setPreferredWidth(110);
+            tblDashboardAppointments.getColumnModel().getColumn(4).setMinWidth(110);
         }
 
-        pnlTodayAppoinments.add(scrDashboardAppointments, java.awt.BorderLayout.CENTER);
 
-        lblDashboardStatus.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        lblDashboardStatus.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblDashboardStatus.setForeground(new java.awt.Color(71, 85, 105));
         lblDashboardStatus.setText("Appointments not loaded.");
-        pnlTodayAppoinments.add(lblDashboardStatus, java.awt.BorderLayout.SOUTH);
 
-        pnlDashboardBody.add(pnlTodayAppoinments, java.awt.BorderLayout.CENTER);
 
         pnlQuickActions.setBackground(new java.awt.Color(255, 255, 255));
-        pnlQuickActions.setBorder(javax.swing.BorderFactory.createEmptyBorder(21, 21, 21, 21));
-        pnlQuickActions.setPreferredSize(new java.awt.Dimension(233, 0));
-        pnlQuickActions.setLayout(new javax.swing.BoxLayout(pnlQuickActions, javax.swing.BoxLayout.Y_AXIS));
+        pnlQuickActions.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 13, 8, 13));
+        pnlQuickActions.setPreferredSize(new java.awt.Dimension(0, 84));
+        pnlQuickActions.setLayout(new java.awt.BorderLayout(0, 5));
 
-        lblQuickActionsTitle.setFont(new java.awt.Font("Segoe UI", 1, 21)); // NOI18N
+        lblQuickActionsTitle.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblQuickActionsTitle.setText("Quick actions");
-        pnlQuickActions.add(lblQuickActionsTitle);
-        pnlQuickActions.add(filler1);
+        lblQuickActionsTitle.setAlignmentX(0.0F);
+        lblQuickActionsTitle.setMinimumSize(new java.awt.Dimension(0, 21));
+        lblQuickActionsTitle.setPreferredSize(new java.awt.Dimension(233, 21));
+        lblQuickActionsTitle.setMaximumSize(new java.awt.Dimension(32767, 21));
+        lblQuickActionsTitle.setForeground(new java.awt.Color(15, 23, 42));
 
-        btnDashboardNewAppointment.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        btnDashboardNewAppointment.setFont(new java.awt.Font("Segoe UI", 1, 14));
+        btnDashboardNewAppointment.addActionListener(this::btnDashboardNewAppointmentActionPerformed);
         btnDashboardNewAppointment.setText("New appointment");
-        btnDashboardNewAppointment.setEnabled(false);
-        btnDashboardNewAppointment.setMaximumSize(new java.awt.Dimension(32767, 55));
-        btnDashboardNewAppointment.setMinimumSize(new java.awt.Dimension(0, 55));
-        btnDashboardNewAppointment.setPreferredSize(new java.awt.Dimension(191, 55));
-        pnlQuickActions.add(btnDashboardNewAppointment);
-        pnlQuickActions.add(filler2);
+        btnDashboardNewAppointment.setEnabled(true);
+        btnDashboardNewAppointment.setMaximumSize(new java.awt.Dimension(32767, 42));
+        btnDashboardNewAppointment.setMinimumSize(new java.awt.Dimension(0, 42));
+        btnDashboardNewAppointment.setPreferredSize(new java.awt.Dimension(191, 42));
+        btnDashboardNewAppointment.setBackground(new java.awt.Color(15, 118, 110));
+        btnDashboardNewAppointment.setForeground(new java.awt.Color(255, 255, 255));
+        btnDashboardNewAppointment.setAlignmentX(0.0F);
 
-        btnDashboardRegisterOwner.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        btnDashboardRegisterOwner.setFont(new java.awt.Font("Segoe UI", 0, 14));
+        btnDashboardRegisterOwner.addActionListener(this::btnDashboardRegisterOwnerActionPerformed);
         btnDashboardRegisterOwner.setText("Register owner");
-        btnDashboardRegisterOwner.setEnabled(false);
-        btnDashboardRegisterOwner.setMaximumSize(new java.awt.Dimension(32767, 55));
-        btnDashboardRegisterOwner.setMinimumSize(new java.awt.Dimension(0, 55));
-        btnDashboardRegisterOwner.setPreferredSize(new java.awt.Dimension(191, 55));
-        pnlQuickActions.add(btnDashboardRegisterOwner);
-        pnlQuickActions.add(filler3);
+        btnDashboardRegisterOwner.setEnabled(true);
+        btnDashboardRegisterOwner.setMaximumSize(new java.awt.Dimension(32767, 42));
+        btnDashboardRegisterOwner.setMinimumSize(new java.awt.Dimension(0, 42));
+        btnDashboardRegisterOwner.setPreferredSize(new java.awt.Dimension(191, 42));
+        btnDashboardRegisterOwner.setBackground(new java.awt.Color(255, 255, 255));
+        btnDashboardRegisterOwner.setForeground(new java.awt.Color(15, 118, 110));
+        btnDashboardRegisterOwner.setAlignmentX(0.0F);
 
-        btnDashboardOpenBilling.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        btnDashboardOpenBilling.setFont(new java.awt.Font("Segoe UI", 0, 14));
+        btnDashboardOpenBilling.addActionListener(this::btnDashboardOpenBillingActionPerformed);
         btnDashboardOpenBilling.setText("Open billing");
-        btnDashboardOpenBilling.setEnabled(false);
-        btnDashboardOpenBilling.setMaximumSize(new java.awt.Dimension(32767, 55));
-        btnDashboardOpenBilling.setMinimumSize(new java.awt.Dimension(0, 55));
-        btnDashboardOpenBilling.setPreferredSize(new java.awt.Dimension(191, 55));
-        pnlQuickActions.add(btnDashboardOpenBilling);
+        btnDashboardOpenBilling.setEnabled(true);
+        btnDashboardOpenBilling.setMaximumSize(new java.awt.Dimension(32767, 42));
+        btnDashboardOpenBilling.setMinimumSize(new java.awt.Dimension(0, 42));
+        btnDashboardOpenBilling.setPreferredSize(new java.awt.Dimension(191, 42));
+        btnDashboardOpenBilling.setBackground(new java.awt.Color(255, 255, 255));
+        btnDashboardOpenBilling.setForeground(new java.awt.Color(15, 118, 110));
+        btnDashboardOpenBilling.setAlignmentX(0.0F);
+        btnRefreshDashboard.setText("Refresh dashboard");
+        btnRefreshDashboard.addActionListener(this::btnRefreshDashboardActionPerformed);
+        btnRefreshDashboard.setFont(new java.awt.Font("Segoe UI", 0, 14));
+        btnRefreshDashboard.setMaximumSize(new java.awt.Dimension(32767, 42));
+        btnRefreshDashboard.setMinimumSize(new java.awt.Dimension(0, 42));
+        btnRefreshDashboard.setPreferredSize(new java.awt.Dimension(191, 42));
+        btnRefreshDashboard.setBackground(new java.awt.Color(255, 255, 255));
+        btnRefreshDashboard.setForeground(new java.awt.Color(15, 118, 110));
+        btnRefreshDashboard.setAlignmentX(0.0F);
 
-        pnlDashboardBody.add(pnlQuickActions, java.awt.BorderLayout.EAST);
 
+        pnlDashboardQuickButtons.setBackground(new java.awt.Color(255, 255, 255));
+        pnlDashboardQuickButtons.setLayout(new java.awt.GridLayout(1, 4, 13, 0));
+
+        pnlAppoinmentsCardHeader.add(lblAppoinmentIcon, java.awt.BorderLayout.WEST);
+        pnlAppoinmentsCardHeader.add(lblAppointmentsTitle, java.awt.BorderLayout.CENTER);
+        pnlCardAppointments.add(lblAppointmentsCount, java.awt.BorderLayout.CENTER);
+        pnlCardAppointments.add(pnlAppoinmentsCardHeader, java.awt.BorderLayout.NORTH);
+        pnlWaitingCardHeader.add(lblWaitingIcon, java.awt.BorderLayout.WEST);
+        pnlWaitingCardHeader.add(lblWaitingTitle, java.awt.BorderLayout.CENTER);
+        pnlCardWaiting.add(lblWaitingCount, java.awt.BorderLayout.CENTER);
+        pnlCardWaiting.add(pnlWaitingCardHeader, java.awt.BorderLayout.NORTH);
+        pnlCompletedCardHeader.add(lblCompletedIcon, java.awt.BorderLayout.WEST);
+        pnlCompletedCardHeader.add(lblCompletedTitle, java.awt.BorderLayout.CENTER);
+        pnlCardCompleted.add(lblCompletedCount, java.awt.BorderLayout.CENTER);
+        pnlCardCompleted.add(pnlCompletedCardHeader, java.awt.BorderLayout.NORTH);
+        pnlIncomeCardHeader.add(lblIncomeIcon, java.awt.BorderLayout.WEST);
+        pnlIncomeCardHeader.add(lblIncomeTitle, java.awt.BorderLayout.CENTER);
+        pnlCardIncome.add(lblIncomeAmount, java.awt.BorderLayout.CENTER);
+        pnlCardIncome.add(pnlIncomeCardHeader, java.awt.BorderLayout.NORTH);
+        pnlSummaryCards.add(pnlCardAppointments);
+        pnlSummaryCards.add(pnlCardWaiting);
+        pnlSummaryCards.add(pnlCardCompleted);
+        pnlSummaryCards.add(pnlCardIncome);
+        pnlDashboardQuickButtons.add(btnDashboardNewAppointment);
+        pnlDashboardQuickButtons.add(btnDashboardRegisterOwner);
+        pnlDashboardQuickButtons.add(btnDashboardOpenBilling);
+        pnlDashboardQuickButtons.add(btnRefreshDashboard);
+        pnlQuickActions.add(lblQuickActionsTitle, java.awt.BorderLayout.NORTH);
+        pnlQuickActions.add(pnlDashboardQuickButtons, java.awt.BorderLayout.CENTER);
+        pnlTodayAppointmentsHeader.add(lblTodayAppointmentsTitle, java.awt.BorderLayout.CENTER);
+        pnlTodayAppointmentsHeader.add(btnViewAllAppointments, java.awt.BorderLayout.EAST);
+        scrDashboardAppointments.setViewportView(tblDashboardAppointments);
+        pnlTodayAppoinments.add(pnlTodayAppointmentsHeader, java.awt.BorderLayout.NORTH);
+        pnlTodayAppoinments.add(scrDashboardAppointments, java.awt.BorderLayout.CENTER);
+        pnlTodayAppoinments.add(lblDashboardStatus, java.awt.BorderLayout.SOUTH);
+        pnlDashboardBody.add(pnlQuickActions, java.awt.BorderLayout.NORTH);
+        pnlDashboardBody.add(pnlTodayAppoinments, java.awt.BorderLayout.CENTER);
+        add(pnlSummaryCards, java.awt.BorderLayout.NORTH);
         add(pnlDashboardBody, java.awt.BorderLayout.CENTER);
+        tblDashboardAppointments.getTableHeader().setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 13));
+        tblDashboardAppointments.getTableHeader().setPreferredSize(new java.awt.Dimension(0, 34));
+        tblDashboardAppointments.getTableHeader().setReorderingAllowed(false);
+        scrDashboardAppointments.setColumnHeaderView(tblDashboardAppointments.getTableHeader());
+        scrDashboardAppointments.getViewport().setBackground(java.awt.Color.WHITE);
     }// </editor-fold>//GEN-END:initComponents
 
 
+    private void btnViewAllAppointmentsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnViewAllAppointmentsActionPerformed
+        if (appointmentsAction != null) {
+            appointmentsAction.run();
+        }
+    }//GEN-LAST:event_btnViewAllAppointmentsActionPerformed
+
+    private void btnDashboardNewAppointmentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDashboardNewAppointmentActionPerformed
+        if (newAppointmentAction != null) {
+            newAppointmentAction.run();
+        }
+    }//GEN-LAST:event_btnDashboardNewAppointmentActionPerformed
+
+    private void btnDashboardRegisterOwnerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDashboardRegisterOwnerActionPerformed
+        if (newOwnerAction != null) {
+            newOwnerAction.run();
+        }
+    }//GEN-LAST:event_btnDashboardRegisterOwnerActionPerformed
+
+    private void btnDashboardOpenBillingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDashboardOpenBillingActionPerformed
+        if (billingAction != null) {
+            billingAction.run();
+        }
+    }//GEN-LAST:event_btnDashboardOpenBillingActionPerformed
+
+    private void btnRefreshDashboardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshDashboardActionPerformed
+        if (controller != null) {
+            controller.loadDashboard();
+        }
+    }//GEN-LAST:event_btnRefreshDashboardActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel pnlDashboardQuickButtons;
     private javax.swing.JButton btnDashboardNewAppointment;
     private javax.swing.JButton btnDashboardOpenBilling;
+    private javax.swing.JButton btnRefreshDashboard;
     private javax.swing.JButton btnDashboardRegisterOwner;
     private javax.swing.JButton btnViewAllAppointments;
-    private javax.swing.Box.Filler filler1;
-    private javax.swing.Box.Filler filler2;
-    private javax.swing.Box.Filler filler3;
     private javax.swing.JLabel lblAppoinmentIcon;
     private javax.swing.JLabel lblAppointmentsCount;
     private javax.swing.JLabel lblAppointmentsTitle;

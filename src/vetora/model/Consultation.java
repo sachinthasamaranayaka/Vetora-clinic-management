@@ -127,16 +127,10 @@ public class Consultation {
     }
 
     public Consultation withPrescriptionItems(List<PrescriptionItem> items) {
-        return new Consultation(appointmentId, appointmentDate, appointmentTime,
-                petName, ownerName, species, birthDate, veterinarianName,
-                symptoms, diagnosis, treatment, clinicalNotes, status, items);
+        return new Consultation(appointmentId, appointmentDate, appointmentTime, petName, ownerName, species, birthDate, veterinarianName, symptoms, diagnosis, treatment, clinicalNotes, status, items);
     }
 
-    public Consultation withSavedDetails(String symptoms, String diagnosis,
-            String treatment, List<PrescriptionItem> items, boolean finalized) {
-        return new Consultation(appointmentId, appointmentDate, appointmentTime,
-                petName, ownerName, species, birthDate, veterinarianName,
-                symptoms, diagnosis, treatment, clinicalNotes,
-                finalized ? "Finalized" : "Draft", items);
+    public Consultation withSavedDetails(String symptoms, String diagnosis, String treatment, List<PrescriptionItem> items, boolean finalized) {
+        return new Consultation(appointmentId, appointmentDate, appointmentTime, petName, ownerName, species, birthDate, veterinarianName, symptoms, diagnosis, treatment, clinicalNotes, finalized ? "Finalized" : "Draft", items);
     }
 }

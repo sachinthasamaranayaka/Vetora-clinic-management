@@ -17,6 +17,8 @@ import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.Arrays;
+import java.util.Objects;
 import javax.swing.JOptionPane;
 import vetora.controller.PetController;
 
@@ -31,7 +33,12 @@ public class PanelPet extends javax.swing.JPanel {
     private boolean ownerOptionsLoading;
     private boolean savingPet;
     private Long editingPetId;
+    private boolean petListBusy;
+    private boolean restoringPetSelection;
+    private List<Object> savedPetForm;
     private List<Pet> displayedPets = new ArrayList<>();
+    private boolean splitReady;
+
     /**
      * Creates new form PanelPet
      */
@@ -65,12 +72,12 @@ public class PanelPet extends javax.swing.JPanel {
         spnPetDob.commitEdit();
         Date value = (Date)spnPetDob.getValue();
         
-        return value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        return value.toInstant().atZone(ZoneId.of("Asia/Colombo")).toLocalDate();
     }
     public Long getSelectedOwnerId() {
         int index = cmbPetOwner.getSelectedIndex();
         
-        if (index <= 0){
+        if (index <= 0 || index > ownerOptions.size()){
             return null;
         }
         
@@ -87,7 +94,7 @@ public class PanelPet extends javax.swing.JPanel {
         }
         
         int modelRow = tblPets.convertRowIndexToModel(row);
-        return displayedPets.get(modelRow);
+        return modelRow < displayedPets.size() ? displayedPets.get(modelRow) : null;
     }
     
     public void setController(PetController controller){
@@ -143,28 +150,43 @@ public class PanelPet extends javax.swing.JPanel {
 
         btnNewPet.setEnabled(editable);
         btnCancelPet.setEnabled(editable);
-        tblPets.setEnabled(editable && ownerReady);
+        tblPets.setEnabled(editable && ownerReady && !petListBusy);
+        btnDeletePet.setEnabled(editable && !ownerOptionsLoading && editingPetId != null);
+        btnSearchPet.setEnabled(editable && !petListBusy);
+        txtPetSearch.setEnabled(editable && !petListBusy);
+        cmbSpeciesFilter.setEnabled(editable && !petListBusy);
     }
     
     public void showPetError(String message){
-        lblPetError.setText(message);
+        lblPetError.setText("<html>" + message.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;") + "</html>");
+        lblPetError.setToolTipText(message.trim().isEmpty() ? null : message);
     }
     
     private void setupPetUI(){
+        tblPets.getTableHeader().setReorderingAllowed(false);
+        tblPets.getTableHeader().setPreferredSize(new java.awt.Dimension(0, 34));
+        tblPets.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        scrPetTable.getViewport().setBackground(java.awt.Color.WHITE);
+        scrPetTable.setColumnHeaderView(tblPets.getTableHeader());
+        scrPetTable.getVerticalScrollBar().setUnitIncrement(21);
+
         tblPets.getTableHeader().setFont(new Font("Segoe UI",Font.BOLD,13));
         scrPetForm.getViewport().setBackground(Color.WHITE);
         scrPetForm.getVerticalScrollBar().setPreferredSize(new Dimension(10,0));
         scrPetTable.getVerticalScrollBar().setPreferredSize(new Dimension(8,0));
         
-        scrPetForm.getVerticalScrollBar().setUnitIncrement(16);
+        scrPetForm.getVerticalScrollBar().setUnitIncrement(21);
         JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(spnPetDob,"dd/MM/yyyy");
         dateEditor.getFormat().setLenient(false);
+        dateEditor.getFormat().setTimeZone(java.util.TimeZone.getTimeZone("Asia/Colombo"));
         spnPetDob.setEditor(dateEditor);
     }
     
     
     public void displayPets(List<Pet> pets){
         tblPets.clearSelection();
+        tblPets.getSelectionModel().setAnchorSelectionIndex(-1);
+        tblPets.getSelectionModel().setLeadSelectionIndex(-1);
         displayedPets = new ArrayList<>(pets);
         DefaultTableModel tableModel = (DefaultTableModel)tblPets.getModel();
         
@@ -181,7 +203,7 @@ public class PanelPet extends javax.swing.JPanel {
                 ageText = "Under 1 year";
             }
             else {
-                ageText = age + (age == 1 ? "year" : "years");
+                ageText = age + (age == 1 ? " year" : " years");
             }
             
             tableModel.addRow(new Object[]{
@@ -193,7 +215,7 @@ public class PanelPet extends javax.swing.JPanel {
             });
         }
         
-        lblPetCount.setText("Pets: "+pets.size());
+        lblPetCount.setText(pets.isEmpty() ? "No pets match the search and species filter." : "Pets: " + pets.size());
     }
     
     public void showPetListMessage(String message){
@@ -222,9 +244,12 @@ public class PanelPet extends javax.swing.JPanel {
         lblPetError.setText(" ");
 
         tblPets.clearSelection();
+        tblPets.getSelectionModel().setAnchorSelectionIndex(-1);
+        tblPets.getSelectionModel().setLeadSelectionIndex(-1);
         btnDeletePet.setEnabled(false);
 
         updatePetFormState();
+        savedPetForm = getPetFormValues();
         txtPetName.requestFocusInWindow();
     }
     
@@ -245,7 +270,8 @@ public class PanelPet extends javax.swing.JPanel {
 
         Date dob = pet.getDob();
         chkDobUnknown.setSelected(dob == null);
-        spnPetDob.setValue(dob == null ? new Date() : new Date(dob.getTime()));
+        spnPetDob.setValue(dob == null ? new Date() : Date.from(pet.getDob().toLocalDate()
+                .atStartOfDay(ZoneId.of("Asia/Colombo")).toInstant()));
         
         Integer age = pet.getAge();
         String ageText;
@@ -266,7 +292,79 @@ public class PanelPet extends javax.swing.JPanel {
         lblPetError.setText(" ");
 
         updatePetFormState();
+        savedPetForm = getPetFormValues();
     }
+    public String getPetSearch(){
+        return txtPetSearch.getText();
+    }
+
+    public String getSpeciesFilter(){
+        return cmbSpeciesFilter.getSelectedIndex() <= 0 ? null : (String)cmbSpeciesFilter.getSelectedItem();
+    }
+
+    public boolean isOwnerOptionsLoading(){
+        return ownerOptionsLoading;
+    }
+
+    public void setPetListBusy(boolean busy){
+        petListBusy = busy;
+        updatePetFormState();
+    }
+
+    public boolean isRestoringPetSelection(){
+        return restoringPetSelection;
+    }
+
+    public void restorePetSelection(){
+        restoringPetSelection = true;
+        try {
+            tblPets.clearSelection();
+        tblPets.getSelectionModel().setAnchorSelectionIndex(-1);
+        tblPets.getSelectionModel().setLeadSelectionIndex(-1);
+            for (int i = 0; i < displayedPets.size(); i++) {
+                if (Objects.equals(editingPetId, displayedPets.get(i).getPetID())) {
+                    int row = tblPets.convertRowIndexToView(i);
+                    if (row >= 0) {
+                        tblPets.setRowSelectionInterval(row, row);
+                    }
+                    break;
+                }
+            }
+        }
+        finally {
+            restoringPetSelection = false;
+        }
+    }
+
+    private List<Object> getPetFormValues(){
+        String dateText = ((JSpinner.DefaultEditor)spnPetDob.getEditor()).getTextField().getText();
+        return Arrays.asList(getSelectedOwnerId(), txtPetName.getText(), getSpecies(), getGender(),
+                txtBreed.getText(), chkDobUnknown.isSelected(), chkDobUnknown.isSelected() ? "" : dateText);
+    }
+
+    public boolean confirmDiscardPetChanges(){
+        return savedPetForm == null || savedPetForm.equals(getPetFormValues())
+                || JOptionPane.showConfirmDialog(this, "Discard the unsaved pet details?", "Unsaved changes",
+                        JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION;
+    }
+
+    public boolean confirmDeletePet(){
+        return JOptionPane.showConfirmDialog(this,
+                "Delete pet #" + editingPetId + "?\nPets with appointment history cannot be deleted.",
+                "Delete pet", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION;
+    }
+
+    @Override
+    public void doLayout(){
+        super.doLayout();
+        if (!splitReady && splitPets.getWidth() > 0) {
+            splitReady = true;
+            int availableWidth = splitPets.getWidth() - splitPets.getDividerSize();
+            int formWidth = Math.max(360, (int)Math.round(availableWidth * 0.382));
+            splitPets.setDividerLocation(Math.max(300, availableWidth - formWidth));
+        }
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -275,20 +373,29 @@ public class PanelPet extends javax.swing.JPanel {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        pnlPetFormGlue = new javax.swing.JPanel();
+        pnlPetBirthRow = new javax.swing.JPanel();
+        pnlPetAgeGroup = new javax.swing.JPanel();
+        pnlPetDobGroup = new javax.swing.JPanel();
+        pnlPetIdentityRow = new javax.swing.JPanel();
+        pnlPetBreedGroup = new javax.swing.JPanel();
+        pnlPetNameGroup = new javax.swing.JPanel();
+        pnlPetOwnerGroup = new javax.swing.JPanel();
+        pnlPetFormHeader = new javax.swing.JPanel();
 
         pnlPetToolbar = new javax.swing.JPanel();
         pnlPetSearchGroup = new javax.swing.JPanel();
         lblPetSearch = new javax.swing.JLabel();
-        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8));
+        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 5), new java.awt.Dimension(0, 5), new java.awt.Dimension(0, 5));
         txtPetSearch = new javax.swing.JTextField();
         filler3 = new javax.swing.Box.Filler(new java.awt.Dimension(13, 0), new java.awt.Dimension(13, 0), new java.awt.Dimension(13, 0));
         pnlPetFilterGroup = new javax.swing.JPanel();
         lblSpeciesFilter = new javax.swing.JLabel();
-        filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8));
+        filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 5), new java.awt.Dimension(0, 5), new java.awt.Dimension(0, 5));
         cmbSpeciesFilter = new javax.swing.JComboBox<>();
         filler4 = new javax.swing.Box.Filler(new java.awt.Dimension(13, 0), new java.awt.Dimension(13, 0), new java.awt.Dimension(13, 0));
         btnSearchPet = new javax.swing.JButton();
-        filler5 = new javax.swing.Box.Filler(new java.awt.Dimension(21, 0), new java.awt.Dimension(21, 0), new java.awt.Dimension(21, 0));
+        filler5 = new javax.swing.Box.Filler(new java.awt.Dimension(13, 0), new java.awt.Dimension(13, 0), new java.awt.Dimension(13, 0));
         filler6 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(32767, 0));
         btnNewPet = new javax.swing.JButton();
         splitPets = new javax.swing.JSplitPane();
@@ -301,17 +408,13 @@ public class PanelPet extends javax.swing.JPanel {
         scrPetForm = new javax.swing.JScrollPane();
         pnlPetForm = new javax.swing.JPanel();
         lblPetFormTitle = new javax.swing.JLabel();
-        filler7 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13));
         lblPetId = new javax.swing.JLabel();
-        filler8 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13));
         lblPetOwner = new javax.swing.JLabel();
-        filler9 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8));
         cmbPetOwner = new javax.swing.JComboBox<>();
-        filler10 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13));
+        filler10 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8));
         lblPetName = new javax.swing.JLabel();
-        filler11 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8));
         txtPetName = new javax.swing.JTextField();
-        filler12 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13));
+        filler12 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8));
         pnlPetSpeciesGender = new javax.swing.JPanel();
         pnlPetSpeciesGroup = new javax.swing.JPanel();
         lblSpecies = new javax.swing.JLabel();
@@ -319,17 +422,12 @@ public class PanelPet extends javax.swing.JPanel {
         pnlPetGenderGroup = new javax.swing.JPanel();
         lblGender = new javax.swing.JLabel();
         cmbGender = new javax.swing.JComboBox<>();
-        filler13 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13));
+        filler13 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8));
         lblBreed = new javax.swing.JLabel();
-        filler14 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8));
         txtBreed = new javax.swing.JTextField();
-        filler15 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13));
         lblPetDob = new javax.swing.JLabel();
-        filler16 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8));
         spnPetDob = new javax.swing.JSpinner();
-        filler17 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13));
         chkDobUnknown = new javax.swing.JCheckBox();
-        filler18 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13));
         lblPetAge = new javax.swing.JLabel();
         pnlPetActions = new javax.swing.JPanel();
         lblPetError = new javax.swing.JLabel();
@@ -339,98 +437,96 @@ public class PanelPet extends javax.swing.JPanel {
         btnDeletePet = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(245, 247, 250));
-        setLayout(new java.awt.BorderLayout(0, 21));
+        setLayout(new java.awt.BorderLayout(0, 13));
 
-        pnlPetToolbar.setBackground(new java.awt.Color(245, 247, 250));
-        pnlPetToolbar.setPreferredSize(new java.awt.Dimension(0, 89));
+        pnlPetToolbar.setBackground(new java.awt.Color(255, 255, 255));
+        pnlPetToolbar.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 13, 8, 13));
+        pnlPetToolbar.setPreferredSize(new java.awt.Dimension(0, 84));
         pnlPetToolbar.setLayout(new javax.swing.BoxLayout(pnlPetToolbar, javax.swing.BoxLayout.X_AXIS));
 
-        pnlPetSearchGroup.setBackground(new java.awt.Color(245, 247, 250));
+        pnlPetSearchGroup.setBackground(new java.awt.Color(255, 255, 255));
         pnlPetSearchGroup.setAlignmentY(1.0F);
-        pnlPetSearchGroup.setMaximumSize(new java.awt.Dimension(233, 84));
-        pnlPetSearchGroup.setMinimumSize(new java.awt.Dimension(233, 84));
-        pnlPetSearchGroup.setPreferredSize(new java.awt.Dimension(233, 84));
+        pnlPetSearchGroup.setMaximumSize(new java.awt.Dimension(32767, 68));
+        pnlPetSearchGroup.setMinimumSize(new java.awt.Dimension(0, 68));
+        pnlPetSearchGroup.setPreferredSize(new java.awt.Dimension(233, 68));
         pnlPetSearchGroup.setLayout(new javax.swing.BoxLayout(pnlPetSearchGroup, javax.swing.BoxLayout.Y_AXIS));
+        pnlPetSearchGroup.setAlignmentX(0.0F);
 
-        lblPetSearch.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
-        lblPetSearch.setText("Search by pet or owner name");
+        lblPetSearch.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblPetSearch.setText("Search by ID, pet or owner");
         lblPetSearch.setMaximumSize(new java.awt.Dimension(32767, 21));
         lblPetSearch.setMinimumSize(new java.awt.Dimension(0, 21));
         lblPetSearch.setPreferredSize(new java.awt.Dimension(233, 21));
-        pnlPetSearchGroup.add(lblPetSearch);
-        pnlPetSearchGroup.add(filler1);
+        lblPetSearch.setForeground(new java.awt.Color(71, 85, 105));
 
-        txtPetSearch.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        txtPetSearch.setFont(new java.awt.Font("Segoe UI", 0, 16));
+        txtPetSearch.addActionListener(this::txtPetSearchActionPerformed);
         txtPetSearch.setAlignmentX(0.0F);
-        txtPetSearch.setMaximumSize(new java.awt.Dimension(32767, 55));
-        txtPetSearch.setMinimumSize(new java.awt.Dimension(0, 55));
-        txtPetSearch.setPreferredSize(new java.awt.Dimension(233, 55));
-        pnlPetSearchGroup.add(txtPetSearch);
+        txtPetSearch.setMaximumSize(new java.awt.Dimension(32767, 42));
+        txtPetSearch.setMinimumSize(new java.awt.Dimension(0, 42));
+        txtPetSearch.setPreferredSize(new java.awt.Dimension(233, 42));
+        txtPetSearch.setToolTipText("Search by pet ID, pet name or owner name");
 
-        pnlPetToolbar.add(pnlPetSearchGroup);
-        pnlPetToolbar.add(filler3);
 
-        pnlPetFilterGroup.setBackground(new java.awt.Color(245, 247, 250));
+        pnlPetFilterGroup.setBackground(new java.awt.Color(255, 255, 255));
         pnlPetFilterGroup.setAlignmentY(1.0F);
-        pnlPetFilterGroup.setMaximumSize(new java.awt.Dimension(144, 84));
-        pnlPetFilterGroup.setMinimumSize(new java.awt.Dimension(144, 84));
-        pnlPetFilterGroup.setPreferredSize(new java.awt.Dimension(144, 84));
+        pnlPetFilterGroup.setMaximumSize(new java.awt.Dimension(160, 68));
+        pnlPetFilterGroup.setMinimumSize(new java.awt.Dimension(160, 68));
+        pnlPetFilterGroup.setPreferredSize(new java.awt.Dimension(160, 68));
         pnlPetFilterGroup.setLayout(new javax.swing.BoxLayout(pnlPetFilterGroup, javax.swing.BoxLayout.Y_AXIS));
 
-        lblSpeciesFilter.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        lblSpeciesFilter.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblSpeciesFilter.setText("Species");
         lblSpeciesFilter.setMaximumSize(new java.awt.Dimension(32767, 21));
         lblSpeciesFilter.setMinimumSize(new java.awt.Dimension(0, 21));
         lblSpeciesFilter.setPreferredSize(new java.awt.Dimension(144, 21));
-        pnlPetFilterGroup.add(lblSpeciesFilter);
-        pnlPetFilterGroup.add(filler2);
+        lblSpeciesFilter.setForeground(new java.awt.Color(71, 85, 105));
 
-        cmbSpeciesFilter.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        cmbSpeciesFilter.setFont(new java.awt.Font("Segoe UI", 0, 16));
+        cmbSpeciesFilter.addActionListener(this::cmbSpeciesFilterActionPerformed);
         cmbSpeciesFilter.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All species", "Dog", "Cat", "Bird", "Other" }));
         cmbSpeciesFilter.setAlignmentX(0.0F);
-        cmbSpeciesFilter.setMaximumSize(new java.awt.Dimension(32767, 55));
-        cmbSpeciesFilter.setMinimumSize(new java.awt.Dimension(0, 55));
-        cmbSpeciesFilter.setPreferredSize(new java.awt.Dimension(144, 55));
-        pnlPetFilterGroup.add(cmbSpeciesFilter);
+        cmbSpeciesFilter.setMaximumSize(new java.awt.Dimension(32767, 42));
+        cmbSpeciesFilter.setMinimumSize(new java.awt.Dimension(0, 42));
+        cmbSpeciesFilter.setPreferredSize(new java.awt.Dimension(160, 42));
 
-        pnlPetToolbar.add(pnlPetFilterGroup);
-        pnlPetToolbar.add(filler4);
 
-        btnSearchPet.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        btnSearchPet.setFont(new java.awt.Font("Segoe UI", 0, 14));
+        btnSearchPet.addActionListener(this::btnSearchPetActionPerformed);
         btnSearchPet.setText("Search");
         btnSearchPet.setAlignmentY(1.0F);
-        btnSearchPet.setMaximumSize(new java.awt.Dimension(89, 55));
-        btnSearchPet.setMinimumSize(new java.awt.Dimension(89, 55));
-        btnSearchPet.setPreferredSize(new java.awt.Dimension(89, 55));
-        pnlPetToolbar.add(btnSearchPet);
-        pnlPetToolbar.add(filler5);
-        pnlPetToolbar.add(filler6);
+        btnSearchPet.setMaximumSize(new java.awt.Dimension(89, 42));
+        btnSearchPet.setMinimumSize(new java.awt.Dimension(89, 42));
+        btnSearchPet.setPreferredSize(new java.awt.Dimension(89, 42));
+        btnSearchPet.setBackground(new java.awt.Color(255, 255, 255));
+        btnSearchPet.setForeground(new java.awt.Color(15, 118, 110));
 
-        btnNewPet.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        btnNewPet.setFont(new java.awt.Font("Segoe UI", 1, 14));
         btnNewPet.setText("New pet");
         btnNewPet.setAlignmentY(1.0F);
-        btnNewPet.setMaximumSize(new java.awt.Dimension(144, 55));
-        btnNewPet.setMinimumSize(new java.awt.Dimension(144, 55));
-        btnNewPet.setPreferredSize(new java.awt.Dimension(144, 55));
+        btnNewPet.setMaximumSize(new java.awt.Dimension(144, 42));
+        btnNewPet.setMinimumSize(new java.awt.Dimension(144, 42));
+        btnNewPet.setPreferredSize(new java.awt.Dimension(144, 42));
+        btnNewPet.setBackground(new java.awt.Color(15, 118, 110));
+        btnNewPet.setForeground(new java.awt.Color(255, 255, 255));
         btnNewPet.addActionListener(this::btnNewPetActionPerformed);
-        pnlPetToolbar.add(btnNewPet);
 
-        add(pnlPetToolbar, java.awt.BorderLayout.NORTH);
 
-        splitPets.setDividerSize(7);
+        splitPets.setDividerSize(5);
+        splitPets.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         splitPets.setResizeWeight(0.618);
 
         pnlPetList.setBackground(new java.awt.Color(255, 255, 255));
-        pnlPetList.setBorder(javax.swing.BorderFactory.createEmptyBorder(21, 21, 21, 21));
-        pnlPetList.setMinimumSize(new java.awt.Dimension(300, 0));
+        pnlPetList.setBorder(javax.swing.BorderFactory.createEmptyBorder(13, 13, 13, 13));
+        pnlPetList.setMinimumSize(new java.awt.Dimension(300, 100));
         pnlPetList.setLayout(new java.awt.BorderLayout(0, 13));
 
-        lblPetListTitle.setFont(new java.awt.Font("Segoe UI", 1, 21)); // NOI18N
+        lblPetListTitle.setFont(new java.awt.Font("Segoe UI", 1, 21));
         lblPetListTitle.setText("Registered pets");
         lblPetListTitle.setAutoscrolls(true);
-        pnlPetList.add(lblPetListTitle, java.awt.BorderLayout.NORTH);
+        lblPetListTitle.setForeground(new java.awt.Color(15, 23, 42));
 
-        tblPets.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        tblPets.setFont(new java.awt.Font("Segoe UI", 0, 16));
         tblPets.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -460,11 +556,18 @@ public class PanelPet extends javax.swing.JPanel {
         tblPets.setMaximumSize(new java.awt.Dimension(32767, 42));
         tblPets.setMinimumSize(new java.awt.Dimension(0, 42));
         tblPets.setPreferredSize(new java.awt.Dimension(233, 42));
-        tblPets.setRowHeight(38);
+        tblPets.setRowHeight(34);
         tblPets.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         tblPets.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         tblPets.setShowHorizontalLines(true);
-        scrPetTable.setViewportView(tblPets);
+        tblPets.setShowVerticalLines(false);
+        tblPets.setColumnSelectionAllowed(false);
+        tblPets.setRowSelectionAllowed(true);
+        tblPets.setAutoCreateRowSorter(true);
+        tblPets.setBackground(new java.awt.Color(255, 255, 255));
+        tblPets.setForeground(new java.awt.Color(15, 23, 42));
+        tblPets.setSelectionBackground(new java.awt.Color(204, 251, 241));
+        tblPets.setSelectionForeground(new java.awt.Color(15, 23, 42));
         if (tblPets.getColumnModel().getColumnCount() > 0) {
             tblPets.getColumnModel().getColumn(0).setPreferredWidth(55);
             tblPets.getColumnModel().getColumn(1).setPreferredWidth(144);
@@ -473,18 +576,16 @@ public class PanelPet extends javax.swing.JPanel {
             tblPets.getColumnModel().getColumn(4).setPreferredWidth(89);
         }
 
-        pnlPetList.add(scrPetTable, java.awt.BorderLayout.CENTER);
 
-        lblPetCount.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        lblPetCount.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblPetCount.setText("Pets not loaded.");
-        pnlPetList.add(lblPetCount, java.awt.BorderLayout.SOUTH);
+        lblPetCount.setForeground(new java.awt.Color(71, 85, 105));
 
-        splitPets.setLeftComponent(pnlPetList);
 
         pnlPetEditor.setBackground(new java.awt.Color(255, 255, 255));
-        pnlPetEditor.setBorder(javax.swing.BorderFactory.createEmptyBorder(21, 21, 21, 21));
-        pnlPetEditor.setMinimumSize(new java.awt.Dimension(300, 0));
-        pnlPetEditor.setLayout(new java.awt.BorderLayout(0, 13));
+        pnlPetEditor.setBorder(javax.swing.BorderFactory.createEmptyBorder(13, 13, 13, 13));
+        pnlPetEditor.setMinimumSize(new java.awt.Dimension(360, 0));
+        pnlPetEditor.setLayout(new java.awt.BorderLayout(0, 8));
 
         scrPetForm.setBorder(null);
         scrPetForm.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -493,176 +594,291 @@ public class PanelPet extends javax.swing.JPanel {
         pnlPetForm.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         pnlPetForm.setLayout(new javax.swing.BoxLayout(pnlPetForm, javax.swing.BoxLayout.Y_AXIS));
 
-        lblPetFormTitle.setFont(new java.awt.Font("Segoe UI", 1, 21)); // NOI18N
+        lblPetFormTitle.setFont(new java.awt.Font("Segoe UI", 1, 21));
         lblPetFormTitle.setText("Add pet");
-        pnlPetForm.add(lblPetFormTitle);
-        pnlPetForm.add(filler7);
+        lblPetFormTitle.setForeground(new java.awt.Color(15, 23, 42));
 
-        lblPetId.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        lblPetId.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblPetId.setForeground(new java.awt.Color(71, 85, 105));
         lblPetId.setText("Pet ID: Auto-generated");
-        pnlPetForm.add(lblPetId);
-        pnlPetForm.add(filler8);
+        lblPetId.setMinimumSize(new java.awt.Dimension(0, 21));
+        lblPetId.setPreferredSize(new java.awt.Dimension(233, 21));
+        lblPetId.setMaximumSize(new java.awt.Dimension(32767, 21));
+        lblPetId.setAlignmentX(0.0F);
 
-        lblPetOwner.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        lblPetOwner.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblPetOwner.setText("Owner *");
-        pnlPetForm.add(lblPetOwner);
-        pnlPetForm.add(filler9);
+        lblPetOwner.setPreferredSize(new java.awt.Dimension(0, 21));
+        lblPetOwner.setForeground(new java.awt.Color(71, 85, 105));
 
-        cmbPetOwner.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        cmbPetOwner.setFont(new java.awt.Font("Segoe UI", 0, 16));
         cmbPetOwner.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select owner" }));
         cmbPetOwner.setAlignmentX(0.0F);
         cmbPetOwner.setMaximumSize(new java.awt.Dimension(32767, 42));
         cmbPetOwner.setMinimumSize(new java.awt.Dimension(0, 42));
         cmbPetOwner.setPreferredSize(new java.awt.Dimension(233, 42));
-        pnlPetForm.add(cmbPetOwner);
-        pnlPetForm.add(filler10);
 
-        lblPetName.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        lblPetName.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblPetName.setText("Pet name *");
-        pnlPetForm.add(lblPetName);
-        pnlPetForm.add(filler11);
+        lblPetName.setPreferredSize(new java.awt.Dimension(0, 21));
+        lblPetName.setForeground(new java.awt.Color(71, 85, 105));
 
-        txtPetName.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        txtPetName.setFont(new java.awt.Font("Segoe UI", 0, 16));
         txtPetName.setAlignmentX(0.0F);
         txtPetName.setMaximumSize(new java.awt.Dimension(32767, 42));
         txtPetName.setMinimumSize(new java.awt.Dimension(0, 42));
         txtPetName.setPreferredSize(new java.awt.Dimension(233, 42));
-        pnlPetForm.add(txtPetName);
-        pnlPetForm.add(filler12);
 
         pnlPetSpeciesGender.setBackground(new java.awt.Color(255, 255, 255));
         pnlPetSpeciesGender.setAlignmentX(0.0F);
-        pnlPetSpeciesGender.setMaximumSize(new java.awt.Dimension(32767, 84));
-        pnlPetSpeciesGender.setMinimumSize(new java.awt.Dimension(0, 84));
-        pnlPetSpeciesGender.setPreferredSize(new java.awt.Dimension(233, 84));
+        pnlPetSpeciesGender.setMaximumSize(new java.awt.Dimension(32767, 68));
+        pnlPetSpeciesGender.setMinimumSize(new java.awt.Dimension(0, 68));
+        pnlPetSpeciesGender.setPreferredSize(new java.awt.Dimension(233, 68));
         pnlPetSpeciesGender.setLayout(new java.awt.GridLayout(1, 2, 13, 0));
 
         pnlPetSpeciesGroup.setBackground(new java.awt.Color(255, 255, 255));
-        pnlPetSpeciesGroup.setLayout(new java.awt.BorderLayout(0, 8));
+        pnlPetSpeciesGroup.setLayout(new java.awt.BorderLayout(0, 5));
+        pnlPetSpeciesGroup.setMinimumSize(new java.awt.Dimension(0, 68));
+        pnlPetSpeciesGroup.setPreferredSize(new java.awt.Dimension(233, 68));
+        pnlPetSpeciesGroup.setMaximumSize(new java.awt.Dimension(32767, 68));
+        pnlPetSpeciesGroup.setAlignmentX(0.0F);
 
-        lblSpecies.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        lblSpecies.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblSpecies.setText("Species *");
-        lblSpecies.setPreferredSize(new java.awt.Dimension(63, 21));
-        pnlPetSpeciesGroup.add(lblSpecies, java.awt.BorderLayout.NORTH);
+        lblSpecies.setPreferredSize(new java.awt.Dimension(0, 21));
+        lblSpecies.setForeground(new java.awt.Color(71, 85, 105));
 
-        cmbSpecies.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        cmbSpecies.setFont(new java.awt.Font("Segoe UI", 0, 16));
         cmbSpecies.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select", "Dog", "Cat", "Bird", "Other" }));
         cmbSpecies.setAlignmentX(0.0F);
         cmbSpecies.setMaximumSize(new java.awt.Dimension(32767, 42));
         cmbSpecies.setMinimumSize(new java.awt.Dimension(0, 42));
-        cmbSpecies.setPreferredSize(new java.awt.Dimension(81, 42));
-        pnlPetSpeciesGroup.add(cmbSpecies, java.awt.BorderLayout.CENTER);
+        cmbSpecies.setPreferredSize(new java.awt.Dimension(233, 42));
 
-        pnlPetSpeciesGender.add(pnlPetSpeciesGroup);
 
         pnlPetGenderGroup.setBackground(new java.awt.Color(255, 255, 255));
-        pnlPetGenderGroup.setLayout(new java.awt.BorderLayout(0, 8));
+        pnlPetGenderGroup.setLayout(new java.awt.BorderLayout(0, 5));
+        pnlPetGenderGroup.setMinimumSize(new java.awt.Dimension(0, 68));
+        pnlPetGenderGroup.setPreferredSize(new java.awt.Dimension(233, 68));
+        pnlPetGenderGroup.setMaximumSize(new java.awt.Dimension(32767, 68));
+        pnlPetGenderGroup.setAlignmentX(0.0F);
 
-        lblGender.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        lblGender.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblGender.setText("Gender *");
-        lblGender.setPreferredSize(new java.awt.Dimension(63, 21));
-        pnlPetGenderGroup.add(lblGender, java.awt.BorderLayout.NORTH);
+        lblGender.setPreferredSize(new java.awt.Dimension(0, 21));
+        lblGender.setForeground(new java.awt.Color(71, 85, 105));
 
-        cmbGender.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        cmbGender.setFont(new java.awt.Font("Segoe UI", 0, 16));
         cmbGender.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Select", "Male", "Female", "Unknown" }));
         cmbGender.setAlignmentX(0.0F);
         cmbGender.setMaximumSize(new java.awt.Dimension(32767, 42));
         cmbGender.setMinimumSize(new java.awt.Dimension(0, 42));
-        cmbGender.setPreferredSize(new java.awt.Dimension(81, 42));
-        pnlPetGenderGroup.add(cmbGender, java.awt.BorderLayout.CENTER);
+        cmbGender.setPreferredSize(new java.awt.Dimension(233, 42));
 
-        pnlPetSpeciesGender.add(pnlPetGenderGroup);
 
-        pnlPetForm.add(pnlPetSpeciesGender);
-        pnlPetForm.add(filler13);
 
-        lblBreed.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        lblBreed.setText("Breed (Optional)");
-        pnlPetForm.add(lblBreed);
-        pnlPetForm.add(filler14);
+        lblBreed.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblBreed.setText("Breed (optional)");
+        lblBreed.setPreferredSize(new java.awt.Dimension(0, 21));
+        lblBreed.setForeground(new java.awt.Color(71, 85, 105));
 
-        txtBreed.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        txtBreed.setFont(new java.awt.Font("Segoe UI", 0, 16));
         txtBreed.setAlignmentX(0.0F);
         txtBreed.setMaximumSize(new java.awt.Dimension(32767, 42));
         txtBreed.setMinimumSize(new java.awt.Dimension(0, 42));
         txtBreed.setPreferredSize(new java.awt.Dimension(233, 42));
-        pnlPetForm.add(txtBreed);
-        pnlPetForm.add(filler15);
 
-        lblPetDob.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        lblPetDob.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblPetDob.setText("Date of Birth");
-        pnlPetForm.add(lblPetDob);
-        pnlPetForm.add(filler16);
+        lblPetDob.setPreferredSize(new java.awt.Dimension(0, 21));
+        lblPetDob.setForeground(new java.awt.Color(71, 85, 105));
 
-        spnPetDob.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        spnPetDob.setFont(new java.awt.Font("Segoe UI", 0, 16));
         spnPetDob.setModel(new javax.swing.SpinnerDateModel());
         spnPetDob.setAlignmentX(0.0F);
         spnPetDob.setEnabled(false);
         spnPetDob.setMaximumSize(new java.awt.Dimension(32767, 42));
         spnPetDob.setMinimumSize(new java.awt.Dimension(0, 42));
         spnPetDob.setPreferredSize(new java.awt.Dimension(233, 42));
-        pnlPetForm.add(spnPetDob);
-        pnlPetForm.add(filler17);
 
-        chkDobUnknown.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        chkDobUnknown.setFont(new java.awt.Font("Segoe UI", 0, 13));
         chkDobUnknown.setSelected(true);
-        chkDobUnknown.setText("Date of birth unknown");
+        chkDobUnknown.setText("Date unknown");
         chkDobUnknown.addActionListener(this::chkDobUnknownActionPerformed);
-        pnlPetForm.add(chkDobUnknown);
-        pnlPetForm.add(filler18);
 
-        lblPetAge.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        lblPetAge.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblPetAge.setText("Age: Unknown");
-        pnlPetForm.add(lblPetAge);
+        lblPetAge.setMinimumSize(new java.awt.Dimension(0, 21));
+        lblPetAge.setPreferredSize(new java.awt.Dimension(233, 21));
+        lblPetAge.setMaximumSize(new java.awt.Dimension(32767, 21));
+        lblPetAge.setAlignmentX(0.0F);
+        lblPetAge.setForeground(new java.awt.Color(71, 85, 105));
+        lblPetAge.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
-        scrPetForm.setViewportView(pnlPetForm);
+        scrPetForm.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 
-        pnlPetEditor.add(scrPetForm, java.awt.BorderLayout.CENTER);
 
         pnlPetActions.setBackground(new java.awt.Color(255, 255, 255));
         pnlPetActions.setAlignmentX(0.0F);
-        pnlPetActions.setLayout(new java.awt.BorderLayout(0, 8));
+        pnlPetActions.setLayout(new java.awt.BorderLayout(0, 5));
 
-        lblPetError.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        lblPetError.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblPetError.setForeground(new java.awt.Color(185, 28, 28));
         lblPetError.setText(" ");
         lblPetError.setPreferredSize(new java.awt.Dimension(0, 34));
-        pnlPetActions.add(lblPetError, java.awt.BorderLayout.NORTH);
+        lblPetError.setMinimumSize(new java.awt.Dimension(0, 34));
+        lblPetError.setMaximumSize(new java.awt.Dimension(32767, 34));
+        lblPetError.setAlignmentX(0.0F);
 
         pnlPetButtons.setBackground(new java.awt.Color(255, 255, 255));
-        pnlPetButtons.setPreferredSize(new java.awt.Dimension(0, 55));
+        pnlPetButtons.setPreferredSize(new java.awt.Dimension(0, 42));
         pnlPetButtons.setLayout(new java.awt.GridLayout(1, 3, 8, 0));
+        pnlPetButtons.setMinimumSize(new java.awt.Dimension(0, 42));
+        pnlPetButtons.setMaximumSize(new java.awt.Dimension(32767, 42));
+        pnlPetButtons.setAlignmentX(0.0F);
 
         btnSavePet.setBackground(new java.awt.Color(15, 118, 110));
-        btnSavePet.setFont(new java.awt.Font("Segoe UI", 1, 13)); // NOI18N
+        btnSavePet.setFont(new java.awt.Font("Segoe UI", 1, 14));
         btnSavePet.setForeground(new java.awt.Color(255, 255, 255));
         btnSavePet.setText("Save");
         btnSavePet.setMargin(new java.awt.Insets(8, 5, 8, 5));
         btnSavePet.addActionListener(this::btnSavePetActionPerformed);
-        pnlPetButtons.add(btnSavePet);
 
-        btnCancelPet.setFont(new java.awt.Font("Segoe UI", 1, 13)); // NOI18N
-        btnCancelPet.setForeground(new java.awt.Color(71, 85, 105));
-        btnCancelPet.setText("Cancel");
+        btnCancelPet.setFont(new java.awt.Font("Segoe UI", 0, 14));
+        btnCancelPet.setForeground(new java.awt.Color(15, 118, 110));
+        btnCancelPet.setText("Clear form");
         btnCancelPet.setMargin(new java.awt.Insets(8, 5, 8, 5));
+        btnCancelPet.setBackground(new java.awt.Color(255, 255, 255));
         btnCancelPet.addActionListener(this::btnCancelPetActionPerformed);
-        pnlPetButtons.add(btnCancelPet);
 
-        btnDeletePet.setFont(new java.awt.Font("Segoe UI", 1, 13)); // NOI18N
+        btnDeletePet.setFont(new java.awt.Font("Segoe UI", 0, 14));
+        btnDeletePet.addActionListener(this::btnDeletePetActionPerformed);
         btnDeletePet.setForeground(new java.awt.Color(185, 28, 28));
         btnDeletePet.setText("Delete");
         btnDeletePet.setEnabled(false);
         btnDeletePet.setMargin(new java.awt.Insets(8, 5, 8, 5));
+        btnDeletePet.setBackground(new java.awt.Color(255, 255, 255));
+
+
+
+
+        pnlPetFormHeader.setBackground(new java.awt.Color(255, 255, 255));
+        pnlPetFormHeader.setLayout(new java.awt.BorderLayout(0, 5));
+        pnlPetOwnerGroup.setBackground(new java.awt.Color(255, 255, 255));
+        pnlPetOwnerGroup.setLayout(new java.awt.BorderLayout(0, 5));
+        pnlPetOwnerGroup.setMinimumSize(new java.awt.Dimension(0, 68));
+        pnlPetOwnerGroup.setPreferredSize(new java.awt.Dimension(233, 68));
+        pnlPetOwnerGroup.setMaximumSize(new java.awt.Dimension(32767, 68));
+        pnlPetOwnerGroup.setAlignmentX(0.0F);
+        pnlPetNameGroup.setBackground(new java.awt.Color(255, 255, 255));
+        pnlPetNameGroup.setLayout(new java.awt.BorderLayout(0, 5));
+        pnlPetNameGroup.setMinimumSize(new java.awt.Dimension(0, 68));
+        pnlPetNameGroup.setPreferredSize(new java.awt.Dimension(233, 68));
+        pnlPetNameGroup.setMaximumSize(new java.awt.Dimension(32767, 68));
+        pnlPetNameGroup.setAlignmentX(0.0F);
+        pnlPetBreedGroup.setBackground(new java.awt.Color(255, 255, 255));
+        pnlPetBreedGroup.setLayout(new java.awt.BorderLayout(0, 5));
+        pnlPetBreedGroup.setMinimumSize(new java.awt.Dimension(0, 68));
+        pnlPetBreedGroup.setPreferredSize(new java.awt.Dimension(233, 68));
+        pnlPetBreedGroup.setMaximumSize(new java.awt.Dimension(32767, 68));
+        pnlPetBreedGroup.setAlignmentX(0.0F);
+        pnlPetIdentityRow.setBackground(new java.awt.Color(255, 255, 255));
+        pnlPetIdentityRow.setLayout(new java.awt.GridLayout(1, 2, 13, 0));
+        pnlPetIdentityRow.setMinimumSize(new java.awt.Dimension(0, 68));
+        pnlPetIdentityRow.setPreferredSize(new java.awt.Dimension(233, 68));
+        pnlPetIdentityRow.setMaximumSize(new java.awt.Dimension(32767, 68));
+        pnlPetIdentityRow.setAlignmentX(0.0F);
+        pnlPetDobGroup.setBackground(new java.awt.Color(255, 255, 255));
+        pnlPetDobGroup.setLayout(new java.awt.BorderLayout(0, 5));
+        pnlPetDobGroup.setMinimumSize(new java.awt.Dimension(0, 68));
+        pnlPetDobGroup.setPreferredSize(new java.awt.Dimension(233, 68));
+        pnlPetDobGroup.setMaximumSize(new java.awt.Dimension(32767, 68));
+        pnlPetDobGroup.setAlignmentX(0.0F);
+        pnlPetAgeGroup.setBackground(new java.awt.Color(255, 255, 255));
+        pnlPetAgeGroup.setLayout(new java.awt.BorderLayout(0, 5));
+        pnlPetAgeGroup.setMinimumSize(new java.awt.Dimension(0, 68));
+        pnlPetAgeGroup.setPreferredSize(new java.awt.Dimension(233, 68));
+        pnlPetAgeGroup.setMaximumSize(new java.awt.Dimension(32767, 68));
+        pnlPetAgeGroup.setAlignmentX(0.0F);
+        pnlPetBirthRow.setBackground(new java.awt.Color(255, 255, 255));
+        pnlPetBirthRow.setLayout(new java.awt.GridLayout(1, 2, 13, 0));
+        pnlPetBirthRow.setMinimumSize(new java.awt.Dimension(0, 68));
+        pnlPetBirthRow.setPreferredSize(new java.awt.Dimension(233, 68));
+        pnlPetBirthRow.setMaximumSize(new java.awt.Dimension(32767, 68));
+        pnlPetBirthRow.setAlignmentX(0.0F);
+        pnlPetFormGlue.setBackground(new java.awt.Color(255, 255, 255));
+        pnlPetFormGlue.setLayout(new javax.swing.BoxLayout(pnlPetFormGlue, javax.swing.BoxLayout.Y_AXIS));
+        pnlPetFormGlue.setMinimumSize(new java.awt.Dimension(0, 0));
+        pnlPetFormGlue.setPreferredSize(new java.awt.Dimension(0, 0));
+        pnlPetFormGlue.setMaximumSize(new java.awt.Dimension(32767, 32767));
+        pnlPetFormGlue.setAlignmentX(0.0F);
+
+        pnlPetSearchGroup.add(lblPetSearch);
+        pnlPetSearchGroup.add(filler1);
+        pnlPetSearchGroup.add(txtPetSearch);
+        pnlPetFilterGroup.add(lblSpeciesFilter);
+        pnlPetFilterGroup.add(filler2);
+        pnlPetFilterGroup.add(cmbSpeciesFilter);
+        pnlPetToolbar.add(pnlPetSearchGroup);
+        pnlPetToolbar.add(filler3);
+        pnlPetToolbar.add(pnlPetFilterGroup);
+        pnlPetToolbar.add(filler4);
+        pnlPetToolbar.add(btnSearchPet);
+        pnlPetToolbar.add(filler5);
+        pnlPetToolbar.add(filler6);
+        pnlPetToolbar.add(btnNewPet);
+        scrPetTable.setViewportView(tblPets);
+        pnlPetList.add(lblPetListTitle, java.awt.BorderLayout.NORTH);
+        pnlPetList.add(scrPetTable, java.awt.BorderLayout.CENTER);
+        pnlPetList.add(lblPetCount, java.awt.BorderLayout.SOUTH);
+        pnlPetFormHeader.add(lblPetFormTitle, java.awt.BorderLayout.NORTH);
+        pnlPetFormHeader.add(lblPetId, java.awt.BorderLayout.CENTER);
+        pnlPetOwnerGroup.add(lblPetOwner, java.awt.BorderLayout.NORTH);
+        pnlPetOwnerGroup.add(cmbPetOwner, java.awt.BorderLayout.CENTER);
+        pnlPetNameGroup.add(lblPetName, java.awt.BorderLayout.NORTH);
+        pnlPetNameGroup.add(txtPetName, java.awt.BorderLayout.CENTER);
+        pnlPetBreedGroup.add(lblBreed, java.awt.BorderLayout.NORTH);
+        pnlPetBreedGroup.add(txtBreed, java.awt.BorderLayout.CENTER);
+        pnlPetIdentityRow.add(pnlPetNameGroup);
+        pnlPetIdentityRow.add(pnlPetBreedGroup);
+        pnlPetSpeciesGroup.add(lblSpecies, java.awt.BorderLayout.NORTH);
+        pnlPetSpeciesGroup.add(cmbSpecies, java.awt.BorderLayout.CENTER);
+        pnlPetGenderGroup.add(lblGender, java.awt.BorderLayout.NORTH);
+        pnlPetGenderGroup.add(cmbGender, java.awt.BorderLayout.CENTER);
+        pnlPetSpeciesGender.add(pnlPetSpeciesGroup);
+        pnlPetSpeciesGender.add(pnlPetGenderGroup);
+        pnlPetDobGroup.add(lblPetDob, java.awt.BorderLayout.NORTH);
+        pnlPetDobGroup.add(spnPetDob, java.awt.BorderLayout.CENTER);
+        pnlPetAgeGroup.add(chkDobUnknown, java.awt.BorderLayout.NORTH);
+        pnlPetAgeGroup.add(lblPetAge, java.awt.BorderLayout.CENTER);
+        pnlPetBirthRow.add(pnlPetDobGroup);
+        pnlPetBirthRow.add(pnlPetAgeGroup);
+        pnlPetForm.add(pnlPetOwnerGroup);
+        pnlPetForm.add(filler10);
+        pnlPetForm.add(pnlPetIdentityRow);
+        pnlPetForm.add(filler12);
+        pnlPetForm.add(pnlPetSpeciesGender);
+        pnlPetForm.add(filler13);
+        pnlPetForm.add(pnlPetBirthRow);
+        pnlPetForm.add(pnlPetFormGlue);
+        scrPetForm.setViewportView(pnlPetForm);
+        pnlPetButtons.add(btnSavePet);
+        pnlPetButtons.add(btnCancelPet);
         pnlPetButtons.add(btnDeletePet);
-
+        pnlPetActions.add(lblPetError, java.awt.BorderLayout.NORTH);
         pnlPetActions.add(pnlPetButtons, java.awt.BorderLayout.CENTER);
-
+        pnlPetEditor.add(pnlPetFormHeader, java.awt.BorderLayout.NORTH);
+        pnlPetEditor.add(scrPetForm, java.awt.BorderLayout.CENTER);
         pnlPetEditor.add(pnlPetActions, java.awt.BorderLayout.SOUTH);
-
+        splitPets.setLeftComponent(pnlPetList);
         splitPets.setRightComponent(pnlPetEditor);
-
+        add(pnlPetToolbar, java.awt.BorderLayout.NORTH);
         add(splitPets, java.awt.BorderLayout.CENTER);
+        tblPets.getTableHeader().setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 13));
+        tblPets.getTableHeader().setPreferredSize(new java.awt.Dimension(0, 34));
+        tblPets.getTableHeader().setReorderingAllowed(false);
+        scrPetTable.setColumnHeaderView(tblPets.getTableHeader());
+        scrPetTable.getViewport().setBackground(java.awt.Color.WHITE);
     }// </editor-fold>//GEN-END:initComponents
 
     private void chkDobUnknownActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chkDobUnknownActionPerformed
@@ -683,7 +899,40 @@ public class PanelPet extends javax.swing.JPanel {
     }//GEN-LAST:event_btnNewPetActionPerformed
 
 
+    private void btnSearchPetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchPetActionPerformed
+        if (controller != null) {
+            controller.loadPets();
+        }
+    }//GEN-LAST:event_btnSearchPetActionPerformed
+
+    private void txtPetSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPetSearchActionPerformed
+        if (controller != null) {
+            controller.loadPets();
+        }
+    }//GEN-LAST:event_txtPetSearchActionPerformed
+
+    private void cmbSpeciesFilterActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmbSpeciesFilterActionPerformed
+        if (controller != null) {
+            controller.loadPets();
+        }
+    }//GEN-LAST:event_cmbSpeciesFilterActionPerformed
+
+    private void btnDeletePetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeletePetActionPerformed
+        if (controller != null) {
+            controller.deletePet();
+        }
+    }//GEN-LAST:event_btnDeletePetActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel pnlPetFormGlue;
+    private javax.swing.JPanel pnlPetBirthRow;
+    private javax.swing.JPanel pnlPetAgeGroup;
+    private javax.swing.JPanel pnlPetDobGroup;
+    private javax.swing.JPanel pnlPetIdentityRow;
+    private javax.swing.JPanel pnlPetBreedGroup;
+    private javax.swing.JPanel pnlPetNameGroup;
+    private javax.swing.JPanel pnlPetOwnerGroup;
+    private javax.swing.JPanel pnlPetFormHeader;
     private javax.swing.JButton btnCancelPet;
     private javax.swing.JButton btnDeletePet;
     private javax.swing.JButton btnNewPet;
@@ -696,22 +945,13 @@ public class PanelPet extends javax.swing.JPanel {
     private javax.swing.JComboBox<String> cmbSpeciesFilter;
     private javax.swing.Box.Filler filler1;
     private javax.swing.Box.Filler filler10;
-    private javax.swing.Box.Filler filler11;
     private javax.swing.Box.Filler filler12;
     private javax.swing.Box.Filler filler13;
-    private javax.swing.Box.Filler filler14;
-    private javax.swing.Box.Filler filler15;
-    private javax.swing.Box.Filler filler16;
-    private javax.swing.Box.Filler filler17;
-    private javax.swing.Box.Filler filler18;
     private javax.swing.Box.Filler filler2;
     private javax.swing.Box.Filler filler3;
     private javax.swing.Box.Filler filler4;
     private javax.swing.Box.Filler filler5;
     private javax.swing.Box.Filler filler6;
-    private javax.swing.Box.Filler filler7;
-    private javax.swing.Box.Filler filler8;
-    private javax.swing.Box.Filler filler9;
     private javax.swing.JLabel lblBreed;
     private javax.swing.JLabel lblGender;
     private javax.swing.JLabel lblPetAge;

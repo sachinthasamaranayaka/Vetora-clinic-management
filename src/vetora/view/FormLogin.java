@@ -18,7 +18,7 @@ public class FormLogin extends javax.swing.JFrame {
     
     private LoginController controller;
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(FormLogin.class.getName());
-    private char passwordEchoChar;
+    private final char passwordEchoChar;
     
     /**
      * Creates new form FormLogin
@@ -52,6 +52,7 @@ public class FormLogin extends javax.swing.JFrame {
     }
     public void showError(String message){
         jLabelError.setText(message);
+        jLabelError.setToolTipText(message);
     }
     public void clearPassword(){
         jPasswordFieldPassword.setText("");
@@ -76,7 +77,7 @@ public class FormLogin extends javax.swing.JFrame {
     public void setSigningIn(boolean busy){
         
         jButtonSignin.setEnabled(!busy);
-        jButtonSignin.setText(busy ? "Signing in..." : "Signin");
+        jButtonSignin.setText(busy ? "Signing in..." : "Sign in");
         jTextFieldUsername.setEditable(!busy);
         jPasswordFieldPassword.setEditable(!busy);
         jCheckBoxShowPassword.setEnabled(!busy);
@@ -92,217 +93,286 @@ public class FormLogin extends javax.swing.JFrame {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-        java.awt.GridBagConstraints gridBagConstraints;
 
         jPanelLoginMain = new javax.swing.JPanel();
         jPanelWelcome = new javax.swing.JPanel();
+        pnlWelcomeBrand = new javax.swing.JPanel();
+        jLabelLogo = new javax.swing.JLabel();
+        pnlWelcomeBrandText = new javax.swing.JPanel();
         jLabelVetora = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
+        pnlWelcomeMessage = new javax.swing.JPanel();
+        pnlWelcomeTopGlue = new javax.swing.JPanel();
+        jLabel5 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
+        pnlWelcomeTextGap = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
-        jLabelLogo = new javax.swing.JLabel();
+        pnlWelcomeBottomGlue = new javax.swing.JPanel();
         jPanelSignin = new javax.swing.JPanel();
+        pnlSigninTopGlue = new javax.swing.JPanel();
         jPanelLoginForm = new javax.swing.JPanel();
         jLabelPagetitle = new javax.swing.JLabel();
-        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8));
+        filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 5), new java.awt.Dimension(0, 5), new java.awt.Dimension(0, 5));
         jLabelPageSubtitle = new javax.swing.JLabel();
-        filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 34), new java.awt.Dimension(0, 34), new java.awt.Dimension(0, 34));
+        filler2 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 21), new java.awt.Dimension(0, 21), new java.awt.Dimension(0, 21));
+        pnlLoginUsernameGroup = new javax.swing.JPanel();
         jLabelUsername = new javax.swing.JLabel();
-        filler3 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8));
         jTextFieldUsername = new javax.swing.JTextField();
+        filler5 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13));
+        pnlLoginPasswordGroup = new javax.swing.JPanel();
         jLabelPassword = new javax.swing.JLabel();
-        filler4 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8));
-        filler5 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 21), new java.awt.Dimension(0, 21), new java.awt.Dimension(0, 21));
         jPasswordFieldPassword = new javax.swing.JPasswordField();
-        filler6 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13));
+        filler6 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8));
         jCheckBoxShowPassword = new javax.swing.JCheckBox();
-        filler7 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 21), new java.awt.Dimension(0, 21), new java.awt.Dimension(0, 21));
+        filler7 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13));
         jButtonSignin = new javax.swing.JButton();
-        filler8 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13), new java.awt.Dimension(0, 13));
+        filler8 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8));
         jLabelError = new javax.swing.JLabel();
-        filler9 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 21), new java.awt.Dimension(0, 21), new java.awt.Dimension(0, 21));
+        filler9 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8), new java.awt.Dimension(0, 8));
         jLabelContactAdmin = new javax.swing.JLabel();
+        pnlSigninBottomGlue = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Vetora - Sign In");
+        setMinimumSize(new java.awt.Dimension(1000, 620));
 
+        jPanelLoginMain.setPreferredSize(new java.awt.Dimension(1100, 640));
         jPanelLoginMain.setLayout(new java.awt.BorderLayout());
 
         jPanelWelcome.setBackground(new java.awt.Color(23, 43, 54));
+        jPanelWelcome.setBorder(javax.swing.BorderFactory.createEmptyBorder(34, 34, 34, 34));
+        jPanelWelcome.setPreferredSize(new java.awt.Dimension(420, 640));
+        jPanelWelcome.setLayout(new java.awt.BorderLayout(0, 34));
 
-        jLabelVetora.setFont(new java.awt.Font("Segoe UI", 1, 26)); // NOI18N
-        jLabelVetora.setForeground(new java.awt.Color(255, 255, 255));
-        jLabelVetora.setText("Vetora");
-
-        jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(204, 204, 204));
-        jLabel1.setText("Veterinary Clinic");
-
-        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel2.setText("happier lives.");
-
-        jLabel3.setFont(new java.awt.Font("Segoe UI", 0, 15)); // NOI18N
-        jLabel3.setForeground(new java.awt.Color(204, 204, 204));
-        jLabel3.setText("Your trusted partner in pet care.");
-
-        jLabel4.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabel4.setForeground(new java.awt.Color(204, 204, 204));
-        jLabel4.setText("Professional care for every pet.");
-
-        jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel5.setText("Healthy pets,");
+        pnlWelcomeBrand.setBackground(new java.awt.Color(23, 43, 54));
+        pnlWelcomeBrand.setPreferredSize(new java.awt.Dimension(0, 68));
+        pnlWelcomeBrand.setLayout(new java.awt.BorderLayout(13, 0));
 
         jLabelLogo.setBackground(new java.awt.Color(0, 153, 153));
-        jLabelLogo.setFont(new java.awt.Font("Segoe UI Emoji", 0, 48)); // NOI18N
-        jLabelLogo.setForeground(new java.awt.Color(203, 213, 225));
+        jLabelLogo.setFont(new java.awt.Font("Segoe UI Symbol", 1, 41)); // NOI18N
+        jLabelLogo.setForeground(new java.awt.Color(16, 185, 129));
         jLabelLogo.setText("🐾");
+        jLabelLogo.setMaximumSize(new java.awt.Dimension(42, 42));
+        jLabelLogo.setMinimumSize(new java.awt.Dimension(42, 42));
+        jLabelLogo.setPreferredSize(new java.awt.Dimension(42, 42));
+        pnlWelcomeBrand.add(jLabelLogo, java.awt.BorderLayout.WEST);
 
-        javax.swing.GroupLayout jPanelWelcomeLayout = new javax.swing.GroupLayout(jPanelWelcome);
-        jPanelWelcome.setLayout(jPanelWelcomeLayout);
-        jPanelWelcomeLayout.setHorizontalGroup(
-            jPanelWelcomeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanelWelcomeLayout.createSequentialGroup()
-                .addGroup(jPanelWelcomeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanelWelcomeLayout.createSequentialGroup()
-                        .addGap(42, 42, 42)
-                        .addComponent(jLabelLogo)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(jPanelWelcomeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabelVetora, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(jPanelWelcomeLayout.createSequentialGroup()
-                        .addGap(25, 25, 25)
-                        .addGroup(jPanelWelcomeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 156, Short.MAX_VALUE)
-                            .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                    .addGroup(jPanelWelcomeLayout.createSequentialGroup()
-                        .addGap(25, 25, 25)
-                        .addGroup(jPanelWelcomeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 202, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 236, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        jPanelWelcomeLayout.setVerticalGroup(
-            jPanelWelcomeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanelWelcomeLayout.createSequentialGroup()
-                .addGroup(jPanelWelcomeLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanelWelcomeLayout.createSequentialGroup()
-                        .addGap(27, 27, 27)
-                        .addComponent(jLabelVetora)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel1))
-                    .addGroup(jPanelWelcomeLayout.createSequentialGroup()
-                        .addGap(35, 35, 35)
-                        .addComponent(jLabelLogo, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(54, 54, 54)
-                .addComponent(jLabel5)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel4)
-                .addGap(46, 46, 46))
-        );
+        pnlWelcomeBrandText.setBackground(new java.awt.Color(23, 43, 54));
+        pnlWelcomeBrandText.setLayout(new java.awt.BorderLayout(0, 5));
 
-        jLabel2.getAccessibleContext().setAccessibleName("Healthy pets,\nhappier lives.");
+        jLabelVetora.setText("Vetora");
+        jLabelVetora.setFont(new java.awt.Font("Segoe UI", 1, 26)); // NOI18N
+        jLabelVetora.setForeground(new java.awt.Color(255, 255, 255));
+        pnlWelcomeBrandText.add(jLabelVetora, java.awt.BorderLayout.NORTH);
+
+        jLabel1.setText("Clinic management");
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(203, 213, 225));
+        pnlWelcomeBrandText.add(jLabel1, java.awt.BorderLayout.CENTER);
+
+        pnlWelcomeBrand.add(pnlWelcomeBrandText, java.awt.BorderLayout.CENTER);
+
+        jPanelWelcome.add(pnlWelcomeBrand, java.awt.BorderLayout.NORTH);
+
+        pnlWelcomeMessage.setBackground(new java.awt.Color(23, 43, 54));
+        pnlWelcomeMessage.setLayout(new javax.swing.BoxLayout(pnlWelcomeMessage, javax.swing.BoxLayout.Y_AXIS));
+
+        pnlWelcomeTopGlue.setBackground(new java.awt.Color(255, 255, 255));
+        pnlWelcomeTopGlue.setMinimumSize(new java.awt.Dimension(0, 0));
+        pnlWelcomeTopGlue.setPreferredSize(new java.awt.Dimension(0, 0));
+        pnlWelcomeTopGlue.setOpaque(false);
+        pnlWelcomeTopGlue.setAlignmentX(0.0F);
+        pnlWelcomeTopGlue.setLayout(new javax.swing.BoxLayout(pnlWelcomeTopGlue, javax.swing.BoxLayout.Y_AXIS));
+        pnlWelcomeMessage.add(pnlWelcomeTopGlue);
+
+        jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 34)); // NOI18N
+        jLabel5.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel5.setText("Healthy pets,");
+        jLabel5.setMaximumSize(new java.awt.Dimension(32767, 42));
+        jLabel5.setMinimumSize(new java.awt.Dimension(0, 42));
+        jLabel5.setPreferredSize(new java.awt.Dimension(0, 42));
+        pnlWelcomeMessage.add(jLabel5);
         jLabel5.getAccessibleContext().setAccessibleName("Healthy pets\n");
+
+        jLabel2.setFont(new java.awt.Font("Segoe UI", 1, 34)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(153, 246, 228));
+        jLabel2.setText("happier lives.");
+        jLabel2.setMaximumSize(new java.awt.Dimension(32767, 42));
+        jLabel2.setMinimumSize(new java.awt.Dimension(0, 42));
+        jLabel2.setPreferredSize(new java.awt.Dimension(0, 42));
+        pnlWelcomeMessage.add(jLabel2);
+        jLabel2.getAccessibleContext().setAccessibleName("Healthy pets,\nhappier lives.");
+
+        pnlWelcomeTextGap.setBackground(new java.awt.Color(255, 255, 255));
+        pnlWelcomeTextGap.setMinimumSize(new java.awt.Dimension(0, 13));
+        pnlWelcomeTextGap.setPreferredSize(new java.awt.Dimension(0, 13));
+        pnlWelcomeTextGap.setMaximumSize(new java.awt.Dimension(0, 13));
+        pnlWelcomeTextGap.setOpaque(false);
+        pnlWelcomeTextGap.setLayout(new javax.swing.BoxLayout(pnlWelcomeTextGap, javax.swing.BoxLayout.Y_AXIS));
+        pnlWelcomeMessage.add(pnlWelcomeTextGap);
+
+        jLabel3.setText("Your trusted partner in pet care.");
+        jLabel3.setMinimumSize(new java.awt.Dimension(0, 26));
+        jLabel3.setPreferredSize(new java.awt.Dimension(0, 26));
+        jLabel3.setMaximumSize(new java.awt.Dimension(32767, 26));
+        jLabel3.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(203, 213, 225));
+        pnlWelcomeMessage.add(jLabel3);
+
+        jLabel4.setText("Professional care for every pet.");
+        jLabel4.setMinimumSize(new java.awt.Dimension(0, 26));
+        jLabel4.setPreferredSize(new java.awt.Dimension(0, 26));
+        jLabel4.setMaximumSize(new java.awt.Dimension(32767, 26));
+        jLabel4.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(203, 213, 225));
+        pnlWelcomeMessage.add(jLabel4);
+
+        pnlWelcomeBottomGlue.setBackground(new java.awt.Color(255, 255, 255));
+        pnlWelcomeBottomGlue.setMinimumSize(new java.awt.Dimension(0, 0));
+        pnlWelcomeBottomGlue.setPreferredSize(new java.awt.Dimension(0, 0));
+        pnlWelcomeBottomGlue.setOpaque(false);
+        pnlWelcomeBottomGlue.setAlignmentX(0.0F);
+        pnlWelcomeBottomGlue.setLayout(new javax.swing.BoxLayout(pnlWelcomeBottomGlue, javax.swing.BoxLayout.Y_AXIS));
+        pnlWelcomeMessage.add(pnlWelcomeBottomGlue);
+
+        jPanelWelcome.add(pnlWelcomeMessage, java.awt.BorderLayout.CENTER);
 
         jPanelLoginMain.add(jPanelWelcome, java.awt.BorderLayout.WEST);
 
-        jPanelSignin.setBackground(new java.awt.Color(255, 255, 255));
         jPanelSignin.setForeground(new java.awt.Color(153, 153, 153));
         jPanelSignin.setPreferredSize(new java.awt.Dimension(682, 680));
-        jPanelSignin.setLayout(new java.awt.GridBagLayout());
+        jPanelSignin.setBorder(javax.swing.BorderFactory.createEmptyBorder(34, 34, 34, 34));
+        jPanelSignin.setBackground(new java.awt.Color(255, 255, 255));
+        jPanelSignin.setLayout(new javax.swing.BoxLayout(jPanelSignin, javax.swing.BoxLayout.Y_AXIS));
 
+        pnlSigninTopGlue.setBackground(new java.awt.Color(255, 255, 255));
+        pnlSigninTopGlue.setMinimumSize(new java.awt.Dimension(0, 0));
+        pnlSigninTopGlue.setPreferredSize(new java.awt.Dimension(0, 0));
+        pnlSigninTopGlue.setOpaque(false);
+        pnlSigninTopGlue.setLayout(new javax.swing.BoxLayout(pnlSigninTopGlue, javax.swing.BoxLayout.Y_AXIS));
+        jPanelSignin.add(pnlSigninTopGlue);
+
+        jPanelLoginForm.setMinimumSize(new java.awt.Dimension(377, 438));
+        jPanelLoginForm.setPreferredSize(new java.awt.Dimension(377, 438));
+        jPanelLoginForm.setMaximumSize(new java.awt.Dimension(377, 438));
         jPanelLoginForm.setBackground(new java.awt.Color(255, 255, 255));
         jPanelLoginForm.setLayout(new javax.swing.BoxLayout(jPanelLoginForm, javax.swing.BoxLayout.Y_AXIS));
 
+        jLabelPagetitle.setMinimumSize(new java.awt.Dimension(0, 42));
+        jLabelPagetitle.setPreferredSize(new java.awt.Dimension(377, 42));
+        jLabelPagetitle.setMaximumSize(new java.awt.Dimension(32767, 42));
+        jLabelPagetitle.setText("Welcome back");
         jLabelPagetitle.setFont(new java.awt.Font("Segoe UI", 1, 34)); // NOI18N
-        jLabelPagetitle.setText("Welcome Back");
+        jLabelPagetitle.setForeground(new java.awt.Color(15, 23, 42));
         jPanelLoginForm.add(jLabelPagetitle);
         jPanelLoginForm.add(filler1);
 
-        jLabelPageSubtitle.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        jLabelPageSubtitle.setForeground(new java.awt.Color(102, 102, 102));
         jLabelPageSubtitle.setText("Sign in to your Vetora account");
-        jLabelPageSubtitle.setPreferredSize(new java.awt.Dimension(377, 33));
+        jLabelPageSubtitle.setMinimumSize(new java.awt.Dimension(0, 21));
+        jLabelPageSubtitle.setPreferredSize(new java.awt.Dimension(377, 21));
+        jLabelPageSubtitle.setMaximumSize(new java.awt.Dimension(32767, 21));
+        jLabelPageSubtitle.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        jLabelPageSubtitle.setForeground(new java.awt.Color(71, 85, 105));
         jPanelLoginForm.add(jLabelPageSubtitle);
         jPanelLoginForm.add(filler2);
 
-        jLabelUsername.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        jLabelUsername.setForeground(new java.awt.Color(71, 85, 105));
+        pnlLoginUsernameGroup.setBackground(new java.awt.Color(255, 255, 255));
+        pnlLoginUsernameGroup.setMinimumSize(new java.awt.Dimension(0, 68));
+        pnlLoginUsernameGroup.setPreferredSize(new java.awt.Dimension(233, 68));
+        pnlLoginUsernameGroup.setMaximumSize(new java.awt.Dimension(32767, 68));
+        pnlLoginUsernameGroup.setAlignmentX(0.0F);
+        pnlLoginUsernameGroup.setLayout(new java.awt.BorderLayout(0, 5));
+
         jLabelUsername.setText("Username *");
-        jPanelLoginForm.add(jLabelUsername);
-        jPanelLoginForm.add(filler3);
+        jLabelUsername.setPreferredSize(new java.awt.Dimension(0, 21));
+        jLabelUsername.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        jLabelUsername.setForeground(new java.awt.Color(71, 85, 105));
+        pnlLoginUsernameGroup.add(jLabelUsername, java.awt.BorderLayout.NORTH);
 
-        jTextFieldUsername.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        jTextFieldUsername.setMinimumSize(new java.awt.Dimension(0, 42));
+        jTextFieldUsername.setPreferredSize(new java.awt.Dimension(233, 42));
+        jTextFieldUsername.setMaximumSize(new java.awt.Dimension(32767, 42));
         jTextFieldUsername.setAlignmentX(0.0F);
-        jTextFieldUsername.setMaximumSize(new java.awt.Dimension(377, 55));
-        jTextFieldUsername.setMinimumSize(new java.awt.Dimension(233, 55));
-        jTextFieldUsername.setPreferredSize(new java.awt.Dimension(377, 55));
-        jPanelLoginForm.add(jTextFieldUsername);
+        jTextFieldUsername.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        pnlLoginUsernameGroup.add(jTextFieldUsername, java.awt.BorderLayout.CENTER);
 
-        jLabelPassword.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        jLabelPassword.setForeground(new java.awt.Color(71, 85, 105));
-        jLabelPassword.setText("Password *");
-        jPanelLoginForm.add(jLabelPassword);
-        jPanelLoginForm.add(filler4);
+        jPanelLoginForm.add(pnlLoginUsernameGroup);
         jPanelLoginForm.add(filler5);
 
-        jPasswordFieldPassword.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        pnlLoginPasswordGroup.setBackground(new java.awt.Color(255, 255, 255));
+        pnlLoginPasswordGroup.setMinimumSize(new java.awt.Dimension(0, 68));
+        pnlLoginPasswordGroup.setPreferredSize(new java.awt.Dimension(233, 68));
+        pnlLoginPasswordGroup.setMaximumSize(new java.awt.Dimension(32767, 68));
+        pnlLoginPasswordGroup.setAlignmentX(0.0F);
+        pnlLoginPasswordGroup.setLayout(new java.awt.BorderLayout(0, 5));
+
+        jLabelPassword.setText("Password *");
+        jLabelPassword.setPreferredSize(new java.awt.Dimension(0, 21));
+        jLabelPassword.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        jLabelPassword.setForeground(new java.awt.Color(71, 85, 105));
+        pnlLoginPasswordGroup.add(jLabelPassword, java.awt.BorderLayout.NORTH);
+
+        jPasswordFieldPassword.setMinimumSize(new java.awt.Dimension(0, 42));
+        jPasswordFieldPassword.setPreferredSize(new java.awt.Dimension(233, 42));
+        jPasswordFieldPassword.setMaximumSize(new java.awt.Dimension(32767, 42));
         jPasswordFieldPassword.setAlignmentX(0.0F);
-        jPasswordFieldPassword.setMaximumSize(new java.awt.Dimension(377, 55));
-        jPasswordFieldPassword.setMinimumSize(new java.awt.Dimension(233, 55));
-        jPasswordFieldPassword.setPreferredSize(new java.awt.Dimension(377, 55));
-        jPanelLoginForm.add(jPasswordFieldPassword);
+        jPasswordFieldPassword.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        pnlLoginPasswordGroup.add(jPasswordFieldPassword, java.awt.BorderLayout.CENTER);
+
+        jPanelLoginForm.add(pnlLoginPasswordGroup);
         jPanelLoginForm.add(filler6);
 
-        jCheckBoxShowPassword.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         jCheckBoxShowPassword.setForeground(new java.awt.Color(51, 51, 51));
         jCheckBoxShowPassword.setText("Show password");
+        jCheckBoxShowPassword.setMinimumSize(new java.awt.Dimension(0, 21));
+        jCheckBoxShowPassword.setPreferredSize(new java.awt.Dimension(377, 21));
+        jCheckBoxShowPassword.setMaximumSize(new java.awt.Dimension(32767, 21));
+        jCheckBoxShowPassword.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         jCheckBoxShowPassword.addActionListener(this::jCheckBoxShowPasswordActionPerformed);
         jPanelLoginForm.add(jCheckBoxShowPassword);
         jPanelLoginForm.add(filler7);
 
         jButtonSignin.setBackground(new java.awt.Color(15, 118, 110));
-        jButtonSignin.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
+        jButtonSignin.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jButtonSignin.setForeground(new java.awt.Color(255, 255, 255));
         jButtonSignin.setText("Sign in");
         jButtonSignin.setBorder(null);
         jButtonSignin.setBorderPainted(false);
         jButtonSignin.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jButtonSignin.setFocusPainted(false);
-        jButtonSignin.setMaximumSize(new java.awt.Dimension(377, 55));
-        jButtonSignin.setMinimumSize(new java.awt.Dimension(233, 55));
+        jButtonSignin.setMaximumSize(new java.awt.Dimension(32767, 42));
+        jButtonSignin.setMinimumSize(new java.awt.Dimension(0, 42));
         jButtonSignin.setOpaque(true);
-        jButtonSignin.setPreferredSize(new java.awt.Dimension(377, 55));
+        jButtonSignin.setPreferredSize(new java.awt.Dimension(377, 42));
         jButtonSignin.addActionListener(this::jButtonSigninActionPerformed);
         jPanelLoginForm.add(jButtonSignin);
         jPanelLoginForm.add(filler8);
 
+        jLabelError.setMinimumSize(new java.awt.Dimension(0, 34));
+        jLabelError.setPreferredSize(new java.awt.Dimension(377, 34));
+        jLabelError.setMaximumSize(new java.awt.Dimension(32767, 34));
         jLabelError.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         jLabelError.setForeground(new java.awt.Color(185, 28, 28));
-        jLabelError.setMaximumSize(new java.awt.Dimension(377, 34));
-        jLabelError.setMinimumSize(new java.awt.Dimension(233, 34));
-        jLabelError.setPreferredSize(new java.awt.Dimension(377, 34));
         jPanelLoginForm.add(jLabelError);
         jPanelLoginForm.add(filler9);
 
-        jLabelContactAdmin.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
-        jLabelContactAdmin.setForeground(new java.awt.Color(102, 102, 102));
         jLabelContactAdmin.setText("<html>Need access?<br>Contact your clinic administrator.</html>");
+        jLabelContactAdmin.setMinimumSize(new java.awt.Dimension(0, 34));
+        jLabelContactAdmin.setPreferredSize(new java.awt.Dimension(377, 34));
+        jLabelContactAdmin.setMaximumSize(new java.awt.Dimension(32767, 34));
+        jLabelContactAdmin.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        jLabelContactAdmin.setForeground(new java.awt.Color(71, 85, 105));
         jPanelLoginForm.add(jLabelContactAdmin);
 
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.insets = new java.awt.Insets(34, 34, 34, 34);
-        jPanelSignin.add(jPanelLoginForm, gridBagConstraints);
+        jPanelSignin.add(jPanelLoginForm);
+
+        pnlSigninBottomGlue.setBackground(new java.awt.Color(255, 255, 255));
+        pnlSigninBottomGlue.setMinimumSize(new java.awt.Dimension(0, 0));
+        pnlSigninBottomGlue.setPreferredSize(new java.awt.Dimension(0, 0));
+        pnlSigninBottomGlue.setOpaque(false);
+        pnlSigninBottomGlue.setLayout(new javax.swing.BoxLayout(pnlSigninBottomGlue, javax.swing.BoxLayout.Y_AXIS));
+        jPanelSignin.add(pnlSigninBottomGlue);
 
         jPanelLoginMain.add(jPanelSignin, java.awt.BorderLayout.CENTER);
 
@@ -353,8 +423,6 @@ public class FormLogin extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.Box.Filler filler1;
     private javax.swing.Box.Filler filler2;
-    private javax.swing.Box.Filler filler3;
-    private javax.swing.Box.Filler filler4;
     private javax.swing.Box.Filler filler5;
     private javax.swing.Box.Filler filler6;
     private javax.swing.Box.Filler filler7;
@@ -381,5 +449,15 @@ public class FormLogin extends javax.swing.JFrame {
     private javax.swing.JPanel jPanelWelcome;
     private javax.swing.JPasswordField jPasswordFieldPassword;
     private javax.swing.JTextField jTextFieldUsername;
+    private javax.swing.JPanel pnlLoginPasswordGroup;
+    private javax.swing.JPanel pnlLoginUsernameGroup;
+    private javax.swing.JPanel pnlSigninBottomGlue;
+    private javax.swing.JPanel pnlSigninTopGlue;
+    private javax.swing.JPanel pnlWelcomeBottomGlue;
+    private javax.swing.JPanel pnlWelcomeBrand;
+    private javax.swing.JPanel pnlWelcomeBrandText;
+    private javax.swing.JPanel pnlWelcomeMessage;
+    private javax.swing.JPanel pnlWelcomeTextGap;
+    private javax.swing.JPanel pnlWelcomeTopGlue;
     // End of variables declaration//GEN-END:variables
 }

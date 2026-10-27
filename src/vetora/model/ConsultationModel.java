@@ -27,11 +27,8 @@ public class ConsultationModel {
         return visits;
     }
 
-    public PrescriptionItem createPrescriptionItem(String medicineName,
-            int quantity, String doseText, String frequency,
-            String duration, String instructions) throws ValidationException {
-        PrescriptionItem item = new PrescriptionItem(medicineName,
-                "External pharmacy", quantity, doseText, frequency, duration, instructions);
+    public PrescriptionItem createPrescriptionItem(String medicineName, int quantity, String doseText, String frequency, String duration, String instructions) throws ValidationException {
+        PrescriptionItem item = new PrescriptionItem(medicineName, "External pharmacy", quantity, doseText, frequency, duration, instructions);
         validatePrescriptionItem(item);
         return item;
     }
@@ -97,24 +94,17 @@ public class ConsultationModel {
         }
     }
 
-    public void saveDraft(Long appointmentId, String symptoms, String diagnosis,
-            String treatment, List<PrescriptionItem> items)
-            throws SQLException, ValidationException {
+    public void saveDraft(Long appointmentId, String symptoms, String diagnosis, String treatment, List<PrescriptionItem> items) throws SQLException, ValidationException {
         save(appointmentId, symptoms, diagnosis, treatment, items, false);
     }
 
-    public void finalizeConsultation(Long appointmentId, String symptoms,
-            String diagnosis, String treatment, List<PrescriptionItem> items)
-            throws SQLException, ValidationException {
+    public void finalizeConsultation(Long appointmentId, String symptoms,String diagnosis, String treatment, List<PrescriptionItem> items) throws SQLException, ValidationException {
         save(appointmentId, symptoms, diagnosis, treatment, items, true);
     }
 
-    private void save(Long appointmentId, String symptoms, String diagnosis,
-            String treatment, List<PrescriptionItem> items, boolean finalized)
-            throws SQLException, ValidationException {
+    private void save(Long appointmentId, String symptoms, String diagnosis, String treatment, List<PrescriptionItem> items, boolean finalized) throws SQLException, ValidationException {
         validateConsultation(appointmentId, symptoms, diagnosis, treatment, items, finalized);
-        dao.saveConsultation(appointmentId, cleanText(symptoms), cleanText(diagnosis),
-                cleanText(treatment), items, finalized);
+        dao.saveConsultation(appointmentId, cleanText(symptoms), cleanText(diagnosis), cleanText(treatment), items, finalized);
     }
 
     private String cleanText(String text) {

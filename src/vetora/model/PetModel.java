@@ -57,7 +57,7 @@ public class PetModel {
        String savedBreed = breed.isEmpty() ? null : breed;
        
        if(petId == null){
-           petDao.createPet(ownerId, petName, species, gender, breed, dob);
+           petDao.createPet(ownerId, petName, species, gender, savedBreed, dob);
        }
        else{
            petDao.updatePet(petId, ownerId, petName, species, gender, savedBreed, dob);
@@ -67,4 +67,22 @@ public class PetModel {
    public List<Pet> getAllPets() throws SQLException {
        return petDao.getAllPets();
    }
+
+    public List<Pet> searchPets(String keyword, String species) throws SQLException, ValidationException {
+        keyword = keyword == null ? "" : keyword.trim();
+        if (keyword.length() > 100) {
+            throw new ValidationException("Search: maximum 100 characters.");
+        }
+        if (species != null && !Arrays.asList("Dog", "Cat", "Bird", "Other").contains(species)) {
+            throw new ValidationException("Select a valid species filter.");
+        }
+        return petDao.searchPets(keyword, species);
+    }
+
+    public void deletePet(Long petId) throws SQLException, ValidationException {
+        if (petId == null || petId <= 0) {
+            throw new ValidationException("Select a pet to delete.");
+        }
+        petDao.deletePet(petId);
+    }
 }

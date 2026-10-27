@@ -4,6 +4,16 @@
  */
 package vetora.view;
 
+import java.awt.BorderLayout;
+import java.io.File;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.swing.JRViewer;
+import vetora.controller.ReportController;
+import vetora.service.ReportService;
+
 /**
  *
  * @author ASUS
@@ -15,7 +25,54 @@ public class PanelReports extends javax.swing.JPanel {
      */
     public PanelReports() {
         initComponents();
+        ReportController controller = new ReportController(this, new ReportService());
+        btnGenerateReport.addActionListener(e -> controller.generate());
+        btnExportPdf.addActionListener(e -> controller.exportPdf());
+        btnExportPdf.setEnabled(false);
+        lblReportStatus.setText("Ready to generate report.");
     }
+    
+    public void setReportBusy(boolean busy, boolean hasReport) {
+        btnGenerateReport.setEnabled(!busy);
+        btnExportPdf.setEnabled(!busy && hasReport);
+    }
+
+    public void setReportStatus(String message) {
+        lblReportStatus.setText(message);
+        lblReportStatus.setToolTipText(message);
+    }
+
+    public void showReport(JasperPrint report) {
+        pnlReportPreview.removeAll();
+        pnlReportPreview.add(new JRViewer(report), BorderLayout.CENTER);
+        pnlReportPreview.revalidate();
+        pnlReportPreview.repaint();
+    }
+
+    public void showReportError(String message, Throwable error) {
+        String details = error == null ? "Unknown error" : error.getMessage();
+        setReportStatus(message);
+        JOptionPane.showMessageDialog(this, message + "\n" + details, "Vetora Reports", JOptionPane.ERROR_MESSAGE);
+    }
+
+    public File choosePdfDestination() {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Export Consultation History PDF");
+        chooser.setSelectedFile(new File("Vetora_Consultation_History.pdf"));
+        chooser.setFileFilter(new FileNameExtensionFilter("PDF Documents", "pdf"));
+        if (chooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
+            return null;
+        }
+        File selected = chooser.getSelectedFile();
+        if (!selected.getName().toLowerCase(java.util.Locale.ROOT).endsWith(".pdf")) {
+            selected = new File(selected.getParentFile(), selected.getName() + ".pdf");
+        }
+        if (selected.exists() && JOptionPane.showConfirmDialog(this,"Replace existing file?", "Confirm overwrite", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
+            return null;
+        }
+        return selected;
+    }
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -25,20 +82,120 @@ public class PanelReports extends javax.swing.JPanel {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        lblReportEmpty = new javax.swing.JLabel();
+        lblReportHint = new javax.swing.JLabel();
+        lblReportPreviewTitle = new javax.swing.JLabel();
+        pnlReportHeading = new javax.swing.JPanel();
+        pnlReportCard = new javax.swing.JPanel();
+        pnlReportButtons = new javax.swing.JPanel();
+        pnlReportSelectorRow = new javax.swing.JPanel();
+        lblReportName = new javax.swing.JLabel();
+        lblReportType = new javax.swing.JLabel();
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
-        );
+        pnlReportToolbar = new javax.swing.JPanel();
+        btnExportPdf = new javax.swing.JButton();
+        btnGenerateReport = new javax.swing.JButton();
+        pnlReportPreview = new javax.swing.JPanel();
+        lblReportStatus = new javax.swing.JLabel();
+
+        setBackground(new java.awt.Color(245, 247, 250));
+        setLayout(new java.awt.BorderLayout(0, 13));
+
+        pnlReportToolbar.setLayout(new java.awt.BorderLayout(13, 5));
+        pnlReportToolbar.setBackground(new java.awt.Color(255, 255, 255));
+
+        btnExportPdf.setText("Export PDF");
+        btnExportPdf.setMinimumSize(new java.awt.Dimension(180, 42));
+        btnExportPdf.setPreferredSize(new java.awt.Dimension(180, 42));
+        btnExportPdf.setMaximumSize(new java.awt.Dimension(180, 42));
+        btnExportPdf.setFont(new java.awt.Font("Segoe UI", 0, 14));
+        btnExportPdf.setBackground(new java.awt.Color(255, 255, 255));
+        btnExportPdf.setForeground(new java.awt.Color(15, 118, 110));
+
+        btnGenerateReport.setText("Generate report");
+        btnGenerateReport.setMinimumSize(new java.awt.Dimension(180, 42));
+        btnGenerateReport.setPreferredSize(new java.awt.Dimension(180, 42));
+        btnGenerateReport.setMaximumSize(new java.awt.Dimension(180, 42));
+        btnGenerateReport.setFont(new java.awt.Font("Segoe UI", 1, 14));
+        btnGenerateReport.setBackground(new java.awt.Color(15, 118, 110));
+        btnGenerateReport.setForeground(new java.awt.Color(255, 255, 255));
+
+
+        pnlReportPreview.setLayout(new java.awt.BorderLayout());
+        pnlReportPreview.setBackground(new java.awt.Color(255, 255, 255));
+
+        lblReportStatus.setText("Ready to generate report.");
+        lblReportStatus.setMinimumSize(new java.awt.Dimension(0, 42));
+        lblReportStatus.setPreferredSize(new java.awt.Dimension(0, 42));
+        lblReportStatus.setMaximumSize(new java.awt.Dimension(32767, 42));
+        lblReportStatus.setAlignmentX(0.0F);
+        pnlReportToolbar.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 13, 8, 13));
+        pnlReportToolbar.setPreferredSize(new java.awt.Dimension(0, 84));
+        lblReportType.setText("Report");
+        lblReportType.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblReportType.setForeground(new java.awt.Color(71, 85, 105));
+        lblReportType.setMinimumSize(new java.awt.Dimension(0, 21));
+        lblReportType.setPreferredSize(new java.awt.Dimension(233, 21));
+        lblReportType.setMaximumSize(new java.awt.Dimension(32767, 21));
+        lblReportType.setAlignmentX(0.0F);
+        lblReportName.setText("Consultation history");
+        lblReportName.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblReportName.setForeground(new java.awt.Color(71, 85, 105));
+        pnlReportSelectorRow.setBackground(new java.awt.Color(255, 255, 255));
+        pnlReportSelectorRow.setLayout(new java.awt.BorderLayout(13, 0));
+        pnlReportButtons.setBackground(new java.awt.Color(255, 255, 255));
+        pnlReportButtons.setLayout(new java.awt.GridLayout(1, 2, 13, 0));
+        pnlReportButtons.setPreferredSize(new java.awt.Dimension(373, 42));
+        pnlReportCard.setBackground(new java.awt.Color(255, 255, 255));
+        pnlReportCard.setLayout(new java.awt.BorderLayout(0, 13));
+        pnlReportCard.setBorder(javax.swing.BorderFactory.createEmptyBorder(13, 13, 13, 13));
+        pnlReportHeading.setBackground(new java.awt.Color(255, 255, 255));
+        pnlReportHeading.setLayout(new java.awt.BorderLayout(0, 5));
+        lblReportPreviewTitle.setText("Report preview");
+        lblReportPreviewTitle.setFont(new java.awt.Font("Segoe UI", 1, 21));
+        lblReportPreviewTitle.setForeground(new java.awt.Color(15, 23, 42));
+        lblReportHint.setText("Generate consultation history to preview or export a PDF.");
+        lblReportHint.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblReportHint.setForeground(new java.awt.Color(71, 85, 105));
+        lblReportEmpty.setText("Generate a report to see the preview here.");
+        lblReportEmpty.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblReportEmpty.setForeground(new java.awt.Color(71, 85, 105));
+        lblReportEmpty.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblReportStatus.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 13, 0, 13));
+        lblReportStatus.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblReportStatus.setForeground(new java.awt.Color(71, 85, 105));
+
+        pnlReportButtons.add(btnExportPdf);
+        pnlReportButtons.add(btnGenerateReport);
+        pnlReportSelectorRow.add(lblReportName, java.awt.BorderLayout.CENTER);
+        pnlReportSelectorRow.add(pnlReportButtons, java.awt.BorderLayout.EAST);
+        pnlReportToolbar.add(lblReportType, java.awt.BorderLayout.NORTH);
+        pnlReportToolbar.add(pnlReportSelectorRow, java.awt.BorderLayout.CENTER);
+        pnlReportHeading.add(lblReportPreviewTitle, java.awt.BorderLayout.NORTH);
+        pnlReportHeading.add(lblReportHint, java.awt.BorderLayout.CENTER);
+        pnlReportPreview.add(lblReportEmpty, java.awt.BorderLayout.CENTER);
+        pnlReportCard.add(pnlReportHeading, java.awt.BorderLayout.NORTH);
+        pnlReportCard.add(pnlReportPreview, java.awt.BorderLayout.CENTER);
+        add(pnlReportToolbar, java.awt.BorderLayout.NORTH);
+        add(pnlReportCard, java.awt.BorderLayout.CENTER);
+        add(lblReportStatus, java.awt.BorderLayout.SOUTH);
     }// </editor-fold>//GEN-END:initComponents
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel lblReportEmpty;
+    private javax.swing.JLabel lblReportHint;
+    private javax.swing.JLabel lblReportPreviewTitle;
+    private javax.swing.JPanel pnlReportHeading;
+    private javax.swing.JPanel pnlReportCard;
+    private javax.swing.JPanel pnlReportButtons;
+    private javax.swing.JPanel pnlReportSelectorRow;
+    private javax.swing.JLabel lblReportName;
+    private javax.swing.JLabel lblReportType;
+    private javax.swing.JButton btnExportPdf;
+    private javax.swing.JButton btnGenerateReport;
+    private javax.swing.JLabel lblReportStatus;
+    private javax.swing.JPanel pnlReportPreview;
+    private javax.swing.JPanel pnlReportToolbar;
     // End of variables declaration//GEN-END:variables
 }

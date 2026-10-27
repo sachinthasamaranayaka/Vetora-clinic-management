@@ -10,6 +10,9 @@ import java.awt.Frame;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.function.Consumer;
+import vetora.controller.UserController;
 import vetora.model.User;
 
 /**
@@ -17,6 +20,11 @@ import vetora.model.User;
  * @author ASUS
  */
 public class PanelUser extends javax.swing.JPanel {
+    private UserController controller;
+    private List<User> displayedUsers = new ArrayList<>();
+    private boolean userListBusy;
+    private Consumer<User> savedUserAction;
+
 
     /**
      * Creates new form PanelUser
@@ -24,21 +32,37 @@ public class PanelUser extends javax.swing.JPanel {
     public PanelUser() {
         initComponents();
         setupUserUI();
+        tblUsers.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                btnEditUser.setEnabled(!userListBusy && getSelectedUser() != null);
+            }
+        });
     }
     
     private void setupUserUI(){
+        tblUsers.getTableHeader().setReorderingAllowed(false);
+        tblUsers.getTableHeader().setPreferredSize(new java.awt.Dimension(0, 34));
+        tblUsers.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        scrUsers.getViewport().setBackground(java.awt.Color.WHITE);
+        scrUsers.setColumnHeaderView(tblUsers.getTableHeader());
+        scrUsers.getVerticalScrollBar().setUnitIncrement(21);
+
         tblUsers.getTableHeader().setFont(new Font("Segoe UI",Font.BOLD,13));
         tblUsers.getTableHeader().setReorderingAllowed(false);
         
         scrUsers.getViewport().setBackground(Color.WHITE);
         scrUsers.getVerticalScrollBar().setSize(8,0);
-        scrUsers.getVerticalScrollBar().setUnitIncrement(16);
+        scrUsers.getVerticalScrollBar().setUnitIncrement(21);
              
     }
     
     public void displayUser(List<User> users){
         DefaultTableModel tableModel = (DefaultTableModel)tblUsers.getModel();
         
+        tblUsers.clearSelection();
+        tblUsers.getSelectionModel().setAnchorSelectionIndex(-1);
+        tblUsers.getSelectionModel().setLeadSelectionIndex(-1);
+        displayedUsers = new ArrayList<>(users);
         tableModel.setRowCount(0);
         
         for(User user : users){
@@ -51,11 +75,56 @@ public class PanelUser extends javax.swing.JPanel {
             });
         }
         
-        lblUserCount.setText("Users: "+users.size());
+        lblUserCount.setText(users.isEmpty() ? "No users found. Clear the search to show all users." : "Users: " + users.size());
     }
     
     public void showUserListMessage(String message){
         lblUserCount.setText(message);
+    }
+
+    public void setController(UserController controller){
+        this.controller = controller;
+    }
+
+    public String getUserSearch(){
+        return txtSearchUser.getText();
+    }
+
+    public boolean isUserListBusy(){
+        return userListBusy;
+    }
+
+    public void setUserListBusy(boolean busy){
+        userListBusy = busy;
+        btnNewUser.setEnabled(!busy);
+        btnSearchUser.setEnabled(!busy);
+        txtSearchUser.setEnabled(!busy);
+        tblUsers.setEnabled(!busy);
+        btnEditUser.setEnabled(!busy && getSelectedUser() != null);
+    }
+
+    public User getSelectedUser(){
+        int row = tblUsers.getSelectedRow();
+        int index = row < 0 ? -1 : tblUsers.convertRowIndexToModel(row);
+        return index >= 0 && index < displayedUsers.size() ? displayedUsers.get(index) : null;
+    }
+
+    public DialogUser createUserDialog(User selected){
+        Frame parent = (Frame)SwingUtilities.getWindowAncestor(this);
+        DialogUser dialog = new DialogUser(parent, true);
+        dialog.setUser(selected);
+        return dialog;
+    }
+
+    public void setSavedUserAction(Consumer<User> action){
+        savedUserAction = action;
+    }
+
+    public void userSaved(User user){
+        txtSearchUser.setText("");
+        if (savedUserAction != null) {
+            savedUserAction.accept(user);
+        }
     }
 
     /**
@@ -86,85 +155,87 @@ public class PanelUser extends javax.swing.JPanel {
         btnEditUser = new javax.swing.JButton();
 
         setBackground(new java.awt.Color(245, 247, 250));
-        setLayout(new java.awt.BorderLayout(21, 21));
+        setLayout(new java.awt.BorderLayout(0, 13));
 
         pnlUserToolbar.setBackground(new java.awt.Color(255, 255, 255));
-        pnlUserToolbar.setBorder(javax.swing.BorderFactory.createEmptyBorder(13, 13, 13, 13));
-        pnlUserToolbar.setLayout(new java.awt.BorderLayout(13, 8));
+        pnlUserToolbar.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 13, 8, 13));
+        pnlUserToolbar.setLayout(new java.awt.BorderLayout(13, 5));
+        pnlUserToolbar.setPreferredSize(new java.awt.Dimension(0, 84));
 
-        lblUserSearch.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        lblUserSearch.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblUserSearch.setForeground(new java.awt.Color(71, 85, 105));
         lblUserSearch.setText("Search users");
-        pnlUserToolbar.add(lblUserSearch, java.awt.BorderLayout.NORTH);
+        lblUserSearch.setMinimumSize(new java.awt.Dimension(0, 21));
+        lblUserSearch.setPreferredSize(new java.awt.Dimension(233, 21));
+        lblUserSearch.setMaximumSize(new java.awt.Dimension(32767, 21));
+        lblUserSearch.setAlignmentX(0.0F);
 
         pnlUserSearchRow.setBackground(new java.awt.Color(255, 255, 255));
-        pnlUserSearchRow.setPreferredSize(new java.awt.Dimension(0, 55));
+        pnlUserSearchRow.setPreferredSize(new java.awt.Dimension(0, 42));
         pnlUserSearchRow.setLayout(new java.awt.BorderLayout(13, 0));
+        pnlUserSearchRow.setMinimumSize(new java.awt.Dimension(0, 42));
+        pnlUserSearchRow.setMaximumSize(new java.awt.Dimension(32767, 42));
+        pnlUserSearchRow.setAlignmentX(0.0F);
 
-        txtSearchUser.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        txtSearchUser.setFont(new java.awt.Font("Segoe UI", 0, 16));
+        txtSearchUser.addActionListener(this::txtSearchUserActionPerformed);
         txtSearchUser.setToolTipText("Search by name or username");
-        txtSearchUser.setMinimumSize(new java.awt.Dimension(0, 55));
-        txtSearchUser.setPreferredSize(new java.awt.Dimension(233, 55));
-        pnlUserSearchRow.add(txtSearchUser, java.awt.BorderLayout.CENTER);
+        txtSearchUser.setMinimumSize(new java.awt.Dimension(0, 42));
+        txtSearchUser.setPreferredSize(new java.awt.Dimension(233, 42));
+        txtSearchUser.setMaximumSize(new java.awt.Dimension(32767, 42));
+        txtSearchUser.setAlignmentX(0.0F);
 
         pnlUserToolbarButtons.setBackground(new java.awt.Color(255, 255, 255));
         pnlUserToolbarButtons.setLayout(new javax.swing.BoxLayout(pnlUserToolbarButtons, javax.swing.BoxLayout.X_AXIS));
 
-        btnSearchUser.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        btnSearchUser.setFont(new java.awt.Font("Segoe UI", 0, 14));
+        btnSearchUser.addActionListener(this::btnSearchUserActionPerformed);
         btnSearchUser.setForeground(new java.awt.Color(15, 118, 110));
         btnSearchUser.setText("Search");
-        btnSearchUser.setMaximumSize(new java.awt.Dimension(89, 55));
-        btnSearchUser.setMinimumSize(new java.awt.Dimension(89, 55));
-        btnSearchUser.setPreferredSize(new java.awt.Dimension(89, 55));
-        pnlUserToolbarButtons.add(btnSearchUser);
+        btnSearchUser.setMaximumSize(new java.awt.Dimension(89, 42));
+        btnSearchUser.setMinimumSize(new java.awt.Dimension(89, 42));
+        btnSearchUser.setPreferredSize(new java.awt.Dimension(89, 42));
+        btnSearchUser.setBackground(new java.awt.Color(255, 255, 255));
 
         pnlUserToolbarGap.setBackground(new java.awt.Color(255, 255, 255));
         pnlUserToolbarGap.setMaximumSize(new java.awt.Dimension(13, 0));
         pnlUserToolbarGap.setMinimumSize(new java.awt.Dimension(13, 0));
         pnlUserToolbarGap.setOpaque(false);
         pnlUserToolbarGap.setPreferredSize(new java.awt.Dimension(13, 0));
-        pnlUserToolbarButtons.add(pnlUserToolbarGap);
 
         btnNewUser.setBackground(new java.awt.Color(15, 118, 110));
-        btnNewUser.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
+        btnNewUser.setFont(new java.awt.Font("Segoe UI", 1, 14));
         btnNewUser.setForeground(new java.awt.Color(255, 255, 255));
         btnNewUser.setText("New user");
-        btnNewUser.setEnabled(false);
-        btnNewUser.setMaximumSize(new java.awt.Dimension(144, 55));
-        btnNewUser.setMinimumSize(new java.awt.Dimension(144, 55));
-        btnNewUser.setPreferredSize(new java.awt.Dimension(144, 55));
+        btnNewUser.setEnabled(true);
+        btnNewUser.setMaximumSize(new java.awt.Dimension(144, 42));
+        btnNewUser.setMinimumSize(new java.awt.Dimension(144, 42));
+        btnNewUser.setPreferredSize(new java.awt.Dimension(144, 42));
         btnNewUser.addActionListener(this::btnNewUserActionPerformed);
-        pnlUserToolbarButtons.add(btnNewUser);
 
-        pnlUserSearchRow.add(pnlUserToolbarButtons, java.awt.BorderLayout.EAST);
 
-        pnlUserToolbar.add(pnlUserSearchRow, java.awt.BorderLayout.CENTER);
 
-        add(pnlUserToolbar, java.awt.BorderLayout.NORTH);
 
         pnlUserList.setBackground(new java.awt.Color(255, 255, 255));
-        pnlUserList.setBorder(javax.swing.BorderFactory.createEmptyBorder(21, 21, 21, 21));
+        pnlUserList.setBorder(javax.swing.BorderFactory.createEmptyBorder(13, 13, 13, 13));
         pnlUserList.setLayout(new java.awt.BorderLayout(0, 13));
 
         pnlUserListHeader.setBackground(new java.awt.Color(255, 255, 255));
-        pnlUserListHeader.setLayout(new java.awt.BorderLayout(0, 8));
+        pnlUserListHeader.setLayout(new java.awt.BorderLayout(0, 5));
 
-        lblUserListTitle.setFont(new java.awt.Font("Segoe UI", 1, 21)); // NOI18N
+        lblUserListTitle.setFont(new java.awt.Font("Segoe UI", 1, 21));
         lblUserListTitle.setForeground(new java.awt.Color(15, 23, 42));
         lblUserListTitle.setText("Registered users");
-        pnlUserListHeader.add(lblUserListTitle, java.awt.BorderLayout.NORTH);
 
-        lblUserListHint.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        lblUserListHint.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblUserListHint.setForeground(new java.awt.Color(71, 85, 105));
-        lblUserListHint.setText("Select a user to update their account.");
-        pnlUserListHeader.add(lblUserListHint, java.awt.BorderLayout.CENTER);
+        lblUserListHint.setText("Select an account to edit details, change its password or set it inactive.");
 
-        pnlUserList.add(pnlUserListHeader, java.awt.BorderLayout.NORTH);
 
         scrUsers.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(226, 232, 240)));
         scrUsers.setMinimumSize(new java.awt.Dimension(0, 144));
 
-        tblUsers.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        tblUsers.setFont(new java.awt.Font("Segoe UI", 0, 16));
         tblUsers.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -196,7 +267,13 @@ public class PanelUser extends javax.swing.JPanel {
         tblUsers.setSelectionForeground(new java.awt.Color(15, 23, 42));
         tblUsers.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         tblUsers.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        scrUsers.setViewportView(tblUsers);
+        tblUsers.setShowHorizontalLines(true);
+        tblUsers.setShowVerticalLines(false);
+        tblUsers.setColumnSelectionAllowed(false);
+        tblUsers.setRowSelectionAllowed(true);
+        tblUsers.setAutoCreateRowSorter(true);
+        tblUsers.setBackground(new java.awt.Color(255, 255, 255));
+        tblUsers.setForeground(new java.awt.Color(15, 23, 42));
         tblUsers.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         if (tblUsers.getColumnModel().getColumnCount() > 0) {
             tblUsers.getColumnModel().getColumn(0).setPreferredWidth(55);
@@ -206,37 +283,76 @@ public class PanelUser extends javax.swing.JPanel {
             tblUsers.getColumnModel().getColumn(4).setPreferredWidth(89);
         }
 
-        pnlUserList.add(scrUsers, java.awt.BorderLayout.CENTER);
 
-        add(pnlUserList, java.awt.BorderLayout.CENTER);
 
         pnlUserFooter.setBackground(new java.awt.Color(245, 247, 250));
-        pnlUserFooter.setPreferredSize(new java.awt.Dimension(0, 55));
+        pnlUserFooter.setPreferredSize(new java.awt.Dimension(0, 42));
         pnlUserFooter.setLayout(new java.awt.BorderLayout(13, 0));
 
-        lblUserCount.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        lblUserCount.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblUserCount.setForeground(new java.awt.Color(71, 85, 105));
         lblUserCount.setText("Users not loaded.");
-        pnlUserFooter.add(lblUserCount, java.awt.BorderLayout.CENTER);
 
-        btnEditUser.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        btnEditUser.setFont(new java.awt.Font("Segoe UI", 0, 14));
+        btnEditUser.addActionListener(this::btnEditUserActionPerformed);
         btnEditUser.setForeground(new java.awt.Color(15, 118, 110));
         btnEditUser.setText("Edit user");
         btnEditUser.setEnabled(false);
-        btnEditUser.setMaximumSize(new java.awt.Dimension(144, 55));
-        btnEditUser.setMinimumSize(new java.awt.Dimension(144, 55));
-        btnEditUser.setPreferredSize(new java.awt.Dimension(144, 55));
-        pnlUserFooter.add(btnEditUser, java.awt.BorderLayout.EAST);
+        btnEditUser.setMaximumSize(new java.awt.Dimension(144, 42));
+        btnEditUser.setMinimumSize(new java.awt.Dimension(144, 42));
+        btnEditUser.setPreferredSize(new java.awt.Dimension(144, 42));
+        btnEditUser.setBackground(new java.awt.Color(255, 255, 255));
 
+        pnlUserFooter.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 13, 0, 13));
+
+        pnlUserToolbarButtons.add(btnSearchUser);
+        pnlUserToolbarButtons.add(pnlUserToolbarGap);
+        pnlUserToolbarButtons.add(btnNewUser);
+        pnlUserSearchRow.add(txtSearchUser, java.awt.BorderLayout.CENTER);
+        pnlUserSearchRow.add(pnlUserToolbarButtons, java.awt.BorderLayout.EAST);
+        pnlUserToolbar.add(lblUserSearch, java.awt.BorderLayout.NORTH);
+        pnlUserToolbar.add(pnlUserSearchRow, java.awt.BorderLayout.CENTER);
+        pnlUserListHeader.add(lblUserListTitle, java.awt.BorderLayout.NORTH);
+        pnlUserListHeader.add(lblUserListHint, java.awt.BorderLayout.CENTER);
+        scrUsers.setViewportView(tblUsers);
+        pnlUserList.add(pnlUserListHeader, java.awt.BorderLayout.NORTH);
+        pnlUserList.add(scrUsers, java.awt.BorderLayout.CENTER);
+        pnlUserFooter.add(lblUserCount, java.awt.BorderLayout.CENTER);
+        pnlUserFooter.add(btnEditUser, java.awt.BorderLayout.EAST);
+        add(pnlUserToolbar, java.awt.BorderLayout.NORTH);
+        add(pnlUserList, java.awt.BorderLayout.CENTER);
         add(pnlUserFooter, java.awt.BorderLayout.SOUTH);
+        tblUsers.getTableHeader().setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 13));
+        tblUsers.getTableHeader().setPreferredSize(new java.awt.Dimension(0, 34));
+        tblUsers.getTableHeader().setReorderingAllowed(false);
+        scrUsers.setColumnHeaderView(tblUsers.getTableHeader());
+        scrUsers.getViewport().setBackground(java.awt.Color.WHITE);
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnNewUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNewUserActionPerformed
-        Frame parent = (Frame)SwingUtilities.getWindowAncestor(this);
-        DialogUser dialog = new DialogUser(parent, true);
-        dialog.setVisible(true);
+        if (controller != null) {
+            controller.newUser();
+        }
     }//GEN-LAST:event_btnNewUserActionPerformed
 
+
+    private void btnEditUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditUserActionPerformed
+        if (controller != null) {
+            controller.editUser();
+        }
+    }//GEN-LAST:event_btnEditUserActionPerformed
+
+    private void btnSearchUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchUserActionPerformed
+        if (controller != null) {
+            controller.loadUsers();
+        }
+    }//GEN-LAST:event_btnSearchUserActionPerformed
+
+    private void txtSearchUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchUserActionPerformed
+        if (controller != null) {
+            controller.loadUsers();
+        }
+    }//GEN-LAST:event_txtSearchUserActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnEditUser;

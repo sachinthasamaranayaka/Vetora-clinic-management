@@ -104,6 +104,7 @@ public class AppointmentController {
             return;
         }
 
+        Appointment original = view.getReschedulingAppointment();
         Long petId = view.getAppointmentPetId();
 
         LocalDate date;
@@ -121,6 +122,7 @@ public class AppointmentController {
 
         String reason = view.getAppointmentReason();
 
+        appointmentLoadVersion++;
         savingAppointment = true;
         view.setAppointmentBusy(true);
         view.showAppointmentError(" ");
@@ -128,6 +130,10 @@ public class AppointmentController {
         new SwingWorker<Long, Void>() {
             @Override
             protected Long doInBackground() throws Exception {
+                if (original != null) {
+                    model.rescheduleAppointment(original, date, time, reason);
+                    return original.getAppointmentId();
+                }
                 return model.bookAppointment(petId, date, time, reason);
             }
 
@@ -167,20 +173,20 @@ public class AppointmentController {
                     view.clearAppointmentForm();
                     view.showBookedDateInFilters(date);
                     loadAppointments();
-                    view.showAppointmentBooked(savedId);
+                    view.showAppointmentSaved(savedId, original != null);
                 }
             }
         }.execute();
     }
     
     public void newAppointment(){
-        if(!loadingOptions && !savingAppointment && !changingAppointmentStatus){
+        if(!loadingOptions && !savingAppointment && !changingAppointmentStatus && view.confirmDiscardAppointmentChanges()){
             view.clearAppointmentForm();
         }
     }
     
     public void loadAppointments() {
-        if(changingAppointmentStatus){
+        if(changingAppointmentStatus || savingAppointment){
             return;
         }
         
@@ -261,6 +267,12 @@ public class AppointmentController {
 
         long appointmentId = selected.getAppointmentId();
 
+        if (view.getReschedulingAppointment() != null) {
+            return;
+        }
+        if ("No-Show".equals(newStatus) && !view.confirmNoShowAppointment(appointmentId)) {
+            return;
+        }
         if ("Cancelled".equals(newStatus) && !view.confirmCancelAppointment(appointmentId)) {
             return;
         }
@@ -318,5 +330,23 @@ public class AppointmentController {
                 }
             }
         }.execute();
+    }
+
+    public void noShowAppointment(){
+        changeSelectedAppointmentStatus("No-Show");
+    }
+
+    public void rescheduleAppointment(){
+        if (loadingOptions || savingAppointment || changingAppointmentStatus) {
+            return;
+        }
+        Appointment selected = view.getSelectedAppointment();
+        if (selected == null || !"Scheduled".equals(selected.getStatus())) {
+            view.showAppointmentListMessage("Select a scheduled appointment to reschedule.");
+            return;
+        }
+        if (view.confirmDiscardAppointmentChanges()) {
+            view.showRescheduleAppointment(selected);
+        }
     }
 }

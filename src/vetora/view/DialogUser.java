@@ -8,6 +8,10 @@ import javax.swing.JDialog;
 import javax.swing.WindowConstants;
 import java.awt.Color;
 import java.awt.Frame;
+import java.awt.Dimension;
+import java.awt.Toolkit;
+import vetora.model.User;
+import vetora.controller.UserDialogController;
 
 /**
  *
@@ -16,24 +20,33 @@ import java.awt.Frame;
 public class DialogUser extends JDialog {
         
     private boolean savingUser = false;
+    private UserDialogController controller;
+    private User originalUser;
+    private User savedUser;
     
-    private char passwordEchoChar;
-    private char confirmPasswordEchoChar;
+    private final char passwordEchoChar;
+    private final char confirmPasswordEchoChar;
     
     public DialogUser(Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
         setupUserDialog();
+        Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+        setSize(Math.min(640, screen.width - 40), Math.min(570, screen.height - 80));
         setLocationRelativeTo(parent);
+        getRootPane().setDefaultButton(btnSaveUser);
  
         //Set password
         passwordEchoChar = pwdUserPassword.getEchoChar();
         confirmPasswordEchoChar = pwdUserConfirmPassword.getEchoChar();
     }
     
-    private void setSavingUser(boolean saving) {
+    public void setSavingUser(boolean saving) {
 
         savingUser = saving;
+        cmbUserRole.setEnabled(!saving);
+        chkUserActive.setEnabled(!saving);
+        chkShowUserPassword.setEnabled(!saving);
 
         btnSaveUser.setEnabled(!saving);
         btnSaveUser.setText(saving ? "Saving..." : "Save");
@@ -49,7 +62,83 @@ public class DialogUser extends JDialog {
     
     private void setupUserDialog(){
         scrUserForm.getViewport().setBackground(Color.WHITE);
-        scrUserForm.getVerticalScrollBar().setUnitIncrement(16);
+        scrUserForm.getVerticalScrollBar().setUnitIncrement(21);
+    }
+
+    public void setController(UserDialogController controller){
+        this.controller = controller;
+    }
+
+    public void setUser(User user){
+        originalUser = user;
+        boolean editing = user != null;
+        setTitle(editing ? "Edit user - Vetora" : "New user - Vetora");
+        lblUserDialogTitle.setText(editing ? "Edit user" : "New user");
+        lblUserDialogSubtitle.setText(editing ? "Update account details. * Required fields" : "Create a staff account. * Required fields");
+        txtUserFullName.setText(editing ? user.getFullName() : "");
+        txtUserUsername.setText(editing ? user.getUsername() : "");
+        cmbUserRole.setSelectedItem(editing ? user.getRole() : "Select role");
+        chkUserActive.setSelected(!editing || "Active".equals(user.getStatus()));
+        pwdUserPassword.setText("");
+        pwdUserConfirmPassword.setText("");
+        lblUserPassword.setText(editing ? "New password" : "Password *");
+        lblUserConfirmPassword.setText(editing ? "Confirm new password" : "Confirm password *");
+        lblUserPasswordHint.setText(editing
+                ? "<html>Leave both password fields blank to keep the current password.<br>New passwords: 6-128 characters.</html>"
+                : "<html>Use a password of 6-128 characters.</html>");
+        showUserError(" ");
+    }
+
+    public User getOriginalUser(){
+        return originalUser;
+    }
+    
+    public User getSavedUser(){ 
+        return savedUser; 
+    }
+    
+    public String getUserFullName(){
+        return txtUserFullName.getText(); 
+    }
+    
+    public String getUserUsername(){ 
+        return txtUserUsername.getText();
+    }
+    
+    public String getUserRole(){ 
+        return (String)cmbUserRole.getSelectedItem();
+    }
+    
+    public boolean isUserActive(){ 
+        return chkUserActive.isSelected();
+    }
+    
+    public char[] getUserPassword(){ 
+        return pwdUserPassword.getPassword(); 
+    }
+    
+    public char[] getUserConfirmation(){
+        return pwdUserConfirmPassword.getPassword(); 
+    }
+
+    public void showUserError(String message){
+        lblUserError.setText("<html>" + message.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;") + "</html>");
+        lblUserError.setToolTipText(message.trim().isEmpty() ? null : message);
+    }
+
+    public void completeUserSave(User user){
+        savedUser = user;
+        dispose();
+    }
+
+    @Override
+    public void dispose(){
+        if (savingUser) {
+            return;
+        }
+        pwdUserPassword.setText("");
+        pwdUserConfirmPassword.setText("");
+        super.dispose();
     }
 
     /**
@@ -60,6 +149,7 @@ public class DialogUser extends JDialog {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+        pnlUserIdentityRow = new javax.swing.JPanel();
 
         pnlUserDialog = new javax.swing.JPanel();
         pnlUserDialogHeader = new javax.swing.JPanel();
@@ -70,7 +160,6 @@ public class DialogUser extends JDialog {
         pnlUserNameGroup = new javax.swing.JPanel();
         lblUserFullName = new javax.swing.JLabel();
         txtUserFullName = new javax.swing.JTextField();
-        pnlUserGap1 = new javax.swing.JPanel();
         pnlUserUsernameGroup = new javax.swing.JPanel();
         lblUserUsername = new javax.swing.JLabel();
         txtUserUsername = new javax.swing.JTextField();
@@ -108,23 +197,20 @@ public class DialogUser extends JDialog {
 
         pnlUserDialog.setBackground(new java.awt.Color(255, 255, 255));
         pnlUserDialog.setBorder(javax.swing.BorderFactory.createEmptyBorder(21, 21, 21, 21));
-        pnlUserDialog.setPreferredSize(new java.awt.Dimension(610, 720));
-        pnlUserDialog.setLayout(new java.awt.BorderLayout(0, 21));
+        pnlUserDialog.setPreferredSize(new java.awt.Dimension(620, 530));
+        pnlUserDialog.setLayout(new java.awt.BorderLayout(0, 13));
 
         pnlUserDialogHeader.setBackground(new java.awt.Color(255, 255, 255));
-        pnlUserDialogHeader.setLayout(new java.awt.BorderLayout(0, 8));
+        pnlUserDialogHeader.setLayout(new java.awt.BorderLayout(0, 5));
 
-        lblUserDialogTitle.setFont(new java.awt.Font("Segoe UI", 1, 21)); // NOI18N
+        lblUserDialogTitle.setFont(new java.awt.Font("Segoe UI", 1, 21));
         lblUserDialogTitle.setForeground(new java.awt.Color(15, 23, 42));
         lblUserDialogTitle.setText("New user");
-        pnlUserDialogHeader.add(lblUserDialogTitle, java.awt.BorderLayout.NORTH);
 
-        lblUserDialogSubtitle.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        lblUserDialogSubtitle.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblUserDialogSubtitle.setForeground(new java.awt.Color(71, 85, 105));
         lblUserDialogSubtitle.setText("Create a staff account. * Required fields");
-        pnlUserDialogHeader.add(lblUserDialogSubtitle, java.awt.BorderLayout.CENTER);
 
-        pnlUserDialog.add(pnlUserDialogHeader, java.awt.BorderLayout.NORTH);
 
         scrUserForm.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
         scrUserForm.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -133,207 +219,200 @@ public class DialogUser extends JDialog {
         pnlUserForm.setLayout(new javax.swing.BoxLayout(pnlUserForm, javax.swing.BoxLayout.Y_AXIS));
 
         pnlUserNameGroup.setBackground(new java.awt.Color(255, 255, 255));
-        pnlUserNameGroup.setMinimumSize(new java.awt.Dimension(0, 84));
-        pnlUserNameGroup.setMaximumSize(new java.awt.Dimension(32767, 84));
+        pnlUserNameGroup.setMinimumSize(new java.awt.Dimension(0, 68));
+        pnlUserNameGroup.setMaximumSize(new java.awt.Dimension(32767, 68));
         pnlUserNameGroup.setAlignmentX(0.0F);
-        pnlUserNameGroup.setLayout(new java.awt.BorderLayout(0, 8));
+        pnlUserNameGroup.setLayout(new java.awt.BorderLayout(0, 5));
+        pnlUserNameGroup.setPreferredSize(new java.awt.Dimension(233, 68));
 
-        lblUserFullName.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        lblUserFullName.setForeground(new java.awt.Color(15, 23, 42));
+        lblUserFullName.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblUserFullName.setForeground(new java.awt.Color(71, 85, 105));
         lblUserFullName.setText("Full name *");
         lblUserFullName.setPreferredSize(new java.awt.Dimension(0, 21));
-        pnlUserNameGroup.add(lblUserFullName, java.awt.BorderLayout.NORTH);
 
-        txtUserFullName.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        txtUserFullName.setPreferredSize(new java.awt.Dimension(233, 55));
-        txtUserFullName.setMinimumSize(new java.awt.Dimension(0, 55));
-        pnlUserNameGroup.add(txtUserFullName, java.awt.BorderLayout.CENTER);
+        txtUserFullName.setFont(new java.awt.Font("Segoe UI", 0, 16));
+        txtUserFullName.setPreferredSize(new java.awt.Dimension(233, 42));
+        txtUserFullName.setMinimumSize(new java.awt.Dimension(0, 42));
+        txtUserFullName.setMaximumSize(new java.awt.Dimension(32767, 42));
+        txtUserFullName.setAlignmentX(0.0F);
 
-        pnlUserForm.add(pnlUserNameGroup);
 
-        pnlUserGap1.setBackground(new java.awt.Color(255, 255, 255));
-        pnlUserGap1.setMinimumSize(new java.awt.Dimension(0, 21));
-        pnlUserGap1.setPreferredSize(new java.awt.Dimension(0, 21));
-        pnlUserGap1.setMaximumSize(new java.awt.Dimension(0, 21));
-        pnlUserGap1.setOpaque(false);
-        pnlUserForm.add(pnlUserGap1);
 
         pnlUserUsernameGroup.setBackground(new java.awt.Color(255, 255, 255));
-        pnlUserUsernameGroup.setMinimumSize(new java.awt.Dimension(0, 84));
-        pnlUserUsernameGroup.setMaximumSize(new java.awt.Dimension(32767, 84));
+        pnlUserUsernameGroup.setMinimumSize(new java.awt.Dimension(0, 68));
+        pnlUserUsernameGroup.setMaximumSize(new java.awt.Dimension(32767, 68));
         pnlUserUsernameGroup.setAlignmentX(0.0F);
-        pnlUserUsernameGroup.setLayout(new java.awt.BorderLayout(0, 8));
+        pnlUserUsernameGroup.setLayout(new java.awt.BorderLayout(0, 5));
+        pnlUserUsernameGroup.setPreferredSize(new java.awt.Dimension(233, 68));
 
-        lblUserUsername.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        lblUserUsername.setForeground(new java.awt.Color(15, 23, 42));
+        lblUserUsername.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblUserUsername.setForeground(new java.awt.Color(71, 85, 105));
         lblUserUsername.setText("Username *");
         lblUserUsername.setPreferredSize(new java.awt.Dimension(0, 21));
-        pnlUserUsernameGroup.add(lblUserUsername, java.awt.BorderLayout.NORTH);
 
-        txtUserUsername.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        txtUserUsername.setPreferredSize(new java.awt.Dimension(233, 55));
-        txtUserUsername.setMinimumSize(new java.awt.Dimension(0, 55));
+        txtUserUsername.setFont(new java.awt.Font("Segoe UI", 0, 16));
+        txtUserUsername.setPreferredSize(new java.awt.Dimension(233, 42));
+        txtUserUsername.setMinimumSize(new java.awt.Dimension(0, 42));
         txtUserUsername.setToolTipText("3-50 characters: letters, numbers, dot, underscore or hyphen.");
-        pnlUserUsernameGroup.add(txtUserUsername, java.awt.BorderLayout.CENTER);
+        txtUserUsername.setMaximumSize(new java.awt.Dimension(32767, 42));
+        txtUserUsername.setAlignmentX(0.0F);
 
-        pnlUserForm.add(pnlUserUsernameGroup);
 
         pnlUserGap2.setBackground(new java.awt.Color(255, 255, 255));
-        pnlUserGap2.setMinimumSize(new java.awt.Dimension(0, 21));
-        pnlUserGap2.setPreferredSize(new java.awt.Dimension(0, 21));
-        pnlUserGap2.setMaximumSize(new java.awt.Dimension(0, 21));
+        pnlUserGap2.setMinimumSize(new java.awt.Dimension(0, 13));
+        pnlUserGap2.setPreferredSize(new java.awt.Dimension(0, 13));
+        pnlUserGap2.setMaximumSize(new java.awt.Dimension(0, 13));
         pnlUserGap2.setOpaque(false);
-        pnlUserForm.add(pnlUserGap2);
 
         pnlUserRoleRow.setBackground(new java.awt.Color(255, 255, 255));
-        pnlUserRoleRow.setMinimumSize(new java.awt.Dimension(0, 84));
-        pnlUserRoleRow.setPreferredSize(new java.awt.Dimension(233, 84));
-        pnlUserRoleRow.setMaximumSize(new java.awt.Dimension(32767, 84));
+        pnlUserRoleRow.setMinimumSize(new java.awt.Dimension(0, 68));
+        pnlUserRoleRow.setPreferredSize(new java.awt.Dimension(233, 68));
+        pnlUserRoleRow.setMaximumSize(new java.awt.Dimension(32767, 68));
         pnlUserRoleRow.setAlignmentX(0.0F);
-        pnlUserRoleRow.setLayout(new java.awt.BorderLayout(13, 0));
+        pnlUserRoleRow.setLayout(new java.awt.GridLayout(1, 2, 13, 0));
 
         pnlUserRoleGroup.setBackground(new java.awt.Color(255, 255, 255));
-        pnlUserRoleGroup.setMinimumSize(new java.awt.Dimension(0, 84));
-        pnlUserRoleGroup.setMaximumSize(new java.awt.Dimension(32767, 84));
+        pnlUserRoleGroup.setMinimumSize(new java.awt.Dimension(0, 68));
+        pnlUserRoleGroup.setMaximumSize(new java.awt.Dimension(32767, 68));
         pnlUserRoleGroup.setAlignmentX(0.0F);
-        pnlUserRoleGroup.setLayout(new java.awt.BorderLayout(0, 8));
+        pnlUserRoleGroup.setLayout(new java.awt.BorderLayout(0, 5));
+        pnlUserRoleGroup.setPreferredSize(new java.awt.Dimension(233, 68));
 
-        lblUserRole.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        lblUserRole.setForeground(new java.awt.Color(15, 23, 42));
+        lblUserRole.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblUserRole.setForeground(new java.awt.Color(71, 85, 105));
         lblUserRole.setText("Role *");
         lblUserRole.setPreferredSize(new java.awt.Dimension(0, 21));
-        pnlUserRoleGroup.add(lblUserRole, java.awt.BorderLayout.NORTH);
 
-        cmbUserRole.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        cmbUserRole.setFont(new java.awt.Font("Segoe UI", 0, 16));
         cmbUserRole.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Select role", "Admin", "Staff", "Veterinarian" }));
-        cmbUserRole.setMinimumSize(new java.awt.Dimension(0, 55));
-        cmbUserRole.setPreferredSize(new java.awt.Dimension(233, 55));
-        pnlUserRoleGroup.add(cmbUserRole, java.awt.BorderLayout.CENTER);
+        cmbUserRole.setMinimumSize(new java.awt.Dimension(0, 42));
+        cmbUserRole.setPreferredSize(new java.awt.Dimension(233, 42));
+        cmbUserRole.setMaximumSize(new java.awt.Dimension(32767, 42));
+        cmbUserRole.setAlignmentX(0.0F);
 
-        pnlUserRoleRow.add(pnlUserRoleGroup, java.awt.BorderLayout.CENTER);
 
         pnlUserActiveGroup.setBackground(new java.awt.Color(255, 255, 255));
-        pnlUserActiveGroup.setPreferredSize(new java.awt.Dimension(144, 84));
-        pnlUserActiveGroup.setLayout(new java.awt.BorderLayout(0, 8));
+        pnlUserActiveGroup.setPreferredSize(new java.awt.Dimension(233, 68));
+        pnlUserActiveGroup.setLayout(new java.awt.BorderLayout(0, 5));
+        pnlUserActiveGroup.setMinimumSize(new java.awt.Dimension(0, 68));
+        pnlUserActiveGroup.setMaximumSize(new java.awt.Dimension(32767, 68));
+        pnlUserActiveGroup.setAlignmentX(0.0F);
 
-        lblUserActive.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        lblUserActive.setForeground(new java.awt.Color(15, 23, 42));
+        lblUserActive.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblUserActive.setForeground(new java.awt.Color(71, 85, 105));
         lblUserActive.setText("Status");
         lblUserActive.setPreferredSize(new java.awt.Dimension(0, 21));
-        pnlUserActiveGroup.add(lblUserActive, java.awt.BorderLayout.NORTH);
 
-        chkUserActive.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        chkUserActive.setFont(new java.awt.Font("Segoe UI", 0, 16));
         chkUserActive.setSelected(true);
         chkUserActive.setText("Active account");
-        pnlUserActiveGroup.add(chkUserActive, java.awt.BorderLayout.CENTER);
+        chkUserActive.setMinimumSize(new java.awt.Dimension(0, 42));
+        chkUserActive.setPreferredSize(new java.awt.Dimension(233, 42));
+        chkUserActive.setMaximumSize(new java.awt.Dimension(32767, 42));
+        chkUserActive.setAlignmentX(0.0F);
 
-        pnlUserRoleRow.add(pnlUserActiveGroup, java.awt.BorderLayout.EAST);
 
-        pnlUserForm.add(pnlUserRoleRow);
 
         pnlUserGap3.setBackground(new java.awt.Color(255, 255, 255));
-        pnlUserGap3.setMinimumSize(new java.awt.Dimension(0, 21));
-        pnlUserGap3.setPreferredSize(new java.awt.Dimension(0, 21));
-        pnlUserGap3.setMaximumSize(new java.awt.Dimension(0, 21));
+        pnlUserGap3.setMinimumSize(new java.awt.Dimension(0, 13));
+        pnlUserGap3.setPreferredSize(new java.awt.Dimension(0, 13));
+        pnlUserGap3.setMaximumSize(new java.awt.Dimension(0, 13));
         pnlUserGap3.setOpaque(false);
-        pnlUserForm.add(pnlUserGap3);
 
         pnlUserPasswordRow.setBackground(new java.awt.Color(255, 255, 255));
-        pnlUserPasswordRow.setMinimumSize(new java.awt.Dimension(0, 84));
-        pnlUserPasswordRow.setPreferredSize(new java.awt.Dimension(233, 84));
-        pnlUserPasswordRow.setMaximumSize(new java.awt.Dimension(32767, 84));
+        pnlUserPasswordRow.setMinimumSize(new java.awt.Dimension(0, 68));
+        pnlUserPasswordRow.setPreferredSize(new java.awt.Dimension(233, 68));
+        pnlUserPasswordRow.setMaximumSize(new java.awt.Dimension(32767, 68));
         pnlUserPasswordRow.setAlignmentX(0.0F);
         pnlUserPasswordRow.setLayout(new java.awt.GridLayout(1, 2, 13, 0));
 
         pnlUserPasswordGroup.setBackground(new java.awt.Color(255, 255, 255));
-        pnlUserPasswordGroup.setMinimumSize(new java.awt.Dimension(0, 84));
-        pnlUserPasswordGroup.setMaximumSize(new java.awt.Dimension(32767, 84));
+        pnlUserPasswordGroup.setMinimumSize(new java.awt.Dimension(0, 68));
+        pnlUserPasswordGroup.setMaximumSize(new java.awt.Dimension(32767, 68));
         pnlUserPasswordGroup.setAlignmentX(0.0F);
-        pnlUserPasswordGroup.setLayout(new java.awt.BorderLayout(0, 8));
+        pnlUserPasswordGroup.setLayout(new java.awt.BorderLayout(0, 5));
+        pnlUserPasswordGroup.setPreferredSize(new java.awt.Dimension(233, 68));
 
-        lblUserPassword.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        lblUserPassword.setForeground(new java.awt.Color(15, 23, 42));
+        lblUserPassword.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblUserPassword.setForeground(new java.awt.Color(71, 85, 105));
         lblUserPassword.setText("Password *");
         lblUserPassword.setPreferredSize(new java.awt.Dimension(0, 21));
-        pnlUserPasswordGroup.add(lblUserPassword, java.awt.BorderLayout.NORTH);
 
-        pwdUserPassword.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        pwdUserPassword.setPreferredSize(new java.awt.Dimension(233, 55));
-        pwdUserPassword.setMinimumSize(new java.awt.Dimension(0, 55));
-        pnlUserPasswordGroup.add(pwdUserPassword, java.awt.BorderLayout.CENTER);
+        pwdUserPassword.setFont(new java.awt.Font("Segoe UI", 0, 16));
+        pwdUserPassword.setPreferredSize(new java.awt.Dimension(233, 42));
+        pwdUserPassword.setMinimumSize(new java.awt.Dimension(0, 42));
+        pwdUserPassword.setMaximumSize(new java.awt.Dimension(32767, 42));
+        pwdUserPassword.setAlignmentX(0.0F);
 
-        pnlUserPasswordRow.add(pnlUserPasswordGroup);
 
         pnlUserConfirmGroup.setBackground(new java.awt.Color(255, 255, 255));
-        pnlUserConfirmGroup.setMinimumSize(new java.awt.Dimension(0, 84));
-        pnlUserConfirmGroup.setMaximumSize(new java.awt.Dimension(32767, 84));
+        pnlUserConfirmGroup.setMinimumSize(new java.awt.Dimension(0, 68));
+        pnlUserConfirmGroup.setMaximumSize(new java.awt.Dimension(32767, 68));
         pnlUserConfirmGroup.setAlignmentX(0.0F);
-        pnlUserConfirmGroup.setLayout(new java.awt.BorderLayout(0, 8));
+        pnlUserConfirmGroup.setLayout(new java.awt.BorderLayout(0, 5));
+        pnlUserConfirmGroup.setPreferredSize(new java.awt.Dimension(233, 68));
 
-        lblUserConfirmPassword.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        lblUserConfirmPassword.setForeground(new java.awt.Color(15, 23, 42));
+        lblUserConfirmPassword.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        lblUserConfirmPassword.setForeground(new java.awt.Color(71, 85, 105));
         lblUserConfirmPassword.setText("Confirm password *");
         lblUserConfirmPassword.setPreferredSize(new java.awt.Dimension(0, 21));
-        pnlUserConfirmGroup.add(lblUserConfirmPassword, java.awt.BorderLayout.NORTH);
 
-        pwdUserConfirmPassword.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
-        pwdUserConfirmPassword.setPreferredSize(new java.awt.Dimension(233, 55));
-        pwdUserConfirmPassword.setMinimumSize(new java.awt.Dimension(0, 55));
-        pnlUserConfirmGroup.add(pwdUserConfirmPassword, java.awt.BorderLayout.CENTER);
+        pwdUserConfirmPassword.setFont(new java.awt.Font("Segoe UI", 0, 16));
+        pwdUserConfirmPassword.setPreferredSize(new java.awt.Dimension(233, 42));
+        pwdUserConfirmPassword.setMinimumSize(new java.awt.Dimension(0, 42));
+        pwdUserConfirmPassword.setMaximumSize(new java.awt.Dimension(32767, 42));
+        pwdUserConfirmPassword.setAlignmentX(0.0F);
 
-        pnlUserPasswordRow.add(pnlUserConfirmGroup);
 
-        pnlUserForm.add(pnlUserPasswordRow);
 
         pnlUserGap4.setBackground(new java.awt.Color(255, 255, 255));
         pnlUserGap4.setMinimumSize(new java.awt.Dimension(0, 13));
         pnlUserGap4.setPreferredSize(new java.awt.Dimension(0, 13));
         pnlUserGap4.setMaximumSize(new java.awt.Dimension(0, 13));
         pnlUserGap4.setOpaque(false);
-        pnlUserForm.add(pnlUserGap4);
 
         chkShowUserPassword.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         chkShowUserPassword.setText("Show passwords");
         chkShowUserPassword.setMaximumSize(new java.awt.Dimension(32767, 21));
         chkShowUserPassword.setMinimumSize(new java.awt.Dimension(0, 21));
         chkShowUserPassword.setPreferredSize(new java.awt.Dimension(233, 21));
+        chkShowUserPassword.setAlignmentX(0.0F);
         chkShowUserPassword.addActionListener(this::chkShowUserPasswordActionPerformed);
-        pnlUserForm.add(chkShowUserPassword);
 
         pnlUserGap5.setBackground(new java.awt.Color(255, 255, 255));
         pnlUserGap5.setMinimumSize(new java.awt.Dimension(0, 8));
         pnlUserGap5.setPreferredSize(new java.awt.Dimension(0, 8));
         pnlUserGap5.setMaximumSize(new java.awt.Dimension(0, 8));
         pnlUserGap5.setOpaque(false);
-        pnlUserForm.add(pnlUserGap5);
 
-        lblUserPasswordHint.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        lblUserPasswordHint.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblUserPasswordHint.setForeground(new java.awt.Color(71, 85, 105));
         lblUserPasswordHint.setText("<html>Use a password of 6–128 characters.</html>");
-        lblUserPasswordHint.setMaximumSize(new java.awt.Dimension(32767, 42));
-        lblUserPasswordHint.setMinimumSize(new java.awt.Dimension(0, 42));
-        lblUserPasswordHint.setPreferredSize(new java.awt.Dimension(233, 42));
-        pnlUserForm.add(lblUserPasswordHint);
+        lblUserPasswordHint.setMaximumSize(new java.awt.Dimension(32767, 34));
+        lblUserPasswordHint.setMinimumSize(new java.awt.Dimension(0, 34));
+        lblUserPasswordHint.setPreferredSize(new java.awt.Dimension(233, 34));
+        lblUserPasswordHint.setAlignmentX(0.0F);
+        lblUserPasswordHint.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 
         pnlUserFormGlue.setBackground(new java.awt.Color(255, 255, 255));
         pnlUserFormGlue.setMinimumSize(new java.awt.Dimension(0, 0));
         pnlUserFormGlue.setPreferredSize(new java.awt.Dimension(0, 0));
         pnlUserFormGlue.setAlignmentX(0.0F);
         pnlUserFormGlue.setOpaque(false);
-        pnlUserForm.add(pnlUserFormGlue);
 
-        scrUserForm.setViewportView(pnlUserForm);
+        scrUserForm.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 
-        pnlUserDialog.add(scrUserForm, java.awt.BorderLayout.CENTER);
 
         pnlUserDialogFooter.setBackground(new java.awt.Color(255, 255, 255));
         pnlUserDialogFooter.setLayout(new java.awt.BorderLayout(0, 8));
 
-        lblUserError.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
+        lblUserError.setFont(new java.awt.Font("Segoe UI", 0, 13));
         lblUserError.setForeground(new java.awt.Color(185, 28, 28));
         lblUserError.setText(" ");
         lblUserError.setPreferredSize(new java.awt.Dimension(0, 34));
-        pnlUserDialogFooter.add(lblUserError, java.awt.BorderLayout.NORTH);
+        lblUserError.setMinimumSize(new java.awt.Dimension(0, 34));
+        lblUserError.setMaximumSize(new java.awt.Dimension(32767, 34));
+        lblUserError.setAlignmentX(0.0F);
 
         pnlUserDialogButtonRow.setBackground(new java.awt.Color(255, 255, 255));
         pnlUserDialogButtonRow.setLayout(new java.awt.BorderLayout());
@@ -341,39 +420,83 @@ public class DialogUser extends JDialog {
         pnlUserDialogButtons.setBackground(new java.awt.Color(255, 255, 255));
         pnlUserDialogButtons.setLayout(new javax.swing.BoxLayout(pnlUserDialogButtons, javax.swing.BoxLayout.X_AXIS));
 
-        btnCancelUser.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
+        btnCancelUser.setFont(new java.awt.Font("Segoe UI", 0, 14));
         btnCancelUser.setForeground(new java.awt.Color(15, 118, 110));
         btnCancelUser.setText("Cancel");
-        btnCancelUser.setMaximumSize(new java.awt.Dimension(144, 55));
-        btnCancelUser.setMinimumSize(new java.awt.Dimension(144, 55));
-        btnCancelUser.setPreferredSize(new java.awt.Dimension(144, 55));
+        btnCancelUser.setMaximumSize(new java.awt.Dimension(144, 42));
+        btnCancelUser.setMinimumSize(new java.awt.Dimension(144, 42));
+        btnCancelUser.setPreferredSize(new java.awt.Dimension(144, 42));
+        btnCancelUser.setBackground(new java.awt.Color(255, 255, 255));
         btnCancelUser.addActionListener(this::btnCancelUserActionPerformed);
-        pnlUserDialogButtons.add(btnCancelUser);
 
         pnlUserButtonGap.setBackground(new java.awt.Color(255, 255, 255));
         pnlUserButtonGap.setMinimumSize(new java.awt.Dimension(13, 0));
         pnlUserButtonGap.setPreferredSize(new java.awt.Dimension(13, 0));
         pnlUserButtonGap.setMaximumSize(new java.awt.Dimension(13, 0));
         pnlUserButtonGap.setOpaque(false);
-        pnlUserDialogButtons.add(pnlUserButtonGap);
 
         btnSaveUser.setBackground(new java.awt.Color(15, 118, 110));
-        btnSaveUser.setFont(new java.awt.Font("Segoe UI", 1, 16)); // NOI18N
+        btnSaveUser.setFont(new java.awt.Font("Segoe UI", 1, 14));
         btnSaveUser.setForeground(new java.awt.Color(255, 255, 255));
         btnSaveUser.setText("Save");
-        btnSaveUser.setEnabled(false);
-        btnSaveUser.setMaximumSize(new java.awt.Dimension(144, 55));
-        btnSaveUser.setMinimumSize(new java.awt.Dimension(144, 55));
-        btnSaveUser.setPreferredSize(new java.awt.Dimension(144, 55));
+        btnSaveUser.setEnabled(true);
+        btnSaveUser.setMaximumSize(new java.awt.Dimension(144, 42));
+        btnSaveUser.setMinimumSize(new java.awt.Dimension(144, 42));
+        btnSaveUser.setPreferredSize(new java.awt.Dimension(144, 42));
         btnSaveUser.addActionListener(this::btnSaveUserActionPerformed);
+
+
+
+
+
+
+        pnlUserIdentityRow.setBackground(new java.awt.Color(255, 255, 255));
+        pnlUserIdentityRow.setLayout(new java.awt.GridLayout(1, 2, 13, 0));
+        pnlUserIdentityRow.setMinimumSize(new java.awt.Dimension(0, 68));
+        pnlUserIdentityRow.setPreferredSize(new java.awt.Dimension(233, 68));
+        pnlUserIdentityRow.setMaximumSize(new java.awt.Dimension(32767, 68));
+        pnlUserIdentityRow.setAlignmentX(0.0F);
+
+        pnlUserDialogHeader.add(lblUserDialogTitle, java.awt.BorderLayout.NORTH);
+        pnlUserDialogHeader.add(lblUserDialogSubtitle, java.awt.BorderLayout.CENTER);
+        pnlUserNameGroup.add(lblUserFullName, java.awt.BorderLayout.NORTH);
+        pnlUserNameGroup.add(txtUserFullName, java.awt.BorderLayout.CENTER);
+        pnlUserUsernameGroup.add(lblUserUsername, java.awt.BorderLayout.NORTH);
+        pnlUserUsernameGroup.add(txtUserUsername, java.awt.BorderLayout.CENTER);
+        pnlUserIdentityRow.add(pnlUserNameGroup);
+        pnlUserIdentityRow.add(pnlUserUsernameGroup);
+        pnlUserRoleGroup.add(lblUserRole, java.awt.BorderLayout.NORTH);
+        pnlUserRoleGroup.add(cmbUserRole, java.awt.BorderLayout.CENTER);
+        pnlUserActiveGroup.add(lblUserActive, java.awt.BorderLayout.NORTH);
+        pnlUserActiveGroup.add(chkUserActive, java.awt.BorderLayout.CENTER);
+        pnlUserRoleRow.add(pnlUserRoleGroup);
+        pnlUserRoleRow.add(pnlUserActiveGroup);
+        pnlUserPasswordGroup.add(lblUserPassword, java.awt.BorderLayout.NORTH);
+        pnlUserPasswordGroup.add(pwdUserPassword, java.awt.BorderLayout.CENTER);
+        pnlUserConfirmGroup.add(lblUserConfirmPassword, java.awt.BorderLayout.NORTH);
+        pnlUserConfirmGroup.add(pwdUserConfirmPassword, java.awt.BorderLayout.CENTER);
+        pnlUserPasswordRow.add(pnlUserPasswordGroup);
+        pnlUserPasswordRow.add(pnlUserConfirmGroup);
+        pnlUserForm.add(pnlUserIdentityRow);
+        pnlUserForm.add(pnlUserGap2);
+        pnlUserForm.add(pnlUserRoleRow);
+        pnlUserForm.add(pnlUserGap3);
+        pnlUserForm.add(pnlUserPasswordRow);
+        pnlUserForm.add(pnlUserGap4);
+        pnlUserForm.add(chkShowUserPassword);
+        pnlUserForm.add(pnlUserGap5);
+        pnlUserForm.add(lblUserPasswordHint);
+        pnlUserForm.add(pnlUserFormGlue);
+        scrUserForm.setViewportView(pnlUserForm);
+        pnlUserDialogButtons.add(btnCancelUser);
+        pnlUserDialogButtons.add(pnlUserButtonGap);
         pnlUserDialogButtons.add(btnSaveUser);
-
         pnlUserDialogButtonRow.add(pnlUserDialogButtons, java.awt.BorderLayout.EAST);
-
+        pnlUserDialogFooter.add(lblUserError, java.awt.BorderLayout.NORTH);
         pnlUserDialogFooter.add(pnlUserDialogButtonRow, java.awt.BorderLayout.CENTER);
-
+        pnlUserDialog.add(pnlUserDialogHeader, java.awt.BorderLayout.NORTH);
+        pnlUserDialog.add(scrUserForm, java.awt.BorderLayout.CENTER);
         pnlUserDialog.add(pnlUserDialogFooter, java.awt.BorderLayout.SOUTH);
-
         getContentPane().add(pnlUserDialog, java.awt.BorderLayout.CENTER);
 
         pack();
@@ -396,7 +519,9 @@ public class DialogUser extends JDialog {
     }//GEN-LAST:event_chkShowUserPasswordActionPerformed
 
     private void btnSaveUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveUserActionPerformed
-        
+        if (controller != null) {
+            controller.saveUser();
+        }
     }//GEN-LAST:event_btnSaveUserActionPerformed
 
     /**
@@ -404,6 +529,7 @@ public class DialogUser extends JDialog {
      */
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel pnlUserIdentityRow;
     private javax.swing.JButton btnCancelUser;
     private javax.swing.JButton btnSaveUser;
     private javax.swing.JCheckBox chkShowUserPassword;
@@ -429,7 +555,6 @@ public class DialogUser extends JDialog {
     private javax.swing.JPanel pnlUserDialogHeader;
     private javax.swing.JPanel pnlUserForm;
     private javax.swing.JPanel pnlUserFormGlue;
-    private javax.swing.JPanel pnlUserGap1;
     private javax.swing.JPanel pnlUserGap2;
     private javax.swing.JPanel pnlUserGap3;
     private javax.swing.JPanel pnlUserGap4;

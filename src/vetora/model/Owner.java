@@ -22,20 +22,25 @@ public class Owner {
         this.email = email;
         this.adress = adress;
     }
-    
-    public long getOwnerId(){
+
+    public long getOwnerId() {
         return ownerId;
     }
-    public String getFullName(){
+
+    public String getFullName() {
         return fullName;
     }
-    public String getPhone(){
+
+    public String getPhone() {
         return phone;
     }
-    public String getemail(){
+
+    public String getEmail() {
         return email;
     }
-    public String getAddress(){
+
+    public String getAdress() {
         return adress;
-    }
+    }    
+    
 }
