@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.time.format.DateTimeFormatter;
 import java.time.ZoneId;
 import java.util.Date;
+import javax.swing.JFormattedTextField;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JOptionPane;
 import vetora.model.Pet;
@@ -226,6 +227,7 @@ public class PanelAppointment extends javax.swing.JPanel {
         editor.getFormat().setTimeZone(java.util.TimeZone.getTimeZone("Asia/Colombo"));
 
         spinner.setEditor(editor);
+        editor.getTextField().setFocusLostBehavior(JFormattedTextField.PERSIST);
         editor.getTextField().setValue(today);
     }
     

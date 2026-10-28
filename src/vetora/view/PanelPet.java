@@ -19,6 +19,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.Arrays;
 import java.util.Objects;
+import javax.swing.JFormattedTextField;
 import javax.swing.JOptionPane;
 import vetora.controller.PetController;
 
@@ -182,6 +183,7 @@ public class PanelPet extends javax.swing.JPanel {
         dateEditor.getFormat().setLenient(false);
         dateEditor.getFormat().setTimeZone(java.util.TimeZone.getTimeZone("Asia/Colombo"));
         spnPetDob.setEditor(dateEditor);
+        dateEditor.getTextField().setFocusLostBehavior(JFormattedTextField.PERSIST);
     }
     
     

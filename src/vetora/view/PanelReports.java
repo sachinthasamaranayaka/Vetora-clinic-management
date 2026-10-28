@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 import javax.swing.JFileChooser;
+import javax.swing.JFormattedTextField;
 import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -52,8 +53,16 @@ public class PanelReports extends javax.swing.JPanel {
         btnExportPdf.setEnabled(false);
         lblReportStatus.setText("Ready to generate report.");
         
-        spnReportFrom.setEditor(new JSpinner.DateEditor(spnReportFrom, "yyyy-MM-dd"));
-        spnReportTo.setEditor(new JSpinner.DateEditor(spnReportTo, "yyyy-MM-dd"));
+        JSpinner.DateEditor fromEditor = new JSpinner.DateEditor(spnReportFrom, "yyyy-MM-dd");
+        fromEditor.getFormat().setLenient(false);
+        spnReportFrom.setEditor(fromEditor);
+        
+        JSpinner.DateEditor toEditor = new JSpinner.DateEditor(spnReportTo, "yyyy-MM-dd");
+        toEditor.getFormat().setLenient(false);
+        spnReportTo.setEditor(toEditor);
+        
+        fromEditor.getTextField().setFocusLostBehavior(JFormattedTextField.PERSIST);
+        toEditor.getTextField().setFocusLostBehavior(JFormattedTextField.PERSIST);
         
         setReportBusy(false, false);
     }
