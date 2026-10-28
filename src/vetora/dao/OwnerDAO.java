@@ -5,7 +5,6 @@
 package vetora.dao;
 
 
-import com.mysql.cj.x.protobuf.MysqlxSql;
 import java.util.List;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -53,7 +52,11 @@ public class OwnerDAO {
     public List<Owner> searchOwners(String keyword) throws SQLException {
         List<Owner> owners = new ArrayList<>();
         
-        String sql = "SELECT owner_id,full_name,phone,email,address FROM owners WHERE full_name LIKE ? OR phone LIKE ? ORDER BY owner_id";
+        String sql = "SELECT o.owner_id,o.full_name,o.phone,o.email,o.address, "
+                + "(SELECT COUNT(*) FROM pets p WHERE p.owner_id = o.owner_id) AS pet_count "
+                + "FROM owners o "
+                + "WHERE o.full_name LIKE ? OR o.phone LIKE ? "
+                + "ORDER BY o.owner_id";
         
         try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)){
             String pattern = "%" + keyword + "%";
