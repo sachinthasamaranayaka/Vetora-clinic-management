@@ -14,6 +14,7 @@ public class Owner {
     private final String phone;
     private final String email;
     private final String adress;
+    private int petCount;
     
     public Owner(long ownerID, String fullName, String phone, String email, String adress){
         this.ownerId = ownerID;
@@ -21,6 +22,10 @@ public class Owner {
         this.phone = phone;
         this.email = email;
         this.adress = adress;
+    }
+    
+    public void setPetCount(int petCount) {
+        this.petCount = petCount;
     }
 
     public long getOwnerId() {
@@ -41,6 +46,10 @@ public class Owner {
 
     public String getAdress() {
         return adress;
-    }    
+    } 
+
+    public int getPetCount() {
+        return petCount;
+    }
     
 }

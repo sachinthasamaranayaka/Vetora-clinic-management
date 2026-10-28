@@ -94,7 +94,7 @@ public class PanelOwner extends javax.swing.JPanel {
                 owner.getOwnerId(),
                 owner.getFullName(),
                 owner.getPhone(),
-                null
+                owner.getPetCount()
             });
         }
         

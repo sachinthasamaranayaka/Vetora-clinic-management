@@ -23,7 +23,9 @@ public class OwnerDAO {
     public List<Owner> getAllOwners() throws SQLException{
         List<Owner> owners = new ArrayList<>();
         
-        String sql = "SELECT owner_id,full_name,phone,email,address FROM owners ORDER BY owner_id";
+        String sql = "SELECT o.owner_id,o.full_name,o.phone,o.email,o.address, "
+                + "(SELECT COUNT(*) FROM pets p WHERE p.owner_id = o.owner_id) AS pet_count "
+                + "FROM owners o ORDER BY o.owner_id";
         
         try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql); ResultSet result = stmt.executeQuery()) {
             while (result.next()){
@@ -60,7 +62,9 @@ public class OwnerDAO {
             
             try (ResultSet result = stmt.executeQuery()){
                 while (result.next()){
-                    owners.add(new Owner(result.getLong("owner_id"),result.getString("full_name"),result.getString("phone"),result.getString("email"),result.getString("address")));
+                    Owner owner = new Owner(result.getLong("owner_id"),result.getString("full_name"),result.getString("phone"),result.getString("email"),result.getString("address"));
+                    owner.setPetCount(result.getInt("pet_count"));
+                    owners.add(owner);
                 }
             }
         }
