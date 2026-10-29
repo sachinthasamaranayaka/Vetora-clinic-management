@@ -88,19 +88,23 @@ public class UserDAO {
 
     public User saveUser(User original, String fullName, String username, String role, String status, String passwordHash, long currentUserId) throws SQLException, ValidationException {
         long userId = original == null ? 0 : original.getUserId();
+        
         try (Connection con = DBConnection.getConnection()) {
             con.setAutoCommit(false);
             try {
                
                 User stored = null;
+                Long storedVeterinarianId = null;
                 int otherAdmins = 0;
-                String lockSql = "SELECT user_id, full_name, username, role, status FROM users ORDER BY user_id FOR UPDATE";
+                String lockSql = "SELECT user_id, full_name, username, role, status, veterinarian_id FROM users ORDER BY user_id FOR UPDATE";
                 try (PreparedStatement stmt = con.prepareStatement(lockSql); ResultSet result = stmt.executeQuery()) {
                     while (result.next()) {
                         long id = result.getLong("user_id");
                         if (id == userId) {
                             stored = new User(id, result.getString("full_name"), result.getString("username"),
                                     result.getString("role"), result.getString("status"));
+                            long linkedId = result.getLong("veterinarian_id");
+                            storedVeterinarianId = result.wasNull() ? null : linkedId;
                         }
                         else if ("Admin".equals(result.getString("role")) && "Active".equals(result.getString("status"))) {
                             otherAdmins++;
@@ -133,7 +137,13 @@ public class UserDAO {
                     }
                 }
                 
-                Long veterinarianId = getVeterinarianId(con, role, userId);
+                Long veterinarianId;
+                if (stored != null && "Veterinarian".equals(stored.getRole()) && "Veterinarian".equals(role) && "Inactive".equals(status)) {
+                    veterinarianId = storedVeterinarianId;
+                }
+                else {
+                    veterinarianId = getVeterinarianId(con, role, userId);
+                }
                 
                 if (original == null) {
                     if (passwordHash == null) {
