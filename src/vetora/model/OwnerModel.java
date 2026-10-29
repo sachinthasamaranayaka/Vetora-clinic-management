@@ -31,8 +31,9 @@ public class OwnerModel {
         if (fullName.isEmpty() || fullName.length() > 100){
             throw new ValidationException("Enter a full name of 1-100 characters.");
         }
-        if (phone.isEmpty() || phone.length() > 11 || !phone.matches("\\+?[0-9][0-9 -]*")) {
-            throw new ValidationException("Enter a phone number, up to 11 characters.");
+        phone = phone.replace(" ", "").replace("-", "");
+        if (!phone.matches("(?:0[1-9][0-9]{8}|\\+94[1-9][0-9]{8})")) {
+            throw new ValidationException("Enter a valid phone number: 0771234567 or +94771234567");
         }
         if (!email.isEmpty()&& (email.length() > 254 || !email.matches("[^\\s@]+@[^\\s@]+\\.[^\\s@]+"))) {
             throw new ValidationException("Enter a valid email address.");

@@ -28,7 +28,9 @@ public class OwnerDAO {
         
         try (Connection conn = DBConnection.getConnection(); PreparedStatement stmt = conn.prepareStatement(sql); ResultSet result = stmt.executeQuery()) {
             while (result.next()){
-                owners.add(new Owner (result.getLong("owner_id"),result.getString("full_name"),result.getString("phone"),result.getString("email"),result.getString("address")));
+                Owner owner= new Owner (result.getLong("owner_id"),result.getString("full_name"),result.getString("phone"),result.getString("email"),result.getString("address"));
+                owner.setPetCount(result.getInt("pet_count"));
+                owners.add(owner);
             }
         }
         

@@ -505,6 +505,9 @@
                           <Dimension value="[207, 42]"/>
                         </Property>
                       </Properties>
+                      <Events>
+                        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnOwnersActionPerformed"/>
+                      </Events>
                     </Component>
                     <Component class="javax.swing.Box$Filler" name="filler2">
                       <Properties>

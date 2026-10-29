@@ -122,6 +122,7 @@ public class FormMain extends javax.swing.JFrame {
         OwnerController ownnerController = new OwnerController(ownerModel, ownerView, accessControl);
         ownerView.setController(ownnerController);
         registerPage("owners",ownerView,btnOwners,"Owners","Manage owner details");
+        btnOwners.addActionListener(e -> ownnerController.loadOwners());
         ownnerController.loadOwners();
         
         PanelPet petView = new PanelPet();
@@ -139,51 +140,51 @@ public class FormMain extends javax.swing.JFrame {
         btnAppointments.addActionListener(e -> {appointmentController.loadFormOptions(); appointmentController.loadAppointments();});
         
         if (accessControl.canEditConsultation()) {
-        PanelConsultation consultationView = new PanelConsultation();
-        ConsultationModel consultationModel = new ConsultationModel();
-        ConsultationController consultationController = new ConsultationController(consultationModel, consultationView, accessControl);
-        consultationView.setController(consultationController);
-        registerPage("consultations",consultationView , btnConsultations,"Consultations", "Record clinical notes and prescriptions");
-        btnConsultations.addActionListener(e -> consultationController.loadAppointments());
+            PanelConsultation consultationView = new PanelConsultation();
+            ConsultationModel consultationModel = new ConsultationModel();
+            ConsultationController consultationController = new ConsultationController(consultationModel, consultationView, accessControl);
+            consultationView.setController(consultationController);
+            registerPage("consultations",consultationView , btnConsultations,"Consultations", "Record clinical notes and prescriptions");
+            btnConsultations.addActionListener(e -> consultationController.loadAppointments());
         }
         
         
         if (accessControl.canManageBilling()) {
-        PanelBilling billingView = new PanelBilling();
-        BillingModel billingModel = new BillingModel();
-        BillingController billingController = new BillingController(billingModel, billingView, accessControl);
-        billingView.setController(billingController);
-        registerPage("billing", billingView, btnBilling, "Billing", "Manage invoices");
-        btnBilling.addActionListener(e -> billingController.loadConsultations());
+            PanelBilling billingView = new PanelBilling();
+            BillingModel billingModel = new BillingModel();
+            BillingController billingController = new BillingController(billingModel, billingView, accessControl);
+            billingView.setController(billingController);
+            registerPage("billing", billingView, btnBilling, "Billing", "Manage invoices");
+            btnBilling.addActionListener(e -> billingController.loadConsultations());
         }
         
         
         if (accessControl.canViewClinicalReports()) {
-        registerPage("reports", new PanelReports(accessControl),btnReports,"Reports","View consultation history and export reports");
+            registerPage("reports", new PanelReports(accessControl),btnReports,"Reports","View consultation history and export reports");
         }
         
         
         if (accessControl.canManageUsers()) {
-        PanelUser userView = new PanelUser();
-        UserModel userModel = new UserModel();
-        UserController userController = new UserController(userModel, userView, currentUser.getUserId(), accessControl);
-        registerPage("users",userView,btnUser,"Users","Create accounts, update details and manage account status");
-        userView.setController(userController);
-        userView.setSavedUserAction(saved -> {
-                if (saved.getUserId() == currentUser.getUserId()) {
-                    if (!currentUser.getRole().equals(saved.getRole())
-                            || !"Active".equals(saved.getStatus())) {
-                        JOptionPane.showMessageDialog(this, "Your account permissions changed. Please sign in again.");
-                        btnLogoutActionPerformed(null);
-                        return;
+            PanelUser userView = new PanelUser();
+            UserModel userModel = new UserModel();
+            UserController userController = new UserController(userModel, userView, currentUser.getUserId(), accessControl);
+            registerPage("users",userView,btnUser,"Users","Create accounts, update details and manage account status");
+            userView.setController(userController);
+            userView.setSavedUserAction(saved -> {
+                    if (saved.getUserId() == currentUser.getUserId()) {
+                        if (!currentUser.getRole().equals(saved.getRole())
+                                || !"Active".equals(saved.getStatus())) {
+                            JOptionPane.showMessageDialog(this, "Your account permissions changed. Please sign in again.");
+                            btnLogoutActionPerformed(null);
+                            return;
+                        }
+                        currentUser = saved;
+                        jLabelUserName.setText(saved.getFullName());
+                        jLabelUserName.setToolTipText(saved.getFullName());
+                        jLabelUserRole.setText(saved.getRole());
                     }
-                    currentUser = saved;
-                    jLabelUserName.setText(saved.getFullName());
-                    jLabelUserName.setToolTipText(saved.getFullName());
-                    jLabelUserRole.setText(saved.getRole());
-                }
-            });
-        btnUser.addActionListener(e -> userController.loadUsers());
+                });
+            btnUser.addActionListener(e -> userController.loadUsers());
         }
 
         dashboard.setNavigation(
@@ -452,6 +453,7 @@ public class FormMain extends javax.swing.JFrame {
         btnOwners.setMinimumSize(new java.awt.Dimension(207, 42));
         btnOwners.setOpaque(true);
         btnOwners.setPreferredSize(new java.awt.Dimension(207, 42));
+        btnOwners.addActionListener(this::btnOwnersActionPerformed);
         jPanelNavMenu.add(btnOwners);
         jPanelNavMenu.add(filler2);
 
@@ -592,6 +594,10 @@ public class FormMain extends javax.swing.JFrame {
         loginForm.setVisible(true);
         dispose();
     }//GEN-LAST:event_btnLogoutActionPerformed
+
+    private void btnOwnersActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOwnersActionPerformed
+        
+    }//GEN-LAST:event_btnOwnersActionPerformed
 
     /**
      * @param args the command line arguments
